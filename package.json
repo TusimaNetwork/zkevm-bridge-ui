@@ -26,6 +26,7 @@
     "react-jss": "^10.9.1",
     "react-router-dom": "^6.3.0",
     "stacktrace-js": "^2.0.2",
+    "typechain": "^8.3.2",
     "zod": "^3.20.2"
   },
   "devDependencies": {

@@ -23,31 +23,31 @@ interface GetFiatExchangeRatesError {
   };
 }
 
-const fiatExchangeRatesKeyParser = StrictSchema<keyof FiatExchangeRates>()(
-  z.union([
-    z.literal("EUR"),
-    z.literal("USD"),
-    z.literal("JPY"),
-    z.literal("GBP"),
-    z.literal("CNY"),
-  ])
-);
+// const fiatExchangeRatesKeyParser = StrictSchema<keyof FiatExchangeRates>()(
+//   z.union([
+//     z.literal("EUR"),
+//     z.literal("USD"),
+//     z.literal("JPY"),
+//     z.literal("GBP"),
+//     z.literal("CNY"),
+//   ])
+// );
 
-const getFiatExchangeRatesSuccessResponseParser =
-  StrictSchema<GetFiatExchangeRatesSuccessResponse>()(
-    z.object({ rates: z.record(fiatExchangeRatesKeyParser, z.number()) })
-  );
+// const getFiatExchangeRatesSuccessResponseParser =
+//   StrictSchema<GetFiatExchangeRatesSuccessResponse>()(
+//     z.object({ rates: z.record(fiatExchangeRatesKeyParser, z.number()) })
+//   );
 
-const getFiatExchangeRatesUnsuccessResponseParser =
-  StrictSchema<GetFiatExchangeRatesUnsuccessResponse>()(
-    z.object({
-      error: z.object({
-        code: z.number(),
-        info: z.string(),
-        type: z.string(),
-      }),
-    })
-  );
+// const getFiatExchangeRatesUnsuccessResponseParser =
+//   StrictSchema<GetFiatExchangeRatesUnsuccessResponse>()(
+//     z.object({
+//       error: z.object({
+//         code: z.number(),
+//         info: z.string(),
+//         type: z.string(),
+//       }),
+//     })
+//   );
 
 const getFiatExchangeRatesErrorParser = StrictSchema<GetFiatExchangeRatesError>()(
   z.object({
@@ -68,9 +68,9 @@ const getFiatExchangeRates = ({
   apiUrl,
 }: GetFiatExchangeRatesParams): Promise<FiatExchangeRates> => {
   const params = {
-    access_key: apiKey,
-    base: Currency.USD,
-    symbols: Object.values(Currency).join(","),
+    ids: "ethereum",
+    // vs_currencies: Currency.USD,
+    vs_currencies: Object.values(Currency).join(","),
   };
 
   return axios
@@ -80,17 +80,26 @@ const getFiatExchangeRates = ({
       params,
     })
     .then((res) => {
-      const parsedSuccessResponse = getFiatExchangeRatesSuccessResponseParser.safeParse(res.data);
-      const parsedUnsuccessResponse = getFiatExchangeRatesUnsuccessResponseParser.safeParse(
-        res.data
-      );
-      if (parsedSuccessResponse.success) {
-        return parsedSuccessResponse.data.rates;
-      } else if (parsedUnsuccessResponse.success) {
-        throw `Fiat Exchange Rates API error: (${parsedUnsuccessResponse.data.error.code}) ${parsedUnsuccessResponse.data.error.info}`;
-      } else {
-        throw parsedSuccessResponse.error;
+      // const parsedSuccessResponse = getFiatExchangeRatesSuccessResponseParser.safeParse(res);
+      // const parsedUnsuccessResponse = getFiatExchangeRatesUnsuccessResponseParser.safeParse(
+      //   res.data
+      // );
+      // console.log({data:res.data})
+      const { ethereum } = res.data;
+      let newobj: { [name: string]: any } = {};
+      for (const [name, deployment] of Object.entries(ethereum)) {
+        newobj[name.toLocaleUpperCase()] = deployment;
       }
+
+      return newobj;
+      // return
+      // if (parsedSuccessResponse.success) {
+      //   return parsedSuccessResponse.data.rates;
+      // } else if (parsedUnsuccessResponse.success) {
+      //   throw `Fiat Exchange Rates API error: (${parsedUnsuccessResponse.data.error.code}) ${parsedUnsuccessResponse.data.error.info}`;
+      // } else {
+      //   throw parsedSuccessResponse.error;
+      // }
     })
     .catch((error) => {
       if (axios.isAxiosError(error) && error.response) {
