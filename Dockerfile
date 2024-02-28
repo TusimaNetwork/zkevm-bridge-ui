@@ -4,7 +4,7 @@ RUN apk add --update nodejs npm
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY .env.example package.json package-lock.json ./
 COPY scripts ./scripts
 COPY abis ./abis
 
