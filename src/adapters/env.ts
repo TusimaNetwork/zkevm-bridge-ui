@@ -103,7 +103,7 @@ const getFiatExchangeRatesEnv = ({
   return {
     apiKey: VITE_FIAT_EXCHANGE_RATES_API_KEY,
     apiUrl: VITE_FIAT_EXCHANGE_RATES_API_URL,
-    areEnabled: true,
+    areEnabled: false,
     usdcToken: getUsdcToken({
       address: VITE_FIAT_EXCHANGE_RATES_ETHEREUM_USDC_ADDRESS,
       chainId: ethereumChain.chainId,
@@ -202,6 +202,7 @@ const envToDomain = ({
       };
   const isDepositWarningEnabled = stringBooleanParser.parse(VITE_ENABLE_DEPOSIT_WARNING);
 
+  
   return getChains({
     ethereum: {
       bridgeContractAddress: VITE_ETHEREUM_BRIDGE_CONTRACT_ADDRESS,

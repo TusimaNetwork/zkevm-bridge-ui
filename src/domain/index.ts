@@ -76,7 +76,7 @@ export interface Env {
     | {
         apiKey: string;
         apiUrl: string;
-        areEnabled: true;
+        areEnabled: false;
         usdcToken: Token;
       };
   forceUpdateGlobalExitRootForL1: boolean;
@@ -102,6 +102,8 @@ export interface RouterState {
 export enum EthereumChainId {
   MAINNET = 1,
   GOERLI = 5,
+  EAGLE=1001,
+  SEPOLIA=11155111
 }
 
 export enum WalletName {

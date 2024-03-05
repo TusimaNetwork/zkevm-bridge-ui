@@ -159,16 +159,16 @@ export const getDeposits = ({
       url: `/bridges/${ethereumAddress}`,
     })
     .then((res) => {
-      const parsedData = getDepositsResponseParser.safeParse(res.data);
-
-      if (parsedData.success) {
+      // const parsedData = getDepositsResponseParser.safeParse(res.data);
+      const parsedData = res
+      // if (parsedData.success) {
         return {
           deposits: parsedData.data.deposits !== undefined ? parsedData.data.deposits : [],
           total: parsedData.data.total_cnt !== undefined ? parsedData.data.total_cnt : 0,
         };
-      } else {
-        throw parsedData.error;
-      }
+      // } else {
+      //   throw parsedData.error;
+      // }
     });
 };
 
@@ -197,13 +197,13 @@ export const getDeposit = ({
       url: "/bridge",
     })
     .then((res) => {
-      const parsedData = getDepositResponseParser.safeParse(res.data);
-
-      if (parsedData.success) {
+      // const parsedData = getDepositResponseParser.safeParse(res.data);
+      const parsedData = res
+      // if (parsedData.success) {
         return parsedData.data.deposit;
-      } else {
-        throw parsedData.error;
-      }
+      // } else {
+      //   throw parsedData.error;
+      // }
     });
 };
 

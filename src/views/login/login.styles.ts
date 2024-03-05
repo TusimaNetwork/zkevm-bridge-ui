@@ -18,6 +18,29 @@ export const useLoginStyles = createUseStyles((theme: Theme) => ({
   cardHeader: {
     padding: [theme.spacing(3), theme.spacing(4), theme.spacing(2)],
   },
+  loginHeader: {
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'space-between'
+  },
+  loginButton: {
+    "&:disabled": {
+      cursor: "inherit",
+      opacity: 0.75,
+    },
+    "&:hover:not(:disabled)": {
+      background: theme.palette.grey.main,
+    },
+    alignItems: "center",
+    appearance: "none",
+    background: theme.palette.grey.light,
+    border: "none",
+    borderRadius: 8,
+    cursor: "pointer",
+    display: "flex",
+    padding: [theme.spacing(1), theme.spacing(1.5)],
+    transition: theme.hoverTransition,
+  },
   cardHeaderCentered: {
     textAlign: "center",
   },

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import { ReactComponent as ClockIcon } from "src/assets/icons/clock.svg";
 import { ReactComponent as SettingIcon } from "src/assets/icons/setting.svg";
-import { ReactComponent as PolygonZkEVMLogo } from "src/assets/polygon-zkevm-logo.svg";
+import PolygonZkEVMLogo from "src/components/PolygonZkEVMLogo";
 import { useEnvContext } from "src/contexts/env.context";
 import { routes } from "src/routes";
 import { areSettingsVisible } from "src/utils/feature-toggles";
@@ -35,7 +35,7 @@ export const Header: FC = () => {
         </Link>
       </div>
       <div className={`${classes.block} ${classes.centerBlock}`}>
-        <PolygonZkEVMLogo className={classes.logo} />
+        <PolygonZkEVMLogo />
       </div>
       <div className={`${classes.block} ${classes.rightBlock}`}>
         <NetworkSelector />

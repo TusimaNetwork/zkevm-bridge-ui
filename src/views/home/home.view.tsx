@@ -67,9 +67,7 @@ export const Home = (): JSX.Element => {
               {getPartiallyHiddenEthereumAddress(connectedProvider.data.account)}
             </Typography>
           </div>
-          <div className={classes.networkBoxWrapper}>
-            <NetworkBox />
-          </div>
+         
           <BridgeForm
             account={connectedProvider.data.account}
             formData={formData}
@@ -83,6 +81,9 @@ export const Home = (): JSX.Element => {
               onCancel={() => setDepositWarningModal({ status: "closed" })}
             />
           )}
+           <div className={classes.networkBoxWrapper}>
+            <NetworkBox />
+          </div>
         </>
       )}
     </div>

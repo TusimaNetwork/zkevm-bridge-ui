@@ -57,16 +57,16 @@ export const Snackbar: FC<SnackbarProps> = ({ message, onClose, onReport, report
               ? "An error occurred. Would you mind reporting it?"
               : "An error occurred. You can see the details in the console"}
           </p>
-          {reportForm.isEnabled && (
+          {/* {reportForm.isEnabled && (
             <button
               className={classes.reportButton}
               onClick={() => {
-                onReport(parsed, reportForm);
+                // onReport(parsed, reportForm);
               }}
             >
               Report
             </button>
-          )}
+          )} */}
           <button className={classes.closeButton} onClick={onClose}>
             <CloseIcon className={classes.closeIcon} />
           </button>

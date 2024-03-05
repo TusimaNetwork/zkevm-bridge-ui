@@ -56,8 +56,8 @@ export const useBridgeFormStyles = createUseStyles((theme: Theme) => ({
     },
   },
   icons: {
-    height: 20,
-    width: 20,
+    height: 24,
+    width: 24,
     [theme.breakpoints.upSm]: {
       height: 24,
       width: 24,

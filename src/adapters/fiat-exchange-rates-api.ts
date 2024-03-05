@@ -23,31 +23,31 @@ interface GetFiatExchangeRatesError {
   };
 }
 
-// const fiatExchangeRatesKeyParser = StrictSchema<keyof FiatExchangeRates>()(
-//   z.union([
-//     z.literal("EUR"),
-//     z.literal("USD"),
-//     z.literal("JPY"),
-//     z.literal("GBP"),
-//     z.literal("CNY"),
-//   ])
-// );
+const fiatExchangeRatesKeyParser = StrictSchema<keyof FiatExchangeRates>()(
+  z.union([
+    z.literal("EUR"),
+    z.literal("USD"),
+    z.literal("JPY"),
+    z.literal("GBP"),
+    z.literal("CNY"),
+  ])
+);
 
-// const getFiatExchangeRatesSuccessResponseParser =
-//   StrictSchema<GetFiatExchangeRatesSuccessResponse>()(
-//     z.object({ rates: z.record(fiatExchangeRatesKeyParser, z.number()) })
-//   );
+const getFiatExchangeRatesSuccessResponseParser =
+  StrictSchema<GetFiatExchangeRatesSuccessResponse>()(
+    z.object({ rates: z.record(fiatExchangeRatesKeyParser, z.number()) })
+  );
 
-// const getFiatExchangeRatesUnsuccessResponseParser =
-//   StrictSchema<GetFiatExchangeRatesUnsuccessResponse>()(
-//     z.object({
-//       error: z.object({
-//         code: z.number(),
-//         info: z.string(),
-//         type: z.string(),
-//       }),
-//     })
-//   );
+const getFiatExchangeRatesUnsuccessResponseParser =
+  StrictSchema<GetFiatExchangeRatesUnsuccessResponse>()(
+    z.object({
+      error: z.object({
+        code: z.number(),
+        info: z.string(),
+        type: z.string(),
+      }),
+    })
+  );
 
 const getFiatExchangeRatesErrorParser = StrictSchema<GetFiatExchangeRatesError>()(
   z.object({
@@ -68,7 +68,7 @@ const getFiatExchangeRates = ({
   apiUrl,
 }: GetFiatExchangeRatesParams): Promise<FiatExchangeRates> => {
   const params = {
-    ids: "ethereum",
+    ids: 'ethereum',
     // vs_currencies: Currency.USD,
     vs_currencies: Object.values(Currency).join(","),
   };
@@ -85,14 +85,14 @@ const getFiatExchangeRates = ({
       //   res.data
       // );
       // console.log({data:res.data})
-      const { ethereum } = res.data;
-      let newobj: { [name: string]: any } = {};
+      const {ethereum} = res.data
+      let newobj:{[name:string]:any}={};
       for (const [name, deployment] of Object.entries(ethereum)) {
-        newobj[name.toLocaleUpperCase()] = deployment;
+        newobj[name.toLocaleUpperCase()]=deployment
       }
 
-      return newobj;
-      // return
+      return newobj
+      // return 
       // if (parsedSuccessResponse.success) {
       //   return parsedSuccessResponse.data.rates;
       // } else if (parsedUnsuccessResponse.success) {

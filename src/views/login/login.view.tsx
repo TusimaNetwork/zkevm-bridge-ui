@@ -7,8 +7,10 @@ import { ReactComponent as PolygonZkEVMLogo } from "src/assets/polygon-zkevm-log
 import { useEnvContext } from "src/contexts/env.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { EthereumChainId, PolicyCheck, WalletName } from "src/domain";
+import { useAddnetwork } from "src/hooks/use-addnetwork";
 import { routes } from "src/routes";
 import { getDeploymentName } from "src/utils/labels";
+import { isAsyncTaskDataAvailable } from "src/utils/types";
 import { WalletList } from "src/views/login/components/wallet-list/wallet-list.view";
 import { useLoginStyles } from "src/views/login/login.styles";
 import { Card } from "src/views/shared/card/card.view";
@@ -26,7 +28,8 @@ export const Login: FC = () => {
   const { state } = useLocation();
   const { connectedProvider, connectProvider } = useProvidersContext();
   const env = useEnvContext();
-
+  const polygonZkEVMChain = env?.chains[1];
+  const {onAddNetwork,isAddNetworkButtonDisabled} = useAddnetwork()
   const onConnectProvider = () => {
     setPolicyCheck();
     selectedWallet && connectProvider(selectedWallet);
@@ -39,11 +42,13 @@ export const Login: FC = () => {
     if (checked === PolicyCheck.Checked) {
       void connectProvider(walletName);
     } else {
-      setShowPolicyModal(true);
+      setShowPolicyModal(false);
+      // setShowPolicyModal(true);
     }
   };
 
   useEffect(() => {
+    
     if (connectedProvider.status === "successful") {
       const routerState = routerStateParser.safeParse(state);
 
@@ -79,8 +84,18 @@ export const Login: FC = () => {
         <div className={classes.cardWrap}>
           <Card className={classes.card}>
             <>
-              <Typography className={classes.cardHeader} type="h1">
-                Connect a wallet
+              <Typography className={`${classes.cardHeader} ${classes.loginHeader}`} type="h1">
+                <span>{ethereumChain.chainId !== EthereumChainId.MAINNET?`Connected`:`Connect a wallet`}</span>
+                {ethereumChain.chainId !== EthereumChainId.MAINNET && <button
+                 disabled={
+                   isAddNetworkButtonDisabled ||
+                   (isAsyncTaskDataAvailable(connectedProvider) &&
+                     connectedProvider.data.chainId === polygonZkEVMChain?.chainId)
+                 }
+                onClick={()=>onAddNetwork(polygonZkEVMChain)}
+                className={classes.loginButton}>
+                Exchange to Ethereum
+                </button>}
               </Typography>
               <WalletList onSelectWallet={onCheckAndConnectProvider} />
             </>

@@ -66,6 +66,10 @@ export const useBridgeConfirmationStyles = createUseStyles((theme: Theme) => ({
       paddingTop: theme.spacing(3),
     },
   },
+  icons: {
+    height: 24,
+    width: 24,
+  },
   contentWrapper: {
     padding: [0, theme.spacing(2)],
   },

@@ -20,6 +20,7 @@ import { Card } from "src/views/shared/card/card.view";
 import { ChainList } from "src/views/shared/chain-list/chain-list.view";
 import { ErrorMessage } from "src/views/shared/error-message/error-message.view";
 import { Icon } from "src/views/shared/icon/icon.view";
+import { NetworkSelectorTabs } from "src/views/shared/network-selector-tabs/network-selector-tabs.view";
 import { Spinner } from "src/views/shared/spinner/spinner.view";
 import { TokenBalance } from "src/views/shared/token-balance/token-balance.view";
 import { Typography } from "src/views/shared/typography/typography.view";
@@ -271,6 +272,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
 
   return (
     <form className={classes.form} onSubmit={onFormSubmit}>
+      {/* <NetworkSelectorTabs chains={env.chains}/> */}
       <Card className={classes.card}>
         <div className={classes.row}>
           <div className={classes.leftBox}>
@@ -280,7 +282,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
               onClick={() => setChains(env.chains)}
               type="button"
             >
-              <selectedChains.from.Icon />
+              <selectedChains.from.Icon className={classes.icons}/>
               <Typography type="body1">{selectedChains.from.name}</Typography>
               <CaretDown />
             </button>
@@ -320,7 +322,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
           <div className={classes.leftBox}>
             <Typography type="body2">To</Typography>
             <div className={classes.toChain}>
-              <selectedChains.to.Icon />
+              <selectedChains.to.Icon className={classes.icons}/>
               <Typography type="body1">{selectedChains.to.name}</Typography>
             </div>
           </div>

@@ -9,6 +9,7 @@ import { useErrorContext } from "src/contexts/error.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useUIContext } from "src/contexts/ui.context";
 import { Message } from "src/domain";
+import { useAddnetwork } from "src/hooks/use-addnetwork";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
 import { isAsyncTaskDataAvailable, isMetaMaskUserRejectedRequestError } from "src/utils/types";
 import { Card } from "src/views/shared/card/card.view";
@@ -19,12 +20,8 @@ import { Typography } from "src/views/shared/typography/typography.view";
 export const NetworkBox: FC = () => {
   const classes = useNetworkBoxStyles();
   const env = useEnvContext();
-  const { addNetwork, connectedProvider } = useProvidersContext();
-  const [isAddNetworkButtonDisabled, setIsAddNetworkButtonDisabled] = useState(false);
-  const { openSnackbar } = useUIContext();
-  const callIfMounted = useCallIfMounted();
-  const { notifyError } = useErrorContext();
-
+  const { connectedProvider } = useProvidersContext();
+  const { onAddNetwork, isAddNetworkButtonDisabled } = useAddnetwork();
   if (!env) {
     return null;
   }
@@ -32,36 +29,6 @@ export const NetworkBox: FC = () => {
   const ethereumChain = env.chains[0];
   const polygonZkEVMChain = env.chains[1];
 
-  const successMsg: Message = {
-    text: `${polygonZkEVMChain.name} network successfully added`,
-    type: "success-msg",
-  };
-
-  const onAddNetwork = (): void => {
-    setIsAddNetworkButtonDisabled(true);
-    addNetwork(polygonZkEVMChain)
-      .then(() => {
-        callIfMounted(() => {
-          openSnackbar(successMsg);
-        });
-      })
-      .catch((error) => {
-        callIfMounted(() => {
-          void parseError(error).then((parsed) => {
-            if (parsed === "wrong-network") {
-              openSnackbar(successMsg);
-            } else if (isMetaMaskUserRejectedRequestError(error) === false) {
-              notifyError(error);
-            }
-          });
-        });
-      })
-      .finally(() => {
-        callIfMounted(() => {
-          setIsAddNetworkButtonDisabled(false);
-        });
-      });
-  };
 
   return (
     <Card>
@@ -108,12 +75,12 @@ export const NetworkBox: FC = () => {
               (isAsyncTaskDataAvailable(connectedProvider) &&
                 connectedProvider.data.chainId === polygonZkEVMChain.chainId)
             }
-            onClick={onAddNetwork}
+            onClick={()=>onAddNetwork(polygonZkEVMChain)}
           >
             <MetaMaskIcon className={classes.buttonIcon} />
             Add to MetaMask
           </button>
-          <a
+          {/* <a
             className={classes.button}
             href={POLYGON_SUPPORT_URL}
             rel="noopener noreferrer"
@@ -121,7 +88,7 @@ export const NetworkBox: FC = () => {
           >
             <NewWindowIcon className={classes.buttonIcon} />
             Report an issue
-          </a>
+          </a> */}
         </div>
       </div>
     </Card>

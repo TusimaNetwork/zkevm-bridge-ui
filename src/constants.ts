@@ -2,7 +2,7 @@ import { StaticJsonRpcProvider } from "@ethersproject/providers";
 import { ethers } from "ethers";
 
 import { ReactComponent as EthChainIcon } from "src/assets/icons/chains/ethereum.svg";
-import { ReactComponent as PolygonZkEVMChainIcon } from "src/assets/icons/chains/polygon-zkevm.svg";
+import TusimaLogo from "src/components/TusimaLogo";
 import { Chain, Currency, EthereumChain, ProviderError, Token, ZkEVMChain } from "src/domain";
 import { ProofOfEfficiency__factory } from "src/types/contracts/proof-of-efficiency";
 import { getEthereumNetworkName } from "src/utils/labels";
@@ -106,40 +106,43 @@ export const getChains = ({
     ethereumProvider.getNetwork().catch(() => Promise.reject(ProviderError.Ethereum)),
     polygonZkEVMProvider.getNetwork().catch(() => Promise.reject(ProviderError.PolygonZkEVM)),
     poeContract.networkName().catch(() => Promise.reject(ProviderError.Ethereum)),
-  ]).then(([ethereumNetwork, polygonZkEVMNetwork, polygonZkEVMNetworkName]) => [
-    {
-      bridgeContractAddress: ethereum.bridgeContractAddress,
-      chainId: ethereumNetwork.chainId,
-      explorerUrl: ethereum.explorerUrl,
-      Icon: EthChainIcon,
-      key: "ethereum",
-      name: getEthereumNetworkName(ethereumNetwork.chainId),
-      nativeCurrency: {
-        decimals: 18,
-        name: "Ether",
-        symbol: "ETH",
+  ]).then(([ethereumNetwork, polygonZkEVMNetwork, polygonZkEVMNetworkName]) =>{
+    return [
+      {
+        bridgeContractAddress: ethereum.bridgeContractAddress,
+        chainId: ethereumNetwork.chainId,
+        explorerUrl: ethereum.explorerUrl,
+        Icon: EthChainIcon,
+        key: "ethereum",
+        name: getEthereumNetworkName(ethereumNetwork.chainId),
+        nativeCurrency: {
+          decimals: 18,
+          name: "Ether",
+          symbol: "ETH",
+        },
+        networkId: 0,
+        poeContractAddress: ethereum.poeContractAddress,
+        provider: ethereumProvider,
+        rollupManagerAddress: ethereum.rollupManagerAddress,
       },
-      networkId: 0,
-      poeContractAddress: ethereum.poeContractAddress,
-      provider: ethereumProvider,
-      rollupManagerAddress: ethereum.rollupManagerAddress,
-    },
-    {
-      bridgeContractAddress: polygonZkEVM.bridgeContractAddress,
-      chainId: polygonZkEVMNetwork.chainId,
-      explorerUrl: polygonZkEVM.explorerUrl,
-      Icon: PolygonZkEVMChainIcon,
-      key: "polygon-zkevm",
-      name: polygonZkEVMNetworkName,
-      nativeCurrency: {
-        decimals: 18,
-        name: "Ether",
-        symbol: "ETH",
+      {
+        bridgeContractAddress: polygonZkEVM.bridgeContractAddress,
+        chainId: polygonZkEVMNetwork.chainId,
+        explorerUrl: polygonZkEVM.explorerUrl,
+        Icon: TusimaLogo,
+        key: "polygon-zkevm",
+        // name: polygonZkEVMNetworkName,
+        name:'Tusima Eagle',
+        nativeCurrency: {
+          decimals: 18,
+          name: "Ether",
+          symbol: "ETH",
+        },
+        networkId: polygonZkEVM.networkId,
+        provider: polygonZkEVMProvider,
       },
-      networkId: polygonZkEVM.networkId,
-      provider: polygonZkEVMProvider,
-    },
-  ]);
+    ]
+  } );
 };
 
 export const getEtherToken = (chain: Chain): Token => {
