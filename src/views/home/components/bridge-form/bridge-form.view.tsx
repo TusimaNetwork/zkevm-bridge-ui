@@ -63,7 +63,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const onChainButtonClick = (from: Chain) => {
     if (env) {
       const to = env.chains.find((chain) => chain.key !== from.key);
-
       if (to) {
         setSelectedChains({ from, to });
         setChains(undefined);
@@ -90,7 +89,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     if (tokens) {
       // We don't want to store the balance of the user in the local storage
       const { address, chainId, decimals, logoURI, name, symbol, wrappedToken } = token;
-
       addCustomToken({ address, chainId, decimals, logoURI, name, symbol, wrappedToken });
       setTokens([token, ...tokens]);
     }
@@ -143,7 +141,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     if (selectedChains && defaultTokens) {
       const { from } = selectedChains;
       const chainTokens = [...getChainCustomTokens(from), ...defaultTokens];
-
       setTokens(
         chainTokens.map((token) => ({
           ...token,
@@ -181,7 +178,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
                     status: "successful",
                   },
                 };
-
                 setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken));
               });
             })
@@ -194,11 +190,9 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
                     status: "failed",
                   },
                 };
-
                 setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken));
               });
             });
-
           return { ...token, balance: { status: "loading" } };
         })
       );
@@ -282,7 +276,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
               onClick={() => setChains(env.chains)}
               type="button"
             >
-              <selectedChains.from.Icon className={classes.icons}/>
+              <selectedChains.from.Icon className={classes.icons} />
               <Typography type="body1">{selectedChains.from.name}</Typography>
               <CaretDown />
             </button>
@@ -322,7 +316,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
           <div className={classes.leftBox}>
             <Typography type="body2">To</Typography>
             <div className={classes.toChain}>
-              <selectedChains.to.Icon className={classes.icons}/>
+              <selectedChains.to.Icon className={classes.icons} />
               <Typography type="body1">{selectedChains.to.name}</Typography>
             </div>
           </div>
