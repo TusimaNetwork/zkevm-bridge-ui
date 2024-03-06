@@ -5,7 +5,7 @@ import { Theme } from "src/styles/theme";
 export const useListStyles = createUseStyles((theme: Theme) => ({
   background: {
     alignItems: "center",
-    background: theme.palette.transparency,
+    // background: theme.palette.transparency,
     display: "flex",
     height: "100vh",
     justifyContent: "center",
@@ -20,23 +20,23 @@ export const useListStyles = createUseStyles((theme: Theme) => ({
     // "&:not(:first-of-type)": {
     //   marginTop: theme.spacing(1),
     // },
-    lineHeight:30,
+    lineHeight:20,
     alignItems: "center",
-    background: theme.palette.grey.light,
+    background: '#fff',
     border: "none",
     borderRadius: 8,
     cursor: "pointer",
     display: "flex",
     justifyContent:'center',
     // gap: theme.spacing(1),
-    padding: theme.spacing(2),
+    padding: 10,
     transition: theme.hoverTransition,
   },
   card: {
     // maxWidth: 426,
     padding: theme.spacing(2),
     width: "100%",
-    marginBottom:20
+    // marginBottom:20
   },
   list: {
     // "&::-webkit-scrollbar": {
@@ -48,8 +48,9 @@ export const useListStyles = createUseStyles((theme: Theme) => ({
     // "&::-webkit-scrollbar-thumb:hover": {
     //   backgroundColor: theme.palette.grey.dark,
     // },
-    gap:5,
+    gap:50,
     display: "flex",
+    justifyContent:'center'
     // flexDirection: "column",
     // maxHeight: 270,
     // overflowY: "auto",

@@ -13,7 +13,6 @@ import { Typography } from "src/views/shared/typography/typography.view";
 
 interface NetworkSelectorTabsProps {
   chains: Chain[];
-  onClick: (chain: Chain) => void;
 }
 
 export const NetworkSelectorTabs: FC<NetworkSelectorTabsProps> = ({ chains,  }) => {
@@ -22,7 +21,7 @@ export const NetworkSelectorTabs: FC<NetworkSelectorTabsProps> = ({ chains,  }) 
   const callIfMounted = useCallIfMounted();
   const { notifyError } = useErrorContext();
   return (
-    <Card className={classes.card}>
+    <div className={classes.card}>
     <div className={classes.list}>
       {chains.map((chain) => (
         <button className={classes.button} key={chain.key} onClick={() => {
@@ -39,6 +38,6 @@ export const NetworkSelectorTabs: FC<NetworkSelectorTabsProps> = ({ chains,  }) 
         </button>
       ))}
     </div>
-  </Card> 
+  </div> 
   );
 };
