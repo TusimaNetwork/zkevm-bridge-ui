@@ -240,7 +240,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         setSelectedChains({ from, to });
         setToken(getEtherToken(from));
       }
-      setAmount(undefined);
+      setAmount(undefined)
     }
     // This prevents the form from being reset when coming back from BridgeConfirmation
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -254,7 +254,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       setAmount(formData.amount);
       onResetForm();
     }
-  }, [formData, onResetForm]);
+  }, [formData, onResetForm])
 
   if (!env || !selectedChains || !tokens || !token) {
     return (

@@ -48,7 +48,6 @@ export const Login: FC = () => {
   };
 
   useEffect(() => {
-    
     if (connectedProvider.status === "successful") {
       const routerState = routerStateParser.safeParse(state);
 

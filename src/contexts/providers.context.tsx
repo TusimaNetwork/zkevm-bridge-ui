@@ -304,7 +304,7 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
           status: "failed",
         });
       } else if (env) {
-        void silentlyGetConnectedAccounts(web3Provider).then((accounts) => {
+        void getConnectedAccounts(web3Provider).then((accounts) => {
           const account: string | undefined = accounts[0];
           if (account) {
             void connectMetamaskProvider({ account, env, web3Provider });

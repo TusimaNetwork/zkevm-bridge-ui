@@ -27,7 +27,9 @@ const silentlyGetConnectedAccounts = (provider: Web3Provider): Promise<string[]>
   }
   return provider.provider
     .request({ method: "eth_accounts" })
-    .then((accounts) => ethereumAccountsParser.parse(accounts));
+    .then((accounts) => {
+      return ethereumAccountsParser.parse(accounts)
+    });
 };
 
 const getBatchNumberOfL2Block = async (
@@ -47,7 +49,10 @@ const getBatchNumberOfL2Block = async (
 const getConnectedAccounts = (provider: Web3Provider): Promise<string[]> => {
   return provider
     .send("eth_requestAccounts", [])
-    .then((accounts) => ethereumAccountsParser.parse(accounts));
+    .then((accounts) => {
+      console.log({accounts})
+      return ethereumAccountsParser.parse(accounts)
+    });
 };
 
 interface GetPermitParams {
