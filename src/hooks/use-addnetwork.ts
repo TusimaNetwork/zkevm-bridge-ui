@@ -21,7 +21,8 @@ export function useAddnetwork(): {
 
   const onAddNetwork = (polygonZkEVMChain: any): void => {
     const successMsg: Message = {
-      text: `${polygonZkEVMChain.name} network successfully added`,
+      // text: `${polygonZkEVMChain.name} network successfully added`,
+      text: `${polygonZkEVMChain.name} network successfully`,
       type: "success-msg",
     };
     setIsAddNetworkButtonDisabled(true);

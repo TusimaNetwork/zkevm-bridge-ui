@@ -167,6 +167,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         tx_hash,
       } = apiDeposit;
 
+      
       const from = env.chains.find((chain) => chain.networkId === network_id);
       if (from === undefined) {
         throw new Error(
@@ -188,11 +189,14 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
       });
 
       const claim: Deposit["claim"] =
-        claim_tx_hash !== null
+        // claim_tx_hash !== null
+        claim_tx_hash
           ? { status: "claimed", txHash: claim_tx_hash }
           : ready_for_claim
             ? { status: "ready" }
             : { status: "pending" };
+      
+      // console.log({claim_tx_hash,claim,ready_for_claim},claim_tx_hash !== null)
 
       const tokenPrice: BigNumber | undefined = env.fiatExchangeRates.areEnabled
         ? await getTokenPrice({
@@ -220,6 +224,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         networkId,
       });
 
+     
       switch (claim.status) {
         case "pending": {
           return {

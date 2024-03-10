@@ -34,6 +34,7 @@ interface ProvidersContext {
   changeNetwork: (chain: Chain) => Promise<void>;
   connectProvider: (walletName: WalletName) => Promise<void>;
   connectedProvider: AsyncTask<ConnectedProvider, string>;
+  connectWallet: () => Promise<void>;
 }
 
 const providersContextNotReadyErrorMsg = "The providers context is not yet ready";
@@ -43,6 +44,7 @@ const providersContext = createContext<ProvidersContext>({
   changeNetwork: () => Promise.reject(new Error(providersContextNotReadyErrorMsg)),
   connectedProvider: { status: "pending" },
   connectProvider: () => Promise.reject(new Error(providersContextNotReadyErrorMsg)),
+  connectWallet:() => Promise.reject(new Error(providersContextNotReadyErrorMsg)),
 });
 
 const ProvidersProvider: FC<PropsWithChildren> = (props) => {
@@ -69,6 +71,17 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
     web3Provider: Web3Provider;
   }
 
+  const connectWallet=async()=>{
+    const web3Provider = getMetamaskProvider();
+    if(web3Provider && env){
+      void getConnectedAccounts(web3Provider).then((accounts) => {
+        const account: string | undefined = accounts[0];
+        if (account) {
+          void connectMetamaskProvider({ account, env, web3Provider });
+        }
+      });
+    }
+  }
   const connectMetamaskProvider = useCallback(
     async ({ account, env, web3Provider }: ConnectMetamaskProviderParams): Promise<void> => {
       try {
@@ -83,23 +96,23 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
         clearTimeout(checkMetamaskHeartbeat);
 
         const currentNetworkChainId = currentNetwork.chainId;
-        const supportedChainIds = env.chains.map((chain) => chain.chainId);
-
-        if (!supportedChainIds.includes(currentNetworkChainId)) {
-          setConnectedProvider({
-            error: `Switch your network to ${env.chains[0].name} or ${env.chains[1].name} to continue`,
-            status: "failed",
-          });
-        } else {
+        // const supportedChainIds = env.chains.map((chain) => chain.chainId);
+        // console.log({currentNetworkChainId})
+        // if (!supportedChainIds.includes(currentNetworkChainId)) {
+        //   setConnectedProvider({
+        //     error: `Switch your network to ${env.chains[0].name} or ${env.chains[1].name} to continue`,
+        //     status: "failed",
+        //   });
+        // } else {
           setConnectedProvider({
             data: {
-              account: getChecksumAddress(account),
+              account: account || '',
               chainId: currentNetworkChainId,
               provider: web3Provider,
             },
             status: "successful",
           });
-        }
+        // }
       } catch (error) {
         if (!isMetaMaskUserRejectedRequestError(error)) {
           notifyError(error);
@@ -156,36 +169,36 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
             });
           }
         }
-        case WalletName.WALLET_CONNECT: {
-          const ethereumChain = env.chains[0];
-          const { chainId } = await ethereumChain.provider.getNetwork();
-          const walletConnectProvider = new WalletConnectProvider({
-            rpc: {
-              [chainId]: ethereumChain.provider.connection.url,
-            },
-          });
-          const web3Provider = new Web3Provider(walletConnectProvider);
+        // case WalletName.WALLET_CONNECT: {
+        //   const ethereumChain = env.chains[0];
+        //   const { chainId } = await ethereumChain.provider.getNetwork();
+        //   const walletConnectProvider = new WalletConnectProvider({
+        //     rpc: {
+        //       [chainId]: ethereumChain.provider.connection.url,
+        //     },
+        //   });
+        //   const web3Provider = new Web3Provider(walletConnectProvider);
 
-          return walletConnectProvider
-            .enable()
-            .then((accounts) => {
-              setConnectedProvider({
-                data: {
-                  account: getChecksumAddress(accounts[0]),
-                  chainId,
-                  provider: web3Provider,
-                },
-                status: "successful",
-              });
-            })
-            .catch((error) => {
-              if (error instanceof Error && error.message === "User closed modal") {
-                setConnectedProvider({ status: "pending" });
-              } else {
-                notifyError(error);
-              }
-            });
-        }
+        //   return walletConnectProvider
+        //     .enable()
+        //     .then((accounts) => {
+        //       setConnectedProvider({
+        //         data: {
+        //           account: getChecksumAddress(accounts[0]),
+        //           chainId,
+        //           provider: web3Provider,
+        //         },
+        //         status: "successful",
+        //       });
+        //     })
+        //     .catch((error) => {
+        //       if (error instanceof Error && error.message === "User closed modal") {
+        //         setConnectedProvider({ status: "pending" });
+        //       } else {
+        //         notifyError(error);
+        //       }
+        //     });
+        // }
       }
     },
     [env, connectMetamaskProvider, notifyError]
@@ -304,21 +317,30 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
           status: "failed",
         });
       } else if (env) {
-        void getConnectedAccounts(web3Provider).then((accounts) => {
+        void silentlyGetConnectedAccounts(web3Provider).then((accounts) => {
           const account: string | undefined = accounts[0];
-          if (account) {
+          // if (account) {
             void connectMetamaskProvider({ account, env, web3Provider });
-          } else {
-            setConnectedProvider({
-              error: "",
-              status: "failed",
-            });
-          }
+          // } else {
+          //   setConnectedProvider({
+          //     error: "",
+          //     status: "failed",
+          //   });
+          // }
         });
       }
     }
   }, [connectMetamaskProvider, connectedProvider.status, env]);
 
+  useEffect(()=>{
+    const provider = getMetamaskProvider()
+    if(provider){
+      provider.on(EthereumEvent.CHAIN_CHANGED, ()=>{
+        console.log("switch networkId")
+      });
+    }
+    // console.log({provider})
+  },[getMetamaskProvider()])
   useEffect(() => {
     const externalProvider: Record<string, unknown> | undefined = isAsyncTaskDataAvailable(
       connectedProvider
@@ -352,6 +374,7 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
       }
     };
     const onChainChanged = () => {
+      console.log("switch chainId")
       if (isAsyncTaskDataAvailable(connectedProvider)) {
         if (connectedProvider.data.provider.provider.isMetaMask) {
           void connectProvider(WalletName.METAMASK);
@@ -392,6 +415,7 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
       changeNetwork,
       connectedProvider,
       connectProvider,
+      connectWallet
     }),
     [connectedProvider, addNetwork, changeNetwork, connectProvider]
   );

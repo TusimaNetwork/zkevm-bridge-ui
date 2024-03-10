@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 
 import { addCustomToken, getChainCustomTokens, removeCustomToken } from "src/adapters/storage";
 import { ReactComponent as ArrowDown } from "src/assets/icons/arrow-down.svg";
@@ -9,6 +9,7 @@ import { useEnvContext } from "src/contexts/env.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
 import { AsyncTask, Chain, FormData, Token } from "src/domain";
+import { useAddnetwork } from "src/hooks/use-addnetwork";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
 import { isTokenEther, selectTokenAddress } from "src/utils/tokens";
 import { isAsyncTaskDataAvailable } from "src/utils/types";
@@ -42,7 +43,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const callIfMounted = useCallIfMounted();
   const env = useEnvContext();
   const { getErc20TokenBalance, tokens: defaultTokens } = useTokensContext();
-  const { connectedProvider } = useProvidersContext();
+  const { connectedProvider ,connectWallet} = useProvidersContext();
   const [balanceFrom, setBalanceFrom] = useState<AsyncTask<BigNumber, string>>({
     status: "pending",
   });
@@ -54,7 +55,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const [chains, setChains] = useState<Chain[]>();
   const [tokens, setTokens] = useState<Token[]>();
   const [isTokenListOpen, setIsTokenListOpen] = useState(false);
-
+  const {onAddNetwork,isAddNetworkButtonDisabled} = useAddnetwork()
   const onAmountInputChange = ({ amount, error }: { amount?: BigNumber; error?: string }) => {
     setAmount(amount);
     setInputError(error);
@@ -111,7 +112,13 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
 
   const onFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedChains && token && amount) {
+    if(noLogin){
+      connectWallet()
+      return
+    }else if(!isPrivate){
+      selectedChains ? onAddNetwork(selectedChains.from) : ''
+      return 
+    }else if (selectedChains && token && amount) {
       onSubmit({
         amount: amount,
         from: selectedChains.from,
@@ -230,12 +237,16 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     }
   }, [callIfMounted, getTokenBalance, selectedChains, token]);
 
+  const noLogin=useMemo(()=>connectedProvider.status === 'successful' && !connectedProvider.data.account ,[connectedProvider])
+  const supportedChainIds = useMemo(()=>env ? env.chains.map((chain) => chain.chainId) : [],[env])
+  const isPrivate=useMemo(()=>connectedProvider.status === "successful" ? supportedChainIds.includes(connectedProvider.data.chainId):null,[supportedChainIds,connectedProvider])
   useEffect(() => {
     // Load the default values after the network is changed
     if (env && connectedProvider.status === "successful" && formData === undefined) {
-      const from = env.chains.find((chain) => chain.chainId === connectedProvider.data.chainId);
-      const to = env.chains.find((chain) => chain.chainId !== connectedProvider.data.chainId);
-
+      const supportedChainIds = env.chains.map((chain) => chain.chainId);
+      const chainId = isPrivate?connectedProvider.data.chainId:supportedChainIds[0]
+      const from = env.chains.find((chain) => chain.chainId === chainId);
+      const to = env.chains.find((chain) => chain.chainId !== chainId);
       if (from && to) {
         setSelectedChains({ from, to });
         setToken(getEtherToken(from));
@@ -244,7 +255,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     }
     // This prevents the form from being reset when coming back from BridgeConfirmation
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedProvider, env]);
+  }, [connectedProvider, env,isPrivate]);
 
   useEffect(() => {
     // Load default form values
@@ -256,7 +267,9 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     }
   }, [formData, onResetForm])
 
+  
   if (!env || !selectedChains || !tokens || !token) {
+  // if (!env) {
     return (
       <div className={classes.spinner}>
         <Spinner />
@@ -331,8 +344,8 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         </div>
       </Card>
       <div className={classes.button}>
-        <Button disabled={!amount || amount.isZero() || inputError !== undefined} type="submit">
-          Continue
+        <Button disabled={!!isPrivate && (!amount || amount.isZero() || inputError !== undefined)} type="submit">
+         {noLogin ? 'Connect Wallet':isPrivate ? 'Continue':'Exchange to Ethereum'}
         </Button>
         {amount && inputError && <ErrorMessage error={inputError} />}
       </div>

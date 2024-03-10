@@ -121,7 +121,6 @@ export const BridgeDetails: FC = () => {
               if (bridge.destinationAddress !== connectedProvider.data.account) {
                 return navigate(routes.activity.path);
               }
-
               setBridge({
                 data: bridge,
                 status: "successful",

@@ -1,6 +1,7 @@
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { BigNumber } from "ethers";
 import { ComponentType } from "react";
+import { PublicClient } from "viem";
 
 export type ChainKey = "ethereum" | "polygon-zkevm";
 
@@ -31,11 +32,15 @@ export type ZkEVMChain = CommonChain & {
 };
 
 export type Chain = EthereumChain | ZkEVMChain;
-
 export interface ConnectedProvider {
   account: string;
   chainId: number;
   provider: Web3Provider;
+}
+export interface ConnectedViemProvider {
+  account: string;
+  chainId: number;
+  provider: PublicClient;
 }
 
 export interface Token {

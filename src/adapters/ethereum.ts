@@ -50,7 +50,7 @@ const getConnectedAccounts = (provider: Web3Provider): Promise<string[]> => {
   return provider
     .send("eth_requestAccounts", [])
     .then((accounts) => {
-      console.log({accounts})
+      // console.log({accounts})
       return ethereumAccountsParser.parse(accounts)
     });
 };

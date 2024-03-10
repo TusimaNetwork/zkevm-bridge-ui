@@ -89,9 +89,9 @@ export const Login: FC = () => {
                  disabled={
                    isAddNetworkButtonDisabled ||
                    (isAsyncTaskDataAvailable(connectedProvider) &&
-                     connectedProvider.data.chainId === polygonZkEVMChain?.chainId)
+                     connectedProvider.data.chainId === ethereumChain?.chainId)
                  }
-                onClick={()=>onAddNetwork(polygonZkEVMChain)}
+                onClick={()=>onAddNetwork(ethereumChain)}
                 className={classes.loginButton}>
                 Exchange to Ethereum
                 </button>}

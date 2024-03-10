@@ -61,12 +61,13 @@ export const Home = (): JSX.Element => {
       <Header />
       {connectedProvider.status === "successful" && (
         <>
-          <div className={classes.ethereumAddress}>
+          {connectedProvider.data.account?<div className={classes.ethereumAddress}>
             <MetaMaskIcon className={classes.metaMaskIcon} />
             <Typography type="body1">
               {getPartiallyHiddenEthereumAddress(connectedProvider.data.account)}
             </Typography>
-          </div>
+          </div>:<div className={classes.no_ethereumAddress}>
+            </div>}
          
           <BridgeForm
             account={connectedProvider.data.account}

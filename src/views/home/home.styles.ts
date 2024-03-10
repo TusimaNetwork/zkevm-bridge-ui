@@ -19,6 +19,16 @@ export const useHomeStyles = createUseStyles((theme: Theme) => ({
       margin: [theme.spacing(3), "auto", theme.spacing(5)],
     },
   },
+  no_ethereumAddress: {
+    alignItems: "center",
+    borderRadius: 56,
+    display: "flex",
+    margin: [theme.spacing(3), "auto", theme.spacing(3)],
+    padding: [theme.spacing(1.25), theme.spacing(3)],
+    [theme.breakpoints.upSm]: {
+      margin: [theme.spacing(3), "auto", theme.spacing(5)],
+    },
+  },
   metaMaskIcon: {
     marginRight: theme.spacing(1),
     width: 20,

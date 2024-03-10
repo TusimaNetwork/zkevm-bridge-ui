@@ -15,7 +15,8 @@ type Nullable<Type> = {
 
 declare global {
   interface Window {
-    ethereum?: ExternalProvider;
+    // ethereum?: ExternalProvider;
+    ethereum?:any
   }
 
   const bridgeVersion: string;
