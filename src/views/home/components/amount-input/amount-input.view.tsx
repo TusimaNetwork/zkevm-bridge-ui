@@ -12,9 +12,10 @@ interface AmountInputProps {
   onChange: (params: { amount?: BigNumber; error?: string }) => void;
   token: Token;
   value?: BigNumber;
+  disabled?:boolean
 }
 
-export const AmountInput: FC<AmountInputProps> = ({ balance, onChange, token, value }) => {
+export const AmountInput: FC<AmountInputProps> = ({ balance, onChange, token, value,disabled }) => {
   const defaultInputValue = value ? formatTokenAmount(value, token) : "";
   const [inputValue, setInputValue] = useState(defaultInputValue);
   const classes = useAmountInputStyles(inputValue.length);
@@ -44,7 +45,7 @@ export const AmountInput: FC<AmountInputProps> = ({ balance, onChange, token, va
   };
 
   const onMax = () => {
-    if (balance.gt(0)) {
+    if (balance.gt(0) && !disabled) {
       setInputValue(formatTokenAmount(balance, token));
       processOnChangeCallback(balance);
     } else {
@@ -69,6 +70,7 @@ export const AmountInput: FC<AmountInputProps> = ({ balance, onChange, token, va
       </button>
       <input
         autoFocus
+        disabled={disabled}
         className={classes.amountInput}
         onChange={onInputChange}
         placeholder="0.00"

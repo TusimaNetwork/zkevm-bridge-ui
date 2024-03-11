@@ -243,7 +243,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     () =>
       connectedProvider.status === "successful"
         ? supportedChainIds.includes(connectedProvider.data.chainId)
-        : null,
+        : false,
     [supportedChainIds, connectedProvider]
   );
   useEffect(() => {
@@ -320,6 +320,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
                 ? balanceFrom.data
                 : BigNumber.from(0)
             }
+            disabled={!isPrivate}
             onChange={onAmountInputChange}
             token={token}
             value={amount}
@@ -350,7 +351,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       </Card>
       <div className={classes.button}>
         <Button
-          disabled={!!isPrivate && (!amount || amount.isZero() || inputError !== undefined)}
+          disabled={isPrivate && (!amount || amount.isZero() || inputError !== undefined)}
           type="submit"
         >
           {notLogin ? "Connect Wallet" : isPrivate ? "Continue" : "Exchange to Ethereum"}
