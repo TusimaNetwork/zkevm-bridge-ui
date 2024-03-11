@@ -19,6 +19,10 @@ export const useHomeStyles = createUseStyles((theme: Theme) => ({
       margin: [theme.spacing(3), "auto", theme.spacing(5)],
     },
   },
+  spinner: {
+    margin: "auto",
+    marginTop: theme.spacing(7),
+  },
   no_ethereumAddress: {
     alignItems: "center",
     borderRadius: 56,

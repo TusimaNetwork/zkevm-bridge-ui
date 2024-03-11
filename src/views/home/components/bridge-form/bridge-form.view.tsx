@@ -43,7 +43,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const callIfMounted = useCallIfMounted();
   const env = useEnvContext();
   const { getErc20TokenBalance, tokens: defaultTokens } = useTokensContext();
-  const { connectedProvider ,connectWallet} = useProvidersContext();
+  const { connectedProvider, connectWallet } = useProvidersContext();
   const [balanceFrom, setBalanceFrom] = useState<AsyncTask<BigNumber, string>>({
     status: "pending",
   });
@@ -55,7 +55,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const [chains, setChains] = useState<Chain[]>();
   const [tokens, setTokens] = useState<Token[]>();
   const [isTokenListOpen, setIsTokenListOpen] = useState(false);
-  const {onAddNetwork,isAddNetworkButtonDisabled} = useAddnetwork()
+  const { onAddNetwork, isAddNetworkButtonDisabled } = useAddnetwork();
   const onAmountInputChange = ({ amount, error }: { amount?: BigNumber; error?: string }) => {
     setAmount(amount);
     setInputError(error);
@@ -112,13 +112,13 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
 
   const onFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if(noLogin){
-      connectWallet()
-      return
-    }else if(!isPrivate){
-      selectedChains ? onAddNetwork(selectedChains.from) : ''
-      return 
-    }else if (selectedChains && token && amount) {
+    if (notLogin) {
+      connectWallet();
+      return;
+    } else if (!isPrivate) {
+      selectedChains ? onAddNetwork(selectedChains.from) : "";
+      return;
+    } else if (selectedChains && token && amount) {
       onSubmit({
         amount: amount,
         from: selectedChains.from,
@@ -209,53 +209,59 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   useEffect(() => {
     // Load the balance of the selected token in both networks
     if (selectedChains && token) {
-      setBalanceFrom({ status: "loading" });
-      setBalanceTo({ status: "loading" });
-
-      getTokenBalance(token, selectedChains.from)
-        .then((balance) =>
-          callIfMounted(() => {
-            setBalanceFrom({ data: balance, status: "successful" });
-          })
-        )
-        .catch(() => {
-          callIfMounted(() => {
-            setBalanceFrom({ error: "Couldn't retrieve token balance", status: "failed" });
-          });
+      const loadBalance = async (chain:Chain, setBalance:(v:AsyncTask<BigNumber, string>)=>void) => {
+        setBalance({ status: "loading" });
+        let balanceOrError:any;
+        try {
+          balanceOrError = await getTokenBalance(token, chain);
+        } catch (error) {
+          balanceOrError = error;
+        }
+        callIfMounted(() => {
+          if (balanceOrError instanceof Error) {
+            setBalance({ error: balanceOrError.message || "Couldn't retrieve token balance", status: "failed" });
+          } else {
+            setBalance({ data: balanceOrError, status: "successful" });
+          }
         });
-      getTokenBalance(token, selectedChains.to)
-        .then((balance) =>
-          callIfMounted(() => {
-            setBalanceTo({ data: balance, status: "successful" });
-          })
-        )
-        .catch(() => {
-          callIfMounted(() => {
-            setBalanceTo({ error: "Couldn't retrieve token balance", status: "failed" });
-          });
-        });
+      };
+  
+      loadBalance(selectedChains.from, setBalanceFrom);
+      loadBalance(selectedChains.to, setBalanceTo);
     }
   }, [callIfMounted, getTokenBalance, selectedChains, token]);
 
-  const noLogin=useMemo(()=>connectedProvider.status === 'successful' && !connectedProvider.data.account ,[connectedProvider])
-  const supportedChainIds = useMemo(()=>env ? env.chains.map((chain) => chain.chainId) : [],[env])
-  const isPrivate=useMemo(()=>connectedProvider.status === "successful" ? supportedChainIds.includes(connectedProvider.data.chainId):null,[supportedChainIds,connectedProvider])
+  const notLogin = useMemo(
+    () => connectedProvider.status === "successful" && !connectedProvider.data.account,
+    [connectedProvider]
+  );
+  const supportedChainIds = useMemo(
+    () => (env ? env.chains.map((chain) => chain.chainId) : []),
+    [env]
+  );
+  const isPrivate = useMemo(
+    () =>
+      connectedProvider.status === "successful"
+        ? supportedChainIds.includes(connectedProvider.data.chainId)
+        : null,
+    [supportedChainIds, connectedProvider]
+  );
   useEffect(() => {
     // Load the default values after the network is changed
     if (env && connectedProvider.status === "successful" && formData === undefined) {
       const supportedChainIds = env.chains.map((chain) => chain.chainId);
-      const chainId = isPrivate?connectedProvider.data.chainId:supportedChainIds[0]
+      const chainId = isPrivate ? connectedProvider.data.chainId : supportedChainIds[0];
       const from = env.chains.find((chain) => chain.chainId === chainId);
       const to = env.chains.find((chain) => chain.chainId !== chainId);
       if (from && to) {
         setSelectedChains({ from, to });
         setToken(getEtherToken(from));
       }
-      setAmount(undefined)
+      setAmount(undefined);
     }
     // This prevents the form from being reset when coming back from BridgeConfirmation
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedProvider, env,isPrivate]);
+  }, [connectedProvider, env, isPrivate]);
 
   useEffect(() => {
     // Load default form values
@@ -265,11 +271,10 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       setAmount(formData.amount);
       onResetForm();
     }
-  }, [formData, onResetForm])
+  }, [formData, onResetForm]);
 
-  
   if (!env || !selectedChains || !tokens || !token) {
-  // if (!env) {
+    // if (!env) {
     return (
       <div className={classes.spinner}>
         <Spinner />
@@ -344,8 +349,11 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         </div>
       </Card>
       <div className={classes.button}>
-        <Button disabled={!!isPrivate && (!amount || amount.isZero() || inputError !== undefined)} type="submit">
-         {noLogin ? 'Connect Wallet':isPrivate ? 'Continue':'Exchange to Ethereum'}
+        <Button
+          disabled={!!isPrivate && (!amount || amount.isZero() || inputError !== undefined)}
+          type="submit"
+        >
+          {notLogin ? "Connect Wallet" : isPrivate ? "Continue" : "Exchange to Ethereum"}
         </Button>
         {amount && inputError && <ErrorMessage error={inputError} />}
       </div>

@@ -15,6 +15,7 @@ import { Header } from "src/views/home/components/header/header.view";
 import { useHomeStyles } from "src/views/home/home.styles";
 import { NetworkBox } from "src/views/shared/network-box/network-box.view";
 import { Typography } from "src/views/shared/typography/typography.view";
+import { Spinner } from "../shared/spinner/spinner.view";
 
 export const Home = (): JSX.Element => {
   const classes = useHomeStyles();
@@ -55,11 +56,17 @@ export const Home = (): JSX.Element => {
   const onResetForm = () => {
     setFormData(undefined);
   };
-
+  
+//   return <div className={classes.contentWrapper}>
+//   <Header />
+//   <div className={classes.spinner}>
+//   <Spinner />
+//   </div>
+// </div>
   return (
     <div className={classes.contentWrapper}>
       <Header />
-      {connectedProvider.status === "successful" && (
+      {connectedProvider.status === "successful" ? (
         <>
           {connectedProvider.data.account?<div className={classes.ethereumAddress}>
             <MetaMaskIcon className={classes.metaMaskIcon} />
@@ -86,7 +93,9 @@ export const Home = (): JSX.Element => {
             <NetworkBox />
           </div>
         </>
-      )}
+      ):<div className={classes.spinner}>
+        <Spinner />
+      </div>}
     </div>
   );
 };
