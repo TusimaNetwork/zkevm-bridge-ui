@@ -23,7 +23,7 @@ interface DepositInput {
 interface DepositOutput {
   amount: string;
   block_num: number;
-  claim_tx_hash: string | null;
+  claim_tx_hash: any;
   deposit_cnt: number;
   dest_addr: string;
   dest_net: number;
@@ -32,7 +32,7 @@ interface DepositOutput {
   orig_addr: string;
   orig_net: number;
   ready_for_claim: boolean;
-  tx_hash: string;
+  tx_hash: any;
 }
 
 interface MerkleProof {
@@ -229,13 +229,21 @@ export const getMerkleProof = ({
       url: "/merkle-proof",
     })
     .then((res) => {
-      const parsedData = getMerkleProofResponseParser.safeParse(res.data);
-
-      if (parsedData.success) {
-        return parsedData.data.proof;
-      } else {
-        throw parsedData.error;
+      //mainExitRoot, merkleProof, rollupExitRoot, rollupMerkleProof
+      const {merkle_proof:merkleProof,main_exit_root:mainExitRoot,rollup_exit_root:rollupExitRoot} = res.data.proof;
+      return {
+        merkleProof,
+        mainExitRoot,
+        rollupExitRoot,
+        rollupMerkleProof:[] 
       }
+      // const parsedData = getMerkleProofResponseParser.safeParse(res.data);
+
+      // if (parsedData.success) {
+      //   return parsedData.data.proof;
+      // } else {
+      //   throw parsedData.error;
+      // }
     });
 };
 

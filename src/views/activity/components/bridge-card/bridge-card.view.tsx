@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 import { FC, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { getBatchNumberOfL2Block } from "src/adapters/ethereum";
 import { getCurrency } from "src/adapters/storage";
@@ -77,6 +77,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
   };
 
   const onCardClick = (bridge: Exclude<Bridge, PendingBridge>) => {
+    return
     navigate(`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`);
   };
 
@@ -161,6 +162,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
     case "initiated": {
       if (bridge.from.key === "ethereum") {
         return (
+          <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
             <div className={classes.top}>
               <div className={classes.infoContainer}>
@@ -178,10 +180,11 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 {!fiatAmountString && <div className={classes.amount}>{BridgeAmount}</div>}
               </div>
             </div>
-          </Card>
+          </Card></Link>
         );
       } else {
         return (
+          <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
             <div className={classes.top}>
               <div className={classes.row}>
@@ -208,13 +211,14 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 Finalise
               </button>
             </div>
-          </Card>
+          </Card></Link>
         );
       }
     }
     case "on-hold": {
       if (bridge.from.key === "ethereum") {
         return (
+          <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
             <div className={classes.top}>
               <div className={classes.infoContainer}>
@@ -233,9 +237,11 @@ export const BridgeCard: FC<BridgeCardProps> = ({
               </div>
             </div>
           </Card>
+          </Link>
         );
       } else {
         return (
+          <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
             <div className={classes.top}>
               <div className={classes.row}>
@@ -270,12 +276,13 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 Finalise
               </button>
             </div>
-          </Card>
+          </Card></Link>
         );
       }
     }
     case "completed": {
       return (
+        <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
         <Card className={classes.card} onClick={() => onCardClick(bridge)}>
           <div className={classes.top}>
             <div className={classes.infoContainer}>
@@ -294,6 +301,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
             </div>
           </div>
         </Card>
+        </Link>
       );
     }
   }

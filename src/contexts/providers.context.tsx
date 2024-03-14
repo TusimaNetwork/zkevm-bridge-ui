@@ -374,7 +374,7 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
       }
     };
     const onChainChanged = () => {
-      console.log("switch chainId")
+      // console.log("switch chainId")
       if (isAsyncTaskDataAvailable(connectedProvider)) {
         if (connectedProvider.data.provider.provider.isMetaMask) {
           void connectProvider(WalletName.METAMASK);

@@ -37,6 +37,10 @@ interface Fees {
 }
 
 const calculateFees = (bridge: Bridge): Promise<Fees> => {
+  console.log(
+    { chain: bridge.from, txHash: bridge.depositTxHash },
+    bridge.status,
+  )
   const step1Promise = getTxFeePaid({ chain: bridge.from, txHash: bridge.depositTxHash });
 
   const step2Promise =
@@ -118,7 +122,7 @@ export const BridgeDetails: FC = () => {
         })
           .then((bridge) => {
             callIfMounted(() => {
-              if (bridge.destinationAddress !== connectedProvider.data.account) {
+              if (bridge.destinationAddress.toLocaleLowerCase() !== connectedProvider.data.account.toLocaleLowerCase()) {
                 return navigate(routes.activity.path);
               }
               setBridge({
@@ -204,7 +208,6 @@ export const BridgeDetails: FC = () => {
     if (tokens && env?.fiatExchangeRates.areEnabled && bridge.status === "successful") {
       const { from } = bridge.data;
 
-      // fiat fees
       const token = tokens.find((t) => t.symbol === "WETH");
       if (token) {
         getTokenPrice({ chain: from, token })

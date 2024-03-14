@@ -155,7 +155,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
       const {
         amount,
         block_num,
-        claim_tx_hash,
+        claim_tx_hash ,
         deposit_cnt,
         dest_addr,
         dest_net,
@@ -167,7 +167,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         tx_hash,
       } = apiDeposit;
 
-      
+      console.log({apiDeposit})
       const from = env.chains.find((chain) => chain.networkId === network_id);
       if (from === undefined) {
         throw new Error(
@@ -188,15 +188,13 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         tokenOriginAddress: orig_addr,
       });
 
+      console.log({ready_for_claim})
       const claim: Deposit["claim"] =
-        // claim_tx_hash !== null
-        claim_tx_hash
+        claim_tx_hash !== '' 
           ? { status: "claimed", txHash: claim_tx_hash }
           : ready_for_claim
             ? { status: "ready" }
             : { status: "pending" };
-      
-      // console.log({claim_tx_hash,claim,ready_for_claim},claim_tx_hash !== null)
 
       const tokenPrice: BigNumber | undefined = env.fiatExchangeRates.areEnabled
         ? await getTokenPrice({
@@ -224,7 +222,6 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         networkId,
       });
 
-     
       switch (claim.status) {
         case "pending": {
           return {
@@ -344,7 +341,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
                 amount: BigNumber.from(amount),
                 blockNumber: block_num,
                 claim:
-                  claim_tx_hash !== null
+                  claim_tx_hash !=='' 
                     ? { status: "claimed", txHash: claim_tx_hash }
                     : ready_for_claim
                       ? { status: "ready" }
@@ -855,6 +852,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         throw new Error("Env is not available");
       }
 
+     
       const { account, chainId, provider } = connectedProvider.data;
       const contract = Bridge__factory.connect(to.bridgeContractAddress, provider.getSigner());
       const isL2Claim = to.key === "polygon-zkevm";
@@ -875,12 +873,26 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         ? await getErc20TokenEncodedMetadata({ chain: from, token })
         : "0x";
 
+        console.log({
+          merkleProof,
+            // rollupMerkleProof,
+            depositCount,
+            mainExitRoot,
+            rollupExitRoot,
+            tokenOriginNetwork,
+            token:token.address,
+            to:to.networkId,
+            destinationAddress,
+            amount,
+            metadata,
+            isL2Claim:isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
+        })
       const executeClaim = () =>
         contract
           .claimAsset(
             merkleProof,
-            rollupMerkleProof,
-            globalIndex,
+            // rollupMerkleProof,
+            depositCount,
             mainExitRoot,
             rollupExitRoot,
             tokenOriginNetwork,
