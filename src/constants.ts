@@ -60,7 +60,7 @@ export const DEPOSIT_CHECK_WORD = "I understand";
 
 export const ETH_TOKEN_LOGO_URI =
   "https://raw.githubusercontent.com/Uniswap/interface/main/packages/ui/src/assets/logos/png/ethereum-logo.png";
-
+export const TSM_TOKEN_LOGO_URI = '/icons/tokens/tusima.png'
 export const POLYGON_SUPPORT_URL = "https://support.polygon.technology";
 
 export const POLYGON_TERMS_AND_CONDITIONS_URL = "https://polygon.technology/terms-of-use";
@@ -146,6 +146,16 @@ export const getChains = ({
 };
 
 export const getEtherToken = (chain: Chain): Token => {
+  if(chain.chainId === 1001){
+    return {
+      address: ethers.constants.AddressZero,
+      chainId: chain.chainId,
+      decimals: 18,
+      logoURI: TSM_TOKEN_LOGO_URI,
+      name: "TSM",
+      symbol: "TSM",
+    }
+  }
   return {
     address: ethers.constants.AddressZero,
     chainId: chain.chainId,

@@ -17,7 +17,7 @@ import * as ethereum from "src/adapters/ethereum";
 import { cleanupCustomTokens, getCustomTokens } from "src/adapters/storage";
 import { getEthereumErc20Tokens } from "src/adapters/tokens";
 import tokenIconDefaultUrl from "src/assets/icons/tokens/erc20-icon.svg";
-import { getEtherToken } from "src/constants";
+import { getEtherToken,  } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
 import { useErrorContext } from "src/contexts/error.context";
 import { useProvidersContext } from "src/contexts/providers.context";
@@ -312,16 +312,12 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
   // initialize tokens
   useEffect(() => {
     if (env) {
-      const ethereumChain = env.chains[0];
+      const ethereumChains = env.chains.map((chain)=>chain.chainId)
       getEthereumErc20Tokens()
         .then((ethereumErc20Tokens) =>
           Promise.all(
-            ethereumErc20Tokens
-              .filter((token) => token.chainId === ethereumChain.chainId)
-              .map((token) => addWrappedToken({ token }))
-          )
-            .then((chainTokens) => {
-              const tokens = [getEtherToken(ethereumChain), ...chainTokens];
+            ethereumErc20Tokens.filter((token) => ethereumChains.includes(token.chainId)).map((token) => addWrappedToken({ token }))).then((chainTokens) => {
+              const tokens = [getEtherToken(env.chains[0]),getEtherToken(env.chains[1]), ...chainTokens];
               cleanupCustomTokens(tokens);
               setTokens(tokens);
             })

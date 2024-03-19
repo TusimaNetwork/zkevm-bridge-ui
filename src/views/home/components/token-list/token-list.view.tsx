@@ -1,5 +1,5 @@
 import { BigNumber, utils as ethersUtils } from "ethers";
-import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { isChainNativeCustomToken } from "src/adapters/storage";
 import { ReactComponent as InfoIcon } from "src/assets/icons/info.svg";
@@ -169,6 +169,7 @@ export const TokenList: FC<TokenListProps> = ({
       ? "No result found"
       : undefined;
 
+  const tokensLists=useMemo(()=>filteredTokens.filter((itm)=>itm.chainId === chains.from.chainId),[filteredTokens,chains?.from])
   return (
     <div className={classes.tokenList}>
       <TokenSelectorHeader onClose={onClose} title="Select token" />
@@ -200,7 +201,7 @@ export const TokenList: FC<TokenListProps> = ({
             {error}
           </Typography>
         ) : (
-          filteredTokens.map((token) => {
+          tokensLists.map((token) => {
             const isImportedCustomToken = isChainNativeCustomToken(token, chains.from);
             const isNonImportedCustomToken =
               !isImportedCustomToken &&

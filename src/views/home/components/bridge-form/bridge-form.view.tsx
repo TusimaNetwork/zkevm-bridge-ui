@@ -4,7 +4,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { addCustomToken, getChainCustomTokens, removeCustomToken } from "src/adapters/storage";
 import { ReactComponent as ArrowDown } from "src/assets/icons/arrow-down.svg";
 import { ReactComponent as CaretDown } from "src/assets/icons/caret-down.svg";
-import { getEtherToken } from "src/constants";
+import {  getEtherToken } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
@@ -66,6 +66,8 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       const to = env.chains.find((chain) => chain.key !== from.key);
       if (to) {
         setSelectedChains({ from, to });
+        const newToken = env.chains.find((chain) => chain.chainId === from.chainId);
+        newToken && setToken(getEtherToken(newToken))
         setChains(undefined);
         setAmount(undefined);
       }
@@ -351,7 +353,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       </Card>
       <div className={classes.button}>
         <Button
-          disabled={isPrivate && (!amount || amount.isZero() || inputError !== undefined)}
+          disabled={isPrivate && !notLogin && (!amount || amount.isZero() || inputError !== undefined)}
           type="submit"
         >
           {notLogin ? "Connect Wallet" : isPrivate ? "Continue" : "Exchange to Ethereum"}

@@ -1,5 +1,21 @@
 [
   {
+    "name": "TSM",
+    "address": "0x539a827822b2a532092b8A08919DCAC4B00bead1",
+    "chainId": 11155111,
+    "symbol": "TSM",
+    "decimals": 18,
+    "logoURI": "/icons/tokens/tusima.png"
+  },
+  {
+    "name": "PETH",
+    "address": "0x630C6AB678E8040461bC194B445ac800F0CEf732",
+    "chainId": 1001,
+    "symbol": "PETH",
+    "decimals": 18,
+    "logoURI": "/icons/tokens/11155111.png"
+  },
+  {
     "name": "Matic Token",
     "address": "0x4701Aa9471d7bfAc765D87dcb1Ea6BB23AD32733",
     "chainId": 5,
