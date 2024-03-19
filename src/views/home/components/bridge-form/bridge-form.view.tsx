@@ -4,7 +4,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { addCustomToken, getChainCustomTokens, removeCustomToken } from "src/adapters/storage";
 import { ReactComponent as ArrowDown } from "src/assets/icons/arrow-down.svg";
 import { ReactComponent as CaretDown } from "src/assets/icons/caret-down.svg";
-import {  getEtherToken } from "src/constants";
+import {  getEtherToken, getToToken, isEagleChain, isEaglePETH,  } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
@@ -63,13 +63,12 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
 
   const onChainButtonClick = (from: Chain) => {
     if (env) {
-      const to = env.chains.find((chain) => chain.key !== from.key);
+      const to = env.chains.find((chain) => chain.key !== from.key)
       if (to) {
-        setSelectedChains({ from, to });
-        const newToken = env.chains.find((chain) => chain.chainId === from.chainId);
-        newToken && setToken(getEtherToken(newToken))
-        setChains(undefined);
-        setAmount(undefined);
+        setSelectedChains({ from, to })
+        setToken(getEtherToken(from))
+        setChains(undefined)
+        setAmount(undefined)
       }
     }
   };
@@ -79,46 +78,55 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   };
 
   const onSelectToken = (token: Token) => {
-    setToken(token);
-    setIsTokenListOpen(false);
-    setAmount(undefined);
+    setToken(token)
+    setIsTokenListOpen(false)
+    setAmount(undefined)
   };
 
+  const fromToken=useMemo(()=>{
+    return token
+  },[token,selectedChains])
+  const toToken=useMemo(()=>{
+    if(selectedChains && fromToken){
+     
+      return getToToken(fromToken)
+    }
+  },[token,selectedChains])
   const onCloseTokenSelector = () => {
-    setIsTokenListOpen(false);
+    setIsTokenListOpen(false)
   };
 
   const onAddToken = (token: Token) => {
     if (tokens) {
       // We don't want to store the balance of the user in the local storage
-      const { address, chainId, decimals, logoURI, name, symbol, wrappedToken } = token;
-      addCustomToken({ address, chainId, decimals, logoURI, name, symbol, wrappedToken });
-      setTokens([token, ...tokens]);
+      const { address, chainId, decimals, logoURI, name, symbol, wrappedToken } = token
+      addCustomToken({ address, chainId, decimals, logoURI, name, symbol, wrappedToken })
+      setTokens([token, ...tokens])
     }
   };
 
   const onRemoveToken = (tokenToRemove: Token) => {
     if (tokens) {
-      removeCustomToken(tokenToRemove);
+      removeCustomToken(tokenToRemove)
       setTokens(
         tokens.filter(
           (token) =>
             !(token.address === tokenToRemove.address && token.chainId === tokenToRemove.chainId)
         )
-      );
+      )
       if (selectedChains && tokenToRemove.address === token?.address) {
-        setToken(getEtherToken(selectedChains.from));
+        setToken(getEtherToken(selectedChains.from))
       }
     }
   };
 
   const onFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (notLogin) {
-      connectWallet();
+      connectWallet()
       return;
     } else if (!isPrivate) {
-      selectedChains ? onAddNetwork(selectedChains.from) : "";
+      selectedChains ? onAddNetwork(selectedChains.from) : ""
       return;
     } else if (selectedChains && token && amount) {
       onSubmit({
@@ -126,7 +134,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         from: selectedChains.from,
         to: selectedChains.to,
         token: token,
-      });
+      })
     }
   };
 
@@ -177,8 +185,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
 
       setTokens(() =>
         tokens.map((token: Token) => {
-          getTokenBalance(token, selectedChains.from)
-            .then((balance): void => {
+          getTokenBalance(token, selectedChains.from).then((balance): void => {
               callIfMounted(() => {
                 const updatedToken: Token = {
                   ...token,
@@ -189,15 +196,14 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
                 };
                 setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken));
               });
-            })
-            .catch(() => {
+            }).catch(() => {
               callIfMounted(() => {
                 const updatedToken: Token = {
                   ...token,
                   balance: {
                     error: "Couldn't retrieve token balance",
                     status: "failed",
-                  },
+                  }
                 };
                 setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken));
               });
@@ -210,12 +216,12 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
 
   useEffect(() => {
     // Load the balance of the selected token in both networks
-    if (selectedChains && token) {
-      const loadBalance = async (chain:Chain, setBalance:(v:AsyncTask<BigNumber, string>)=>void) => {
+    if (selectedChains && fromToken && toToken) {
+      const loadBalance = async (chain:Chain,token:Token, setBalance:(v:AsyncTask<BigNumber, string>)=>void) => {
         setBalance({ status: "loading" });
         let balanceOrError:any;
         try {
-          balanceOrError = await getTokenBalance(token, chain);
+          balanceOrError = await getTokenBalance(token, chain)
         } catch (error) {
           balanceOrError = error;
         }
@@ -228,10 +234,10 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         });
       };
   
-      loadBalance(selectedChains.from, setBalanceFrom);
-      loadBalance(selectedChains.to, setBalanceTo);
+      loadBalance(selectedChains.from,fromToken, setBalanceFrom);
+      loadBalance(selectedChains.to,toToken, setBalanceTo);
     }
-  }, [callIfMounted, getTokenBalance, selectedChains, token]);
+  }, [callIfMounted, getTokenBalance, selectedChains, toToken,fromToken]);
 
   const notLogin = useMemo(
     () => connectedProvider.status === "successful" && !connectedProvider.data.account,
@@ -275,7 +281,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     }
   }, [formData, onResetForm]);
 
-  if (!env || !selectedChains || !tokens || !token) {
+  if (!env || !selectedChains || !tokens || !token || !toToken) {
     // if (!env) {
     return (
       <div className={classes.spinner}>
@@ -345,7 +351,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
             <Typography type="body2">Balance</Typography>
             <TokenBalance
               spinnerSize={14}
-              token={{ ...token, balance: balanceTo }}
+              token={{ ...toToken, balance: balanceTo }}
               typographyProps={{ type: "body1" }}
             />
           </div>

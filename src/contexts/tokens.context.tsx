@@ -17,7 +17,7 @@ import * as ethereum from "src/adapters/ethereum";
 import { cleanupCustomTokens, getCustomTokens } from "src/adapters/storage";
 import { getEthereumErc20Tokens } from "src/adapters/tokens";
 import tokenIconDefaultUrl from "src/assets/icons/tokens/erc20-icon.svg";
-import { getEtherToken,  } from "src/constants";
+import { getEtherToken, getExchangeAddress,  } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
 import { useErrorContext } from "src/contexts/error.context";
 import { useProvidersContext } from "src/contexts/providers.context";
@@ -185,11 +185,12 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
   );
 
   const getTokenFromAddress = useCallback(
-    async ({ address, chain }: GetTokenFromAddressParams): Promise<Token> => {
+    async ({ address:ads, chain }: GetTokenFromAddressParams): Promise<Token> => {
       if (!env) {
         throw Error("The env is not ready");
       }
 
+      const address = getExchangeAddress(ads)
       const erc20Contract = Erc20__factory.connect(address, chain.provider);
       const name = await erc20Contract.name();
       const decimals = await erc20Contract.decimals();
@@ -317,7 +318,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         .then((ethereumErc20Tokens) =>
           Promise.all(
             ethereumErc20Tokens.filter((token) => ethereumChains.includes(token.chainId)).map((token) => addWrappedToken({ token }))).then((chainTokens) => {
-              const tokens = [getEtherToken(env.chains[0]),getEtherToken(env.chains[1]), ...chainTokens];
+              const tokens = [...env.chains.map(itm=>getEtherToken(itm)), ...chainTokens];
               cleanupCustomTokens(tokens);
               setTokens(tokens);
             })

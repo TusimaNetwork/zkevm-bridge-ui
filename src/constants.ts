@@ -3,7 +3,15 @@ import { ethers } from "ethers";
 
 import { ReactComponent as EthChainIcon } from "src/assets/icons/chains/ethereum.svg";
 import TusimaLogo from "src/components/TusimaLogo";
-import { Chain, Currency, EthereumChain, ProviderError, Token, ZkEVMChain } from "src/domain";
+import {
+  Chain,
+  Currency,
+  EthereumChain,
+  EthereumChainId,
+  ProviderError,
+  Token,
+  ZkEVMChain,
+} from "src/domain";
 import { ProofOfEfficiency__factory } from "src/types/contracts/proof-of-efficiency";
 import { getEthereumNetworkName } from "src/utils/labels";
 
@@ -60,7 +68,7 @@ export const DEPOSIT_CHECK_WORD = "I understand";
 
 export const ETH_TOKEN_LOGO_URI =
   "https://raw.githubusercontent.com/Uniswap/interface/main/packages/ui/src/assets/logos/png/ethereum-logo.png";
-export const TSM_TOKEN_LOGO_URI = '/icons/tokens/tusima.png'
+export const TSM_TOKEN_LOGO_URI = "/icons/tokens/tusima.png";
 export const POLYGON_SUPPORT_URL = "https://support.polygon.technology";
 
 export const POLYGON_TERMS_AND_CONDITIONS_URL = "https://polygon.technology/terms-of-use";
@@ -106,7 +114,7 @@ export const getChains = ({
     ethereumProvider.getNetwork().catch(() => Promise.reject(ProviderError.Ethereum)),
     polygonZkEVMProvider.getNetwork().catch(() => Promise.reject(ProviderError.PolygonZkEVM)),
     poeContract.networkName().catch(() => Promise.reject(ProviderError.Ethereum)),
-  ]).then(([ethereumNetwork, polygonZkEVMNetwork, polygonZkEVMNetworkName]) =>{
+  ]).then(([ethereumNetwork, polygonZkEVMNetwork, polygonZkEVMNetworkName]) => {
     return [
       {
         bridgeContractAddress: ethereum.bridgeContractAddress,
@@ -132,7 +140,7 @@ export const getChains = ({
         Icon: TusimaLogo,
         key: "polygon-zkevm",
         // name: polygonZkEVMNetworkName,
-        name:'Tusima Eagle',
+        name: "Tusima Eagle",
         nativeCurrency: {
           decimals: 18,
           name: "Ether",
@@ -141,29 +149,67 @@ export const getChains = ({
         networkId: polygonZkEVM.networkId,
         provider: polygonZkEVMProvider,
       },
-    ]
-  } );
+    ];
+  });
 };
-
-export const getEtherToken = (chain: Chain): Token => {
-  if(chain.chainId === 1001){
-    return {
-      address: ethers.constants.AddressZero,
-      chainId: chain.chainId,
-      decimals: 18,
-      logoURI: TSM_TOKEN_LOGO_URI,
-      name: "TSM",
-      symbol: "TSM",
-    }
-  }
-  return {
+export const PETHToken: Token = {
+  address: "0x630C6AB678E8040461bC194B445ac800F0CEf732",
+  chainId: EthereumChainId.EAGLE,
+  decimals: 18,
+  logoURI: ETH_TOKEN_LOGO_URI,
+  name: "PETH",
+  symbol: "PETH",
+};
+export const TSMToken: Token = {
+  address: "0x539a827822b2a532092b8A08919DCAC4B00bead1",
+  chainId: EthereumChainId.SEPOLIA,
+  decimals: 18,
+  logoURI: TSM_TOKEN_LOGO_URI,
+  name: "TSM",
+  symbol: "TSM",
+};
+export const ETHNavToken:Token={
+  address: ethers.constants.AddressZero,
+  chainId: EthereumChainId.EAGLE,
+  decimals: 18,
+  logoURI: ETH_TOKEN_LOGO_URI,
+  name: "Ether",
+  symbol: "ETH", 
+}
+export const TSMNAVToken:Token={
     address: ethers.constants.AddressZero,
-    chainId: chain.chainId,
+    chainId: EthereumChainId.SEPOLIA,
     decimals: 18,
-    logoURI: ETH_TOKEN_LOGO_URI,
-    name: "Ether",
-    symbol: "ETH",
-  };
+    logoURI: TSM_TOKEN_LOGO_URI,
+    name: "TSM",
+    symbol: "TSM",
+}
+export const getExchangeAddress=(address:string)=>{
+  if(address === '0x0000000000000000000000000000000000000001'){
+    return TSMToken.address
+  }
+  return address
+}
+export const isEagleChain = (chain: Chain | Token) => {
+  return chain.chainId === EthereumChainId.EAGLE;
+};
+export const isEaglePETH = (token: Token) => {
+  return (
+    isEagleChain(token) && String(PETHToken.address).toLocaleLowerCase() === String(token.address).toLocaleLowerCase()
+  );
+};
+export const getToToken = (token: Token):Token => {
+  if(isEagleChain(token) ){
+    return token.address === ethers.constants.AddressZero ? TSMToken:{...ETHNavToken}
+  }else if(String(TSMToken.address).toLocaleLowerCase() === String(token.address).toLocaleLowerCase()){
+    return {...TSMNAVToken,chainId:token.chainId} 
+  }
+  return PETHToken;
+};
+export const getEtherToken = (chain: Chain | Token,chainId?:number): Token => {
+  if (isEagleChain(chain))
+    return {...TSMNAVToken,chainId:chainId || chain.chainId};
+  return {...ETHNavToken,chainId:chainId || chain.chainId};
 };
 
 export const getUsdcToken = ({
