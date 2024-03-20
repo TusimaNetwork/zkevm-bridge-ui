@@ -156,7 +156,7 @@ export const getDeposits = ({
         offset,
       },
       signal: abortSignal,
-      url: `/bridges/${ethereumAddress}`,
+      url: `/api/bridges/${ethereumAddress}`,
     })
     .then((res) => {
       // const parsedData = getDepositsResponseParser.safeParse(res.data);
@@ -194,7 +194,7 @@ export const getDeposit = ({
         net_id: networkId,
       },
       signal: abortSignal,
-      url: "/bridge",
+      url: "/api/bridge",
     })
     .then((res) => {
       // const parsedData = getDepositResponseParser.safeParse(res.data);
@@ -227,7 +227,7 @@ export const getMerkleProof = ({
         deposit_cnt: depositCount,
         net_id: networkId,
       },
-      url: "/merkle-proof",
+      url: "/api/merkle-proof",
     })
     .then((res) => {
       //mainExitRoot, merkleProof, rollupExitRoot, rollupMerkleProof
