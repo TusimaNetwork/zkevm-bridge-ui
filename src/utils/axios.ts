@@ -2,7 +2,7 @@ import axios from 'axios'
 
 
 // export const baseURL = isLocalhost ? getEnv('REACT_APP_DEV_REQUEST_URL') : URLs.join('')
-export const timeout = 1000
+export const timeout = 10000
 export const contentType = 'application/x-www-form-urlencoded'
 // axios.defaults.baseURL = '/api'
 axios.defaults.timeout = timeout
