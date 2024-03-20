@@ -1,9 +1,9 @@
-import axios from "axios";
 import { z } from "zod";
 
 import { PAGE_SIZE } from "src/constants";
 import * as domain from "src/domain";
 import { StrictSchema } from "src/utils/type-safety";
+import axios from "src/utils/axios";
 
 interface DepositInput {
   amount: string;
@@ -199,6 +199,7 @@ export const getDeposit = ({
     .then((res) => {
       // const parsedData = getDepositResponseParser.safeParse(res.data);
       const parsedData = res
+      
       // if (parsedData.success) {
         return parsedData.data.deposit;
       // } else {

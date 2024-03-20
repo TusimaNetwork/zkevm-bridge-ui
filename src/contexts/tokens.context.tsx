@@ -1,5 +1,4 @@
 import { Web3Provider } from "@ethersproject/providers";
-import axios from "axios";
 import { BigNumber, constants as ethersConstants } from "ethers";
 import {
   FC,
@@ -24,6 +23,7 @@ import { useProvidersContext } from "src/contexts/providers.context";
 import { Chain, Env, Token } from "src/domain";
 import { Bridge__factory } from "src/types/contracts/bridge";
 import { Erc20__factory } from "src/types/contracts/erc-20";
+import axios from "src/utils/axios";
 import { isTokenEther } from "src/utils/tokens";
 import { isAsyncTaskDataAvailable } from "src/utils/types";
 
@@ -195,7 +195,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       const name = await erc20Contract.name();
       const decimals = await erc20Contract.decimals();
       const symbol = await erc20Contract.symbol();
-      const trustWalletLogoUrl = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`;
+      const trustWalletLogoUrl = `/icons/tokens/${address}/logo.png`;
       const logoURI = await axios
         .head(trustWalletLogoUrl)
         .then(() => trustWalletLogoUrl)

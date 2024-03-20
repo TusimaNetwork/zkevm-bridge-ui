@@ -1,8 +1,8 @@
-import axios from "axios";
 import { z } from "zod";
 
 import { Currency, FiatExchangeRates } from "src/domain";
 import { StrictSchema } from "src/utils/type-safety";
+import axios from "src/utils/axios";
 
 interface GetFiatExchangeRatesSuccessResponse {
   rates: FiatExchangeRates;
