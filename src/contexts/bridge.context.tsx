@@ -167,7 +167,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         tx_hash,
       } = apiDeposit;
 
-      console.log({apiDeposit})
+      // console.log({apiDeposit})
       const from = env.chains.find((chain) => chain.networkId === network_id);
       if (from === undefined) {
         throw new Error(
@@ -182,13 +182,13 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         );
       }
 
-      const token = await getToken({
+      const {token,origtoken} = await getToken({
         env,
-        originNetwork: orig_net,
+        originNetwork: network_id,
         tokenOriginAddress: orig_addr,
       });
 
-      console.log({ready_for_claim})
+      console.log({ready_for_claim,})
       const claim: Deposit["claim"] =
         claim_tx_hash !== '' 
           ? { status: "claimed", txHash: claim_tx_hash }
@@ -237,6 +237,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             status: "initiated",
             to,
             token,
+            origtoken,
             tokenOriginNetwork: orig_net,
           };
         }
@@ -254,6 +255,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             status: "on-hold",
             to,
             token,
+            origtoken,
             tokenOriginNetwork: orig_net,
           };
         }
@@ -272,6 +274,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             status: "completed",
             to,
             token,
+            origtoken,
             tokenOriginNetwork: orig_net,
           };
         }
@@ -332,10 +335,10 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
           return acc.then((accDeposits) =>
             getToken({
               env,
-              originNetwork: orig_net,
+              originNetwork: network_id,
 
               tokenOriginAddress: orig_addr,
-            }).then((token) => [
+            }).then(({token,origtoken}) => [
               ...accDeposits,
               {
                 amount: BigNumber.from(amount),
@@ -354,6 +357,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
                 globalIndex: global_index,
                 to,
                 token,
+                origtoken,
                 tokenOriginNetwork: orig_net,
               },
             ])
@@ -400,6 +404,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
           globalIndex,
           to,
           token,
+          origtoken,
           tokenOriginNetwork,
         } = partialDeposit;
 
@@ -440,6 +445,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
               status: "initiated",
               to,
               token,
+              origtoken,
               tokenOriginNetwork,
             };
           }
@@ -457,6 +463,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
               status: "on-hold",
               to,
               token,
+              origtoken,
               tokenOriginNetwork,
             };
           }
@@ -475,6 +482,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
               status: "completed",
               to,
               token,
+              origtoken,
               tokenOriginNetwork,
             };
           }
@@ -642,6 +650,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
       return Promise.all(
         storage.getAccountPendingTxs(connectedProvider.data.account, env).map(async (tx) => {
           const chain = env.chains.find((chain) => chain.key === tx.from.key);
+          
           const token = await addWrappedToken({ token: tx.token });
           const tokenPrice =
             chain && env.fiatExchangeRates.areEnabled

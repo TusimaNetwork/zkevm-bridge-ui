@@ -188,7 +188,7 @@ const envToDomain = ({
   const forceUpdateGlobalExitRootForL1 = stringBooleanParser.parse(
     VITE_ETHEREUM_FORCE_UPDATE_GLOBAL_EXIT_ROOT
   );
-  const bridgeApiUrl = VITE_BRIDGE_API_URL;
+  const bridgeApiUrl = '';
   const outdatedNetworkModal: domain.Env["outdatedNetworkModal"] = isOutdatedNetworkModalEnabled
     ? {
         isEnabled: true,

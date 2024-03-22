@@ -14,6 +14,7 @@ import {
 } from "src/domain";
 import { ProofOfEfficiency__factory } from "src/types/contracts/proof-of-efficiency";
 import { getEthereumNetworkName } from "src/utils/labels";
+import { isTokenEther } from "./utils/tokens";
 
 export const DAI_PERMIT_TYPEHASH =
   "0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb";
@@ -143,8 +144,8 @@ export const getChains = ({
         name: "Tusima Eagle",
         nativeCurrency: {
           decimals: 18,
-          name: "Ether",
-          symbol: "ETH",
+          name: "TSM",
+          symbol: "TSM",
         },
         networkId: polygonZkEVM.networkId,
         provider: polygonZkEVMProvider,
@@ -168,48 +169,58 @@ export const TSMToken: Token = {
   name: "TSM",
   symbol: "TSM",
 };
-export const ETHNavToken:Token={
+export const ETHNavToken: Token = {
   address: ethers.constants.AddressZero,
   chainId: EthereumChainId.EAGLE,
   decimals: 18,
   logoURI: ETH_TOKEN_LOGO_URI,
   name: "Ether",
-  symbol: "ETH", 
-}
-export const TSMNAVToken:Token={
-    address: ethers.constants.AddressZero,
-    chainId: EthereumChainId.SEPOLIA,
-    decimals: 18,
-    logoURI: TSM_TOKEN_LOGO_URI,
-    name: "TSM",
-    symbol: "TSM",
-}
-export const getExchangeAddress=(address:string)=>{
-  if(address === '0x0000000000000000000000000000000000000001'){
-    return TSMToken.address
+  symbol: "ETH",
+};
+export const TSMNAVToken: Token = {
+  address: ethers.constants.AddressZero,
+  chainId: EthereumChainId.SEPOLIA,
+  decimals: 18,
+  logoURI: TSM_TOKEN_LOGO_URI,
+  name: "TSM",
+  symbol: "TSM",
+};
+export const TSMAddressZero="0x0000000000000000000000000000000000000001"
+export const getExchangeAddress = (address: string, chainId: number) => {
+  //做到这里了。是token转换的bug，再详情页初始化token的时候和展示token 图标和名称是对拧着的。这里要想办法解决一下
+  if (address === TSMAddressZero) {
+    return ethers.constants.AddressZero
   }
   return address
 }
+export const getOrigExchangeAddress = (address: string, chainId: number) => {
+  if (chainId === EthereumChainId.SEPOLIA) {
+    return address === ethers.constants.AddressZero ? TSMToken.address : ethers.constants.AddressZero;
+  }
+  return address === TSMAddressZero ? PETHToken.address : ethers.constants.AddressZero;
+};
 export const isEagleChain = (chain: Chain | Token) => {
   return chain.chainId === EthereumChainId.EAGLE;
 };
 export const isEaglePETH = (token: Token) => {
   return (
-    isEagleChain(token) && String(PETHToken.address).toLocaleLowerCase() === String(token.address).toLocaleLowerCase()
+    isEagleChain(token) &&
+    String(PETHToken.address).toLocaleLowerCase() === String(token.address).toLocaleLowerCase()
   );
 };
-export const getToToken = (token: Token):Token => {
-  if(isEagleChain(token) ){
-    return token.address === ethers.constants.AddressZero ? TSMToken:{...ETHNavToken}
-  }else if(String(TSMToken.address).toLocaleLowerCase() === String(token.address).toLocaleLowerCase()){
-    return {...TSMNAVToken,chainId:token.chainId} 
+export const getToToken = (token: Token): Token => {
+  if (isEagleChain(token)) {
+    return token.address === ethers.constants.AddressZero ? TSMToken : { ...ETHNavToken };
+  } else if (
+    String(TSMToken.address).toLocaleLowerCase() === String(token.address).toLocaleLowerCase()
+  ) {
+    return { ...TSMNAVToken, chainId: token.chainId };
   }
   return PETHToken;
 };
-export const getEtherToken = (chain: Chain | Token,chainId?:number): Token => {
-  if (isEagleChain(chain))
-    return {...TSMNAVToken,chainId:chainId || chain.chainId};
-  return {...ETHNavToken,chainId:chainId || chain.chainId};
+export const getEtherToken = (chain: Chain | Token, chainId?: number): Token => {
+  if (isEagleChain(chain)) return { ...TSMNAVToken, chainId: chainId || chain.chainId };
+  return { ...ETHNavToken, chainId: chainId || chain.chainId };
 };
 
 export const getUsdcToken = ({

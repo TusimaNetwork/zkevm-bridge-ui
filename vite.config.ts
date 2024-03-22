@@ -23,10 +23,18 @@ export default defineConfig({
     //   typescript: true,
     // }),
   ],
+ 
   resolve: {
     alias: [{ find: "src", replacement: path.resolve(__dirname, "src") }],
   },
   server: {
     open: true,
+    proxy: {
+      '/api': {
+        target: 'https://bridge.eagle.tusima.network',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      }
+    },
   },
 });

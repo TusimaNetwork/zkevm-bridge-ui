@@ -37,10 +37,7 @@ interface Fees {
 }
 
 const calculateFees = (bridge: Bridge): Promise<Fees> => {
-  console.log(
-    { chain: bridge.from, txHash: bridge.depositTxHash },
-    bridge.status,
-  )
+
   const step1Promise = getTxFeePaid({ chain: bridge.from, txHash: bridge.depositTxHash });
 
   const step2Promise =
@@ -267,7 +264,7 @@ export const BridgeDetails: FC = () => {
       return <Navigate replace to={routes.activity.path} />;
     }
     case "successful": {
-      const { amount, from, status, to, token } = bridge.data;
+      const { amount, from, status, to, token,origtoken } = bridge.data;
 
       const bridgeTxUrl = `${from.explorerUrl}/tx/${bridge.data.depositTxHash}`;
       const claimTxUrl =
@@ -284,8 +281,8 @@ export const BridgeDetails: FC = () => {
         return null;
       }
 
-      const tokenAmountString = `${formatTokenAmount(amount, token)} ${token.symbol}`;
-
+      const tokenAmountString = `${formatTokenAmount(amount, token)} ${origtoken.symbol}`;
+// console.log({origtoken})
       const fiatAmountString = env.fiatExchangeRates.areEnabled
         ? `${currencySymbol}${fiatAmount ? formatFiatAmount(fiatAmount) : "--"}`
         : undefined;
@@ -314,7 +311,7 @@ export const BridgeDetails: FC = () => {
           <Header backTo={{ routeKey: "activity" }} title="Bridge Details" />
           <Card className={classes.card}>
             <div className={classes.balance}>
-              <Icon className={classes.tokenIcon} isRounded size={48} url={token.logoURI} />
+              <Icon className={classes.tokenIcon} isRounded size={48} url={origtoken.logoURI} />
               <Typography type="h1">{tokenAmountString}</Typography>
               <Typography className={classes.fiat} type="h2">
                 {fiatAmountString}

@@ -36,7 +36,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
   onClaim,
   showFiatAmount,
 }) => {
-  const { amount, fiatAmount, from, status, to, token } = bridge;
+  const { amount, fiatAmount, from, status, to, token,origtoken } = bridge;
   const classes = useBridgeCardStyles();
   const navigate = useNavigate();
   const [batchNumberOfL2Block, setBatchNumberOfL2Block] = useState<AsyncTask<BigNumber, string>>({
@@ -77,13 +77,14 @@ export const BridgeCard: FC<BridgeCardProps> = ({
   };
 
   const onCardClick = (bridge: Exclude<Bridge, PendingBridge>) => {
+    //给这个参数禁用了。下面使用了link标签跳转
     return
     navigate(`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`);
   };
 
   const preferredCurrencySymbol = getCurrencySymbol(getCurrency());
 
-  const tokenAmountString = `${formatTokenAmount(amount, token)} ${token.symbol}`;
+  const tokenAmountString = `${formatTokenAmount(amount, token)} ${origtoken.symbol}`;
 
   const fiatAmountString = showFiatAmount
     ? `${preferredCurrencySymbol}${fiatAmount ? formatFiatAmount(fiatAmount) : "--"}`
@@ -107,7 +108,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
 
   const BridgeAmount = (
     <div className={classes.token}>
-      <Icon className={classes.tokenIcon} isRounded size={20} url={token.logoURI} />
+      <Icon className={classes.tokenIcon} isRounded size={20} url={origtoken.logoURI} />
       <Typography type="body1">{tokenAmountString}</Typography>
     </div>
   );

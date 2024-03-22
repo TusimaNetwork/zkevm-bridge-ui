@@ -161,12 +161,13 @@ interface BridgeCommonFields {
   id: string;
   to: Chain;
   token: Token;
+  origtoken:Token;
   tokenOriginNetwork: number;
 }
 
 export type PendingBridge = Pick<
   BridgeCommonFields,
-  "depositTxHash" | "destinationAddress" | "from" | "to" | "token" | "amount" | "fiatAmount"
+  "depositTxHash" | "destinationAddress" | "from" | "to" | "token" | "amount" | "fiatAmount" | "origtoken"
 > & {
   claimTxHash?: string;
   status: "pending";
@@ -209,6 +210,7 @@ export interface Deposit {
   globalIndex: string;
   to: Chain;
   token: Token;
+  origtoken:Token;
   tokenOriginNetwork: number;
 }
 

@@ -91,7 +91,6 @@ export const TokenList: FC<TokenListProps> = ({
         });
       } else {
         setCustomToken({ status: "loading" });
-
         void getTokenFromAddress({
           address: searchTerm,
           chain: chains.from,
