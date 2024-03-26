@@ -53,7 +53,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const {hash:asHash} = useLocation()
   const [balanceTo, setBalanceTo] = useState<AsyncTask<BigNumber, string>>({ status: "pending" })
   const [inputError, setInputError] = useState<string>()
-  const [selectedChains1, setSelectedChains] = useState<SelectedChains>()
   const [selectToken, setSelectToken] = useState<Token>()
   const [amount, setAmount] = useState<BigNumber>()
   const [chains, setChains] = useState<Chain[]>()
@@ -80,7 +79,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     return has
   },[asHash,connectedProvider,env?.chains])
 
-  const selectedChains = useMemo(()=>{
+  const selectedChains:SelectedChains | undefined = useMemo(()=>{
     if(env){
       const [chain1,chain2]= env.chains
       const [from,to] = hash === FromLabel.Deposit.toLocaleLowerCase() ? [chain1,chain2]:[chain2,chain1]
@@ -288,7 +287,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   useEffect(() => {
     // Load default form values
     if (formData) {
-      setSelectedChains({ from: formData.from, to: formData.to })
       setSelectToken(formData.token)
       setAmount(formData.amount)
       onResetForm()
