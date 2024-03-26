@@ -18,44 +18,39 @@ import { Typography } from "src/views/shared/typography/typography.view";
 import { Spinner } from "../shared/spinner/spinner.view";
 
 export const Home = (): JSX.Element => {
-  const classes = useHomeStyles();
-  const navigate = useNavigate();
-  const env = useEnvContext();
-  const { formData, setFormData } = useFormContext();
-  const { connectedProvider } = useProvidersContext();
+  const classes = useHomeStyles()
+  const navigate = useNavigate()
+  const env = useEnvContext()
+  const { formData, setFormData } = useFormContext()
+  const { connectedProvider } = useProvidersContext()
   const [depositWarningModal, setDepositWarningModal] = useState<ModalState<FormData>>({
     status: "closed",
-  });
+  })
 
   const onSubmitForm = (formData: FormData, hideDepositWarning?: boolean) => {
     if (hideDepositWarning) {
-      setIsDepositWarningDismissed(hideDepositWarning);
+      setIsDepositWarningDismissed(hideDepositWarning)
     }
-    setFormData(formData);
-    navigate(routes.bridgeConfirmation.path);
+    setFormData(formData)
+    navigate(routes.bridgeConfirmation.path)
   };
 
   const onCheckShowDepositWarningAndSubmitForm = (formData: FormData) => {
-    const isDepositWarningDismissed = getIsDepositWarningDismissed();
+    const isDepositWarningDismissed = getIsDepositWarningDismissed()
 
-    if (
-      env &&
-      env.isDepositWarningEnabled &&
-      !isDepositWarningDismissed &&
-      formData.from.key === "ethereum"
-    ) {
+    if ( env && env.isDepositWarningEnabled && !isDepositWarningDismissed && formData.from.key === "ethereum" ) {
       setDepositWarningModal({
         data: formData,
-        status: "open",
-      });
+        status: "open"
+      })
     } else {
-      onSubmitForm(formData);
+      onSubmitForm(formData)
     }
-  };
+  }
 
   const onResetForm = () => {
     setFormData(undefined);
-  };
+  }
   
 //   return <div className={classes.contentWrapper}>
 //   <Header />
@@ -97,5 +92,5 @@ export const Home = (): JSX.Element => {
         <Spinner />
       </div>}
     </div>
-  );
-};
+  )
+}

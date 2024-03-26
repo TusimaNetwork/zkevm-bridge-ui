@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation, useMatches, useNavigate, useNavigation, useParams, useRevalidator } from "react-router-dom";
 
 import { addCustomToken, getChainCustomTokens, removeCustomToken } from "src/adapters/storage";
 import { ReactComponent as ArrowDown } from "src/assets/icons/arrow-down.svg";
@@ -11,6 +12,7 @@ import { useTokensContext } from "src/contexts/tokens.context";
 import { AsyncTask, Chain, FormData, Token } from "src/domain";
 import { useAddnetwork } from "src/hooks/use-addnetwork";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
+import { FromLabel } from "src/utils/labels";
 import { isTokenEther, selectTokenAddress } from "src/utils/tokens";
 import { isAsyncTaskDataAvailable } from "src/utils/types";
 import { AmountInput } from "src/views/home/components/amount-input/amount-input.view";
@@ -39,62 +41,86 @@ interface SelectedChains {
 }
 
 export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm, onSubmit }) => {
-  const classes = useBridgeFormStyles();
-  const callIfMounted = useCallIfMounted();
-  const env = useEnvContext();
-  const { getErc20TokenBalance, tokens: defaultTokens } = useTokensContext();
-  const { connectedProvider, connectWallet } = useProvidersContext();
+  const classes = useBridgeFormStyles()
+  const callIfMounted = useCallIfMounted()
+  const env = useEnvContext()
+  const { getErc20TokenBalance, tokens: defaultTokens } = useTokensContext()
+  const { connectedProvider, connectWallet } = useProvidersContext()
   const [balanceFrom, setBalanceFrom] = useState<AsyncTask<BigNumber, string>>({
     status: "pending",
-  });
-  const [balanceTo, setBalanceTo] = useState<AsyncTask<BigNumber, string>>({ status: "pending" });
-  const [inputError, setInputError] = useState<string>();
-  const [selectedChains, setSelectedChains] = useState<SelectedChains>();
-  const [token, setToken] = useState<Token>();
-  const [amount, setAmount] = useState<BigNumber>();
-  const [chains, setChains] = useState<Chain[]>();
-  const [tokens, setTokens] = useState<Token[]>();
-  const [isTokenListOpen, setIsTokenListOpen] = useState(false);
-  const { onAddNetwork, isAddNetworkButtonDisabled } = useAddnetwork();
+  })
+  const navigate =useNavigate()
+  const {hash:asHash} = useLocation()
+  const [balanceTo, setBalanceTo] = useState<AsyncTask<BigNumber, string>>({ status: "pending" })
+  const [inputError, setInputError] = useState<string>()
+  const [selectedChains1, setSelectedChains] = useState<SelectedChains>()
+  const [selectToken, setSelectToken] = useState<Token>()
+  const [amount, setAmount] = useState<BigNumber>()
+  const [chains, setChains] = useState<Chain[]>()
+  const [tokens, setTokens] = useState<Token[]>()
+  const [isTokenListOpen, setIsTokenListOpen] = useState(false)
+  const { onAddNetwork, isAddNetworkButtonDisabled } = useAddnetwork()
+
   const onAmountInputChange = ({ amount, error }: { amount?: BigNumber; error?: string }) => {
-    setAmount(amount);
-    setInputError(error);
-  };
+    setAmount(amount)
+    setInputError(error)
+  }
+
+  const hash = useMemo(()=>{
+    const has = asHash.split('#')[1] || FromLabel.Deposit.toLocaleLowerCase() 
+    return has
+  },[asHash])
+
+  const selectedChains = useMemo(()=>{
+    if(env){
+      const [chain1,chain2]= env.chains
+      const [from,to] = hash === FromLabel.Deposit.toLocaleLowerCase() ? [chain1,chain2]:[chain2,chain1]
+      return {
+        from,to
+      }
+    }
+  },[hash,env])
+
+  const token = useMemo(()=>{
+    if(!selectedChains){
+      return
+    }
+    return selectToken ??getEtherToken(selectedChains.from)
+  },[selectToken,selectedChains?.from])
 
   const onChainButtonClick = (from: Chain) => {
     if (env) {
-      const to = env.chains.find((chain) => chain.key !== from.key)
-      if (to) {
-        setSelectedChains({ from, to })
-        setToken(getEtherToken(from))
+      const hash = from.key==="ethereum"?FromLabel.Deposit.toLocaleLowerCase():FromLabel.Withdraw.toLocaleLowerCase()
+        navigate(`#${hash}`,{replace:true})
+        setSelectToken(undefined)
         setChains(undefined)
         setAmount(undefined)
-      }
     }
-  };
+  }
 
   const onTokenDropdownClick = () => {
     setIsTokenListOpen(true);
-  };
+  }
 
   const onSelectToken = (token: Token) => {
-    setToken(token)
+    setSelectToken(token)
     setIsTokenListOpen(false)
     setAmount(undefined)
-  };
+  }
 
   const fromToken=useMemo(()=>{
     return token
   },[token,selectedChains])
+
   const toToken=useMemo(()=>{
     if(selectedChains && fromToken){
-     
       return getToToken(fromToken)
     }
   },[token,selectedChains])
+
   const onCloseTokenSelector = () => {
     setIsTokenListOpen(false)
-  };
+  }
 
   const onAddToken = (token: Token) => {
     if (tokens) {
@@ -103,7 +129,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       addCustomToken({ address, chainId, decimals, logoURI, name, symbol, wrappedToken })
       setTokens([token, ...tokens])
     }
-  };
+  }
 
   const onRemoveToken = (tokenToRemove: Token) => {
     if (tokens) {
@@ -115,10 +141,10 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         )
       )
       if (selectedChains && tokenToRemove.address === token?.address) {
-        setToken(getEtherToken(selectedChains.from))
+        setSelectToken(undefined)
       }
     }
-  };
+  }
 
   const onFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -136,7 +162,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         token: token,
       })
     }
-  };
+  }
 
   const getTokenBalance = useCallback(
     (token: Token, chain: Chain): Promise<BigNumber> => {
@@ -151,7 +177,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       }
     },
     [account, getErc20TokenBalance]
-  );
+  )
 
   useEffect(() => {
     // Load all the tokens for the selected chain without their balance
@@ -165,23 +191,17 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
             status: "pending",
           },
         }))
-      );
+      )
     }
-  }, [defaultTokens, selectedChains]);
+  }, [defaultTokens, selectedChains])
 
   useEffect(() => {
     // Load the balances of all the tokens of the primary chain (from)
-    const areTokensPending = tokens?.some((tkn) => tkn.balance?.status === "pending");
+    const areTokensPending = tokens?.some((tkn) => tkn.balance?.status === "pending")
 
     if (selectedChains && tokens && areTokensPending) {
       const getUpdatedTokens = (tokens: Token[] | undefined, updatedToken: Token) =>
-        tokens
-          ? tokens.map((tkn) =>
-              tkn.address === updatedToken.address && tkn.chainId === updatedToken.chainId
-                ? updatedToken
-                : tkn
-            )
-          : undefined;
+        tokens ? tokens.map((tkn) =>tkn.address === updatedToken.address && tkn.chainId === updatedToken.chainId ? updatedToken : tkn) : undefined
 
       setTokens(() =>
         tokens.map((token: Token) => {
@@ -193,9 +213,9 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
                     data: balance,
                     status: "successful",
                   },
-                };
-                setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken));
-              });
+                }
+                setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken))
+              })
             }).catch(() => {
               callIfMounted(() => {
                 const updatedToken: Token = {
@@ -204,78 +224,65 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
                     error: "Couldn't retrieve token balance",
                     status: "failed",
                   }
-                };
-                setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken));
-              });
-            });
-          return { ...token, balance: { status: "loading" } };
+                }
+                setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken))
+              })
+            })
+          return { ...token, balance: { status: "loading" } }
         })
-      );
+      )
     }
-  }, [callIfMounted, defaultTokens, getTokenBalance, selectedChains, tokens]);
+  }, [callIfMounted, defaultTokens, getTokenBalance, selectedChains, tokens])
 
   useEffect(() => {
     // Load the balance of the selected token in both networks
     if (selectedChains && fromToken && toToken) {
       const loadBalance = async (chain:Chain,token:Token, setBalance:(v:AsyncTask<BigNumber, string>)=>void) => {
-        setBalance({ status: "loading" });
+        setBalance({ status: "loading" })
         let balanceOrError:any;
         try {
           balanceOrError = await getTokenBalance(token, chain)
         } catch (error) {
-          balanceOrError = error;
+          balanceOrError = error
         }
         callIfMounted(() => {
           if (balanceOrError instanceof Error) {
-            setBalance({ error: balanceOrError.message || "Couldn't retrieve token balance", status: "failed" });
+            setBalance({ error: balanceOrError.message || "Couldn't retrieve token balance", status: "failed" })
           } else {
-            setBalance({ data: balanceOrError, status: "successful" });
+            setBalance({ data: balanceOrError, status: "successful" })
           }
-        });
-      };
+        })
+      }
   
-      loadBalance(selectedChains.from,fromToken, setBalanceFrom);
-      loadBalance(selectedChains.to,toToken, setBalanceTo);
+      loadBalance(selectedChains.from,fromToken, setBalanceFrom)
+      loadBalance(selectedChains.to,toToken, setBalanceTo)
     }
-  }, [callIfMounted, getTokenBalance, selectedChains, toToken,fromToken]);
+  }, [callIfMounted, getTokenBalance, selectedChains, toToken,fromToken])
 
   const notLogin = useMemo(
     () => connectedProvider.status === "successful" && !connectedProvider.data.account,
     [connectedProvider]
-  );
+  )
   const supportedChainIds = useMemo(
     () => (env ? env.chains.map((chain) => chain.chainId) : []),
     [env]
-  );
+  )
   const isPrivate = useMemo(
     () =>
       connectedProvider.status === "successful"
         ? supportedChainIds.includes(connectedProvider.data.chainId)
         : false,
     [supportedChainIds, connectedProvider]
-  );
+  )
   useEffect(() => {
-    // Load the default values after the network is changed
-    if (env && connectedProvider.status === "successful" && formData === undefined) {
-      const supportedChainIds = env.chains.map((chain) => chain.chainId);
-      const chainId = isPrivate ? connectedProvider.data.chainId : supportedChainIds[0];
-      const from = env.chains.find((chain) => chain.chainId === chainId);
-      const to = env.chains.find((chain) => chain.chainId !== chainId);
-      if (from && to) {
-        setSelectedChains({ from, to });
-        setToken(getEtherToken(from));
-      }
-      setAmount(undefined);
-    }
-    // This prevents the form from being reset when coming back from BridgeConfirmation
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedProvider, env, isPrivate]);
+      setAmount(undefined)
+  }, [connectedProvider, env, isPrivate])
 
   useEffect(() => {
     // Load default form values
     if (formData) {
       setSelectedChains({ from: formData.from, to: formData.to });
-      setToken(formData.token);
+      setSelectToken(formData.token);
       setAmount(formData.amount);
       onResetForm();
     }
@@ -286,22 +293,19 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     return (
       <div className={classes.spinner}>
         <Spinner />
+        <div style={{height:80,width:80}}/>
       </div>
-    );
+    )
   }
 
   return (
     <form className={classes.form} onSubmit={onFormSubmit}>
-      {/* <NetworkSelectorTabs chains={env.chains}/> */}
+      <NetworkSelectorTabs onClick={onChainButtonClick} chainId={token.chainId} chains={env.chains}/>
       <Card className={classes.card}>
         <div className={classes.row}>
           <div className={classes.leftBox}>
             <Typography type="body2">From</Typography>
-            <button
-              className={classes.fromChain}
-              onClick={() => setChains(env.chains)}
-              type="button"
-            >
+            <button className={classes.fromChain} onClick={() => setChains(env.chains)} type="button">
               <selectedChains.from.Icon className={classes.icons} />
               <Typography type="body1">{selectedChains.from.name}</Typography>
               <CaretDown />
@@ -309,11 +313,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
           </div>
           <div className={classes.rightBox}>
             <Typography type="body2">Balance</Typography>
-            <TokenBalance
-              spinnerSize={14}
-              token={{ ...token, balance: balanceFrom }}
-              typographyProps={{ type: "body1" }}
-            />
+            <TokenBalance spinnerSize={14} token={{ ...token, balance: balanceFrom }} typographyProps={{ type: "body1" }}/>
           </div>
         </div>
         <div className={`${classes.row} ${classes.middleRow}`}>
@@ -322,8 +322,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
             <Typography type="h2">{token.symbol}</Typography>
             <CaretDown />
           </button>
-          <AmountInput
-            balance={
+          <AmountInput balance={
               balanceFrom && isAsyncTaskDataAvailable(balanceFrom)
                 ? balanceFrom.data
                 : BigNumber.from(0)
@@ -331,8 +330,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
             disabled={!isPrivate}
             onChange={onAmountInputChange}
             token={token}
-            value={amount}
-          />
+            value={amount} />
         </div>
       </Card>
       <div className={classes.arrowRow}>

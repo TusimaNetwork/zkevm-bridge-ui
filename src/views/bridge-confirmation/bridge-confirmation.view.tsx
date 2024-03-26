@@ -6,7 +6,7 @@ import { parseError } from "src/adapters/error";
 import { getPermit, isContractAllowedToSpendToken } from "src/adapters/ethereum";
 import { getCurrency } from "src/adapters/storage";
 import { ReactComponent as ArrowRightIcon } from "src/assets/icons/arrow-right.svg";
-import { ETH_TOKEN_LOGO_URI, FIAT_DISPLAY_PRECISION, getEtherToken } from "src/constants";
+import { ETH_TOKEN_LOGO_URI, FIAT_DISPLAY_PRECISION, TSM_TOKEN_LOGO_URI, getEtherToken } from "src/constants";
 import { useBridgeContext } from "src/contexts/bridge.context";
 import { useEnvContext } from "src/contexts/env.context";
 import { useErrorContext } from "src/contexts/error.context";
@@ -15,7 +15,7 @@ import { usePriceOracleContext } from "src/contexts/price-oracle.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
 import { useUIContext } from "src/contexts/ui.context";
-import { AsyncTask, Gas, TokenSpendPermission } from "src/domain";
+import { AsyncTask, EthereumChainId, Gas, TokenSpendPermission } from "src/domain";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
 import { routes } from "src/routes";
 import { formatFiatAmount, formatTokenAmount, multiplyAmounts } from "src/utils/amounts";
@@ -454,7 +454,7 @@ export const BridgeConfirmation: FC = () => {
         <div className={classes.feeBlock}>
           <Typography type="body2">Estimated gas fee</Typography>
           <div className={classes.fee}>
-            <Icon isRounded size={20} url={ETH_TOKEN_LOGO_URI} />
+            <Icon isRounded size={20} url={token.chainId === EthereumChainId.EAGLE?TSM_TOKEN_LOGO_URI:ETH_TOKEN_LOGO_URI} />
             <Typography type="body1">{feeString}</Typography>
           </div>
         </div>

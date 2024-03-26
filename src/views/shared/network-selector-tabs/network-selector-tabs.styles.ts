@@ -32,6 +32,9 @@ export const useListStyles = createUseStyles((theme: Theme) => ({
     padding: 10,
     transition: theme.hoverTransition,
   },
+  active:{
+    backgroundColor:'#e2e5ee',
+  },
   card: {
     // maxWidth: 426,
     padding: theme.spacing(2),

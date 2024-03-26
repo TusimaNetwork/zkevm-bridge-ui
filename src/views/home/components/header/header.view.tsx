@@ -38,7 +38,7 @@ export const Header: FC = () => {
         <PolygonZkEVMLogo />
       </div>
       <div className={`${classes.block} ${classes.rightBlock}`}>
-        <NetworkSelector />
+        {/* <NetworkSelector /> */}
       </div>
     </header>
   );

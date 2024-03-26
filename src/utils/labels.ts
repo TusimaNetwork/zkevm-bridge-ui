@@ -1,5 +1,8 @@
 import { Bridge, Chain, Currency, EthereumChainId } from "src/domain";
-
+export enum FromLabel {
+  Deposit ="Deposit",
+  Withdraw="Withdraw"
+}
 export function getBridgeStatus(status: Bridge["status"], from: Bridge["from"]): string {
   switch (status) {
     case "pending": {
