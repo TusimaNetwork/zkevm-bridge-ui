@@ -70,20 +70,12 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
 
   const hash = useMemo(()=>{
     const has = asHash.split('#')[1]
-    const [_,ZkEVMChain] = env?.chains || []
+    const [,ZkEVMChain] = env?.chains || []
 
-    if(connectedProvider.status === "successful" && ZkEVMChain){
-
-      console.log(!has , ZkEVMChain , 
-        connectedProvider.status === "successful", 
-        connectedProvider.data.chainId , ZkEVMChain.chainId)
-    }
-    if(!has && ZkEVMChain && 
+    if(!has){
+      return ZkEVMChain && 
       connectedProvider.status === "successful" && 
-      connectedProvider.data.chainId === ZkEVMChain.chainId){
-      return FromLabel.Withdraw.toLocaleLowerCase()
-    }else{
-      return FromLabel.Deposit.toLocaleLowerCase()
+      connectedProvider.data.chainId === ZkEVMChain.chainId ? FromLabel.Withdraw.toLocaleLowerCase():FromLabel.Deposit.toLocaleLowerCase()
     }
     return has
   },[asHash,connectedProvider,env?.chains])
