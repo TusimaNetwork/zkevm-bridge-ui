@@ -8,7 +8,6 @@ import { useEnvContext } from "src/contexts/env.context";
 import { routes } from "src/routes";
 import { areSettingsVisible } from "src/utils/feature-toggles";
 import { useHeaderStyles } from "src/views/home/components/header/header.styles";
-import { NetworkSelector } from "src/views/shared/network-selector/network-selector.view";
 import { Typography } from "src/views/shared/typography/typography.view";
 
 export const Header: FC = () => {

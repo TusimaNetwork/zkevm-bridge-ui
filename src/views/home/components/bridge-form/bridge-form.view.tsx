@@ -59,17 +59,34 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const [chains, setChains] = useState<Chain[]>()
   const [tokens, setTokens] = useState<Token[]>()
   const [isTokenListOpen, setIsTokenListOpen] = useState(false)
-  const { onAddNetwork, isAddNetworkButtonDisabled } = useAddnetwork()
+  const { onAddNetwork } = useAddnetwork()
 
   const onAmountInputChange = ({ amount, error }: { amount?: BigNumber; error?: string }) => {
     setAmount(amount)
     setInputError(error)
   }
 
+  const supportedChainIds = useMemo(() => (env ? env.chains.map((chain) => chain.chainId) : []),[env])
+
   const hash = useMemo(()=>{
-    const has = asHash.split('#')[1] || FromLabel.Deposit.toLocaleLowerCase() 
+    const has = asHash.split('#')[1]
+    const [_,ZkEVMChain] = env?.chains || []
+
+    if(connectedProvider.status === "successful" && ZkEVMChain){
+
+      console.log(!has , ZkEVMChain , 
+        connectedProvider.status === "successful", 
+        connectedProvider.data.chainId , ZkEVMChain.chainId)
+    }
+    if(!has && ZkEVMChain && 
+      connectedProvider.status === "successful" && 
+      connectedProvider.data.chainId === ZkEVMChain.chainId){
+      return FromLabel.Withdraw.toLocaleLowerCase()
+    }else{
+      return FromLabel.Deposit.toLocaleLowerCase()
+    }
     return has
-  },[asHash])
+  },[asHash,connectedProvider,env?.chains])
 
   const selectedChains = useMemo(()=>{
     if(env){
@@ -85,7 +102,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     if(!selectedChains){
       return
     }
-    return selectToken ??getEtherToken(selectedChains.from)
+    return selectToken ?? getEtherToken(selectedChains.from)
   },[selectToken,selectedChains?.from])
 
   const onChainButtonClick = (from: Chain) => {
@@ -239,7 +256,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     if (selectedChains && fromToken && toToken) {
       const loadBalance = async (chain:Chain,token:Token, setBalance:(v:AsyncTask<BigNumber, string>)=>void) => {
         setBalance({ status: "loading" })
-        let balanceOrError:any;
+        let balanceOrError:any
         try {
           balanceOrError = await getTokenBalance(token, chain)
         } catch (error) {
@@ -263,10 +280,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     () => connectedProvider.status === "successful" && !connectedProvider.data.account,
     [connectedProvider]
   )
-  const supportedChainIds = useMemo(
-    () => (env ? env.chains.map((chain) => chain.chainId) : []),
-    [env]
-  )
+
   const isPrivate = useMemo(
     () =>
       connectedProvider.status === "successful"
@@ -274,6 +288,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         : false,
     [supportedChainIds, connectedProvider]
   )
+
   useEffect(() => {
       setAmount(undefined)
   }, [connectedProvider, env, isPrivate])
@@ -281,15 +296,14 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   useEffect(() => {
     // Load default form values
     if (formData) {
-      setSelectedChains({ from: formData.from, to: formData.to });
-      setSelectToken(formData.token);
-      setAmount(formData.amount);
-      onResetForm();
+      setSelectedChains({ from: formData.from, to: formData.to })
+      setSelectToken(formData.token)
+      setAmount(formData.amount)
+      onResetForm()
     }
-  }, [formData, onResetForm]);
+  }, [formData, onResetForm])
 
   if (!env || !selectedChains || !tokens || !token || !toToken) {
-    // if (!env) {
     return (
       <div className={classes.spinner}>
         <Spinner />
@@ -334,35 +348,28 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         </div>
       </Card>
       <div className={classes.arrowRow}>
-        <ArrowDown className={classes.arrowDownIcon} />
+        <ArrowDown className={classes.arrowDownIcon}/>
       </div>
       <Card className={classes.card}>
         <div className={classes.row}>
           <div className={classes.leftBox}>
             <Typography type="body2">To</Typography>
             <div className={classes.toChain}>
-              <selectedChains.to.Icon className={classes.icons} />
+              <selectedChains.to.Icon className={classes.icons}/>
               <Typography type="body1">{selectedChains.to.name}</Typography>
             </div>
           </div>
           <div className={classes.rightBox}>
             <Typography type="body2">Balance</Typography>
-            <TokenBalance
-              spinnerSize={14}
-              token={{ ...toToken, balance: balanceTo }}
-              typographyProps={{ type: "body1" }}
-            />
+            <TokenBalance spinnerSize={14} token={{ ...toToken, balance: balanceTo }} typographyProps={{ type: "body1" }}/>
           </div>
         </div>
       </Card>
       <div className={classes.button}>
-        <Button
-          disabled={isPrivate && !notLogin && (!amount || amount.isZero() || inputError !== undefined)}
-          type="submit"
-        >
+        <Button disabled={isPrivate && !notLogin && (!amount || amount.isZero() || inputError !== undefined)} type="submit">
           {notLogin ? "Connect Wallet" : isPrivate ? "Continue" : "Exchange to Ethereum"}
         </Button>
-        {amount && inputError && <ErrorMessage error={inputError} />}
+        {amount && inputError && <ErrorMessage error={inputError}/>}
       </div>
       {chains && (
         <ChainList
