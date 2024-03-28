@@ -66,7 +66,7 @@ const bridgeIdParser = StrictSchema<SerializedBridgeId, BridgeId>()(
   })
 );
 
-const chainKeyParser = z.union([z.literal("ethereum"), z.literal("polygon-zkevm")]);
+const chainKeyParser = z.union([z.literal(ChainKey.ethereum), z.literal(ChainKey.polygonzkevm)]);
 
 const pendingTxDepositParser = (env: Env) =>
   StrictSchema<SerializedPendingDepositTx, PendingDepositTx>()(
@@ -117,8 +117,7 @@ const pendingTxDepositParser = (env: Env) =>
 
 const pendingTxClaimParser = (env: Env) =>
   StrictSchema<SerializedPendingClaimTx, PendingClaimTx>()(
-    z
-      .object({
+    z.object({
         amount: z.string(),
         claimTxHash: z.string(),
         depositTxHash: z.string(),

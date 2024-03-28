@@ -6,7 +6,7 @@ import { ReactComponent as MetaMaskIcon } from "src/assets/icons/metamask.svg";
 import { useEnvContext } from "src/contexts/env.context";
 import { useFormContext } from "src/contexts/form.context";
 import { useProvidersContext } from "src/contexts/providers.context";
-import { FormData, ModalState } from "src/domain";
+import { ChainKey, FormData, ModalState } from "src/domain";
 import { routes } from "src/routes";
 import { getPartiallyHiddenEthereumAddress } from "src/utils/addresses";
 import { BridgeForm } from "src/views/home/components/bridge-form/bridge-form.view";
@@ -38,7 +38,7 @@ export const Home = (): JSX.Element => {
   const onCheckShowDepositWarningAndSubmitForm = (formData: FormData) => {
     const isDepositWarningDismissed = getIsDepositWarningDismissed()
 
-    if ( env && env.isDepositWarningEnabled && !isDepositWarningDismissed && formData.from.key === "ethereum" ) {
+    if ( env && env.isDepositWarningEnabled && !isDepositWarningDismissed && formData.from.key === ChainKey.ethereum ) {
       setDepositWarningModal({
         data: formData,
         status: "open"

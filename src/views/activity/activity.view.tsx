@@ -56,7 +56,7 @@ export const Activity: FC = () => {
     className: classes.stickyContentBorder,
     observed: headerBorderObserved,
     target: headerBorderTarget,
-  });
+  })
 
   const onDisplayAll = () => setDisplayAll(true);
   const onDisplayPending = () => setDisplayAll(false);
@@ -71,7 +71,7 @@ export const Activity: FC = () => {
           openSnackbar({
             text: "Transaction successfully submitted.",
             type: "success-msg",
-          });
+          })
         })
         .catch((error) => {
           callIfMounted(() => {
@@ -82,9 +82,9 @@ export const Activity: FC = () => {
                 } else {
                   notifyError(error);
                 }
-              });
+              })
             }
-          });
+          })
         })
         .finally(() => {
           if (isAsyncTaskDataAvailable<Bridge[], undefined, true>(apiBridges)) {
@@ -92,18 +92,18 @@ export const Activity: FC = () => {
               .then((data) => {
                 callIfMounted(() => {
                   setPendingBridges({ data, status: "successful" });
-                });
+                })
               })
               .catch((error) => {
                 callIfMounted(() => {
                   notifyError(error);
-                });
+                })
               })
               .finally(() => setAreBridgesDisabled(false));
           }
-        });
+        })
     }
-  };
+  }
 
   const processFetchBridgesSuccess = useCallback(
     (bridges: Bridge[]) => {

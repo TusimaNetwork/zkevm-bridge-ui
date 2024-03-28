@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { Currency, FiatExchangeRates } from "src/domain";
+import { ChainKey, Currency, FiatExchangeRates } from "src/domain";
 import { StrictSchema } from "src/utils/type-safety";
 import axios from "src/utils/axios";
 
@@ -68,7 +68,7 @@ const getFiatExchangeRates = ({
   apiUrl,
 }: GetFiatExchangeRatesParams): Promise<FiatExchangeRates> => {
   const params = {
-    ids: 'ethereum',
+    ids: ChainKey.ethereum,
     // vs_currencies: Currency.USD,
     vs_currencies: Object.values(Currency).join(","),
   };

@@ -24,7 +24,7 @@ import {
 import { useEnvContext } from "src/contexts/env.context";
 import { useErrorContext } from "src/contexts/error.context";
 import { useTokensContext } from "src/contexts/tokens.context";
-import { Chain, FiatExchangeRates, Token } from "src/domain";
+import { Chain, ChainKey, FiatExchangeRates, Token } from "src/domain";
 import { UniswapV2Pair__factory } from "src/types/contracts/uniswap-v2-pair";
 import {
   UniswapV2Router02,
@@ -96,7 +96,7 @@ const PriceOracleProvider: FC<PropsWithChildren> = (props) => {
         );
       }
 
-      const ethereumChain = env.chains.find((chain) => chain.key === "ethereum");
+      const ethereumChain = env.chains.find((chain) => chain.key === ChainKey.ethereum);
 
       if (ethereumChain === undefined) {
         throw new Error("Ethereum chain is not available");
@@ -142,7 +142,7 @@ const PriceOracleProvider: FC<PropsWithChildren> = (props) => {
 
   useEffect(() => {
     if (env) {
-      const ethereumChain = env.chains.find((chain) => chain.key === "ethereum");
+      const ethereumChain = env.chains.find((chain) => chain.key === ChainKey.ethereum);
       if (ethereumChain) {
         setUniswapV2Router02Contract(
           UniswapV2Router02__factory.connect(

@@ -4,7 +4,7 @@ import { FC } from "react";
 import { ReactComponent as CopyIcon } from "src/assets/icons/copy.svg";
 import { ReactComponent as NewWindowIcon } from "src/assets/icons/new-window.svg";
 import { useEnvContext } from "src/contexts/env.context";
-import { Token } from "src/domain";
+import { ChainKey, Token } from "src/domain";
 import { getShortenedEthereumAddress } from "src/utils/addresses";
 import { copyToClipboard } from "src/utils/browser";
 import { isTokenEther } from "src/utils/tokens";
@@ -110,7 +110,7 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
       <div className={classes.row}>
         <Typography className={classes.alignRow} type="body2">
           <nativeTokenChain.Icon className={classes.chainIcon} />
-          {`${nativeTokenChain.key === "ethereum" ? "L1" : "L2"} token address`}
+          {`${nativeTokenChain.key === ChainKey.ethereum ? "L1" : "L2"} token address`}
         </Typography>
         <div className={classes.rowRightBlock}>
           <Typography className={classes.tokenAddress} type="body1">
@@ -141,7 +141,7 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
         <div className={classes.row}>
           <Typography className={classes.alignRow} type="body2">
             <wrappedTokenChain.Icon className={classes.chainIcon} />
-            {`${wrappedTokenChain.key === "ethereum" ? "L1" : "L2"} token address`}
+            {`${wrappedTokenChain.key === ChainKey.ethereum ? "L1" : "L2"} token address`}
           </Typography>
           <div className={classes.rowRightBlock}>
             <Typography className={classes.tokenAddress} type="body1">

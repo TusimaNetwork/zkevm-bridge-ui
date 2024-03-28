@@ -3,7 +3,10 @@ import { BigNumber } from "ethers";
 import { ComponentType } from "react";
 import { PublicClient } from "viem";
 
-export type ChainKey = "ethereum" | "polygon-zkevm";
+export enum ChainKey {
+  "ethereum"="ethereum",
+  "polygonzkevm"="polygon-zkevm"
+};
 
 export interface CommonChain {
   Icon: ComponentType<{ className?: string }>;
@@ -22,13 +25,13 @@ export interface CommonChain {
 }
 
 export type EthereumChain = CommonChain & {
-  key: "ethereum";
+  key: ChainKey.ethereum;
   poeContractAddress: string;
   rollupManagerAddress: string;
 };
 
 export type ZkEVMChain = CommonChain & {
-  key: "polygon-zkevm";
+  key: ChainKey.polygonzkevm;
 };
 
 export type Chain = EthereumChain | ZkEVMChain;
@@ -274,8 +277,8 @@ export enum Permit {
 // Error
 
 export enum ProviderError {
-  Ethereum = "ethereum",
-  PolygonZkEVM = "polygon-zkevm",
+  Ethereum = ChainKey.ethereum,
+  PolygonZkEVM = ChainKey.polygonzkevm,
 }
 
 export interface MetaMaskUserRejectedRequestError {

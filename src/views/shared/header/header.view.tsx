@@ -30,7 +30,7 @@ export const Header: FC<HeaderProps> = ({ backTo, Subtitle, title }) => {
           <Typography type="h1">{title}</Typography>
         </div>
         <div className={`${classes.block} ${classes.rightBlock}`}>
-          <NetworkSelector />
+          {/* <NetworkSelector /> */}
         </div>
       </div>
       {Subtitle && <div className={classes.bottomRow}>{Subtitle}</div>}

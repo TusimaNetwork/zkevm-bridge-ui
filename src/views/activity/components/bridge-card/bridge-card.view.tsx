@@ -6,7 +6,7 @@ import { getBatchNumberOfL2Block } from "src/adapters/ethereum";
 import { getCurrency } from "src/adapters/storage";
 import { ReactComponent as BridgeL1Icon } from "src/assets/icons/l1-bridge.svg";
 import { ReactComponent as BridgeL2Icon } from "src/assets/icons/l2-bridge.svg";
-import { AsyncTask, Bridge, Env, PendingBridge } from "src/domain";
+import { AsyncTask, Bridge, ChainKey, Env, PendingBridge } from "src/domain";
 import { routes } from "src/routes";
 import { formatFiatAmount, formatTokenAmount } from "src/utils/amounts";
 import { getBridgeStatus, getCurrencySymbol } from "src/utils/labels";
@@ -47,7 +47,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
     bridge.status !== "pending" ? [bridge.blockNumber, bridge.from.key] : [undefined, undefined];
 
   useEffect(() => {
-    if (status === "initiated" && fromKey === "polygon-zkevm") {
+    if (status === "initiated" && fromKey === ChainKey.polygonzkevm) {
       setBatchNumberOfL2Block((currentBatchNumberOfL2Block) =>
         isAsyncTaskDataAvailable(currentBatchNumberOfL2Block)
           ? { data: currentBatchNumberOfL2Block.data, status: "reloading" }
@@ -79,12 +79,12 @@ export const BridgeCard: FC<BridgeCardProps> = ({
   const onCardClick = (bridge: Exclude<Bridge, PendingBridge>) => {
     //给这个参数禁用了。下面使用了link标签跳转
     return
-    navigate(`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`);
+    navigate(`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`)
   };
 
-  const preferredCurrencySymbol = getCurrencySymbol(getCurrency());
+  const preferredCurrencySymbol = getCurrencySymbol(getCurrency())
 
-  const tokenAmountString = `${formatTokenAmount(amount, token)} ${origtoken.symbol}`;
+  const tokenAmountString = `${formatTokenAmount(amount, token)} ${origtoken.symbol}`
 
   const fiatAmountString = showFiatAmount
     ? `${preferredCurrencySymbol}${fiatAmount ? formatFiatAmount(fiatAmount) : "--"}`
@@ -113,11 +113,11 @@ export const BridgeCard: FC<BridgeCardProps> = ({
     </div>
   );
 
-  const BridgeIcon = to.key === "ethereum" ? <BridgeL1Icon /> : <BridgeL2Icon />;
+  const BridgeIcon = to.key === ChainKey.ethereum ? <BridgeL1Icon /> : <BridgeL2Icon />;
 
   const BridgeLabel = (
     <Typography className={classes.label} type="body1">
-      {to.key === "ethereum" ? "Bridge to L1" : "Bridge to L2"}
+      {to.key === ChainKey.ethereum ? "Bridge to L1" : "Bridge to L2"}
     </Typography>
   );
 
@@ -161,7 +161,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
       );
     }
     case "initiated": {
-      if (bridge.from.key === "ethereum") {
+      if (bridge.from.key === ChainKey.ethereum) {
         return (
           <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
@@ -217,7 +217,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
       }
     }
     case "on-hold": {
-      if (bridge.from.key === "ethereum") {
+      if (bridge.from.key === ChainKey.ethereum) {
         return (
           <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>

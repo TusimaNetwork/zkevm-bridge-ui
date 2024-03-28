@@ -24,6 +24,7 @@ import { useTokensContext } from "src/contexts/tokens.context";
 import {
   Bridge,
   Chain,
+  ChainKey,
   Deposit,
   Env,
   Gas,
@@ -656,9 +657,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             chain && env.fiatExchangeRates.areEnabled
               ? await getTokenPrice({ chain, token: tx.token })
               : undefined;
-          const fiatAmount =
-            tokenPrice &&
-            multiplyAmounts(
+          const fiatAmount = tokenPrice && multiplyAmounts(
               {
                 precision: FIAT_DISPLAY_PRECISION,
                 value: tokenPrice,
@@ -668,7 +667,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
                 value: tx.amount,
               },
               FIAT_DISPLAY_PRECISION
-            );
+            )
 
           return {
             amount: tx.amount,
@@ -679,6 +678,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             from: tx.from,
             status: "pending",
             to: tx.to,
+            origtoken:token,
             token,
           };
         })
@@ -707,10 +707,10 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
 
       const tokenAddress = selectTokenAddress(token, from);
       const forceUpdateGlobalExitRoot =
-        from.key === "polygon-zkevm" ? true : env.forceUpdateGlobalExitRootForL1;
+        from.key === ChainKey.polygonzkevm ? true : env.forceUpdateGlobalExitRootForL1;
 
       const gasLimit =
-        from.key === "ethereum"
+        from.key === ChainKey.ethereum
           ? await contract.estimateGas
             .bridgeAsset(
               to.networkId,
@@ -799,7 +799,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             : "0x";
 
         const forceUpdateGlobalExitRoot =
-          from.key === "polygon-zkevm" ? true : env.forceUpdateGlobalExitRootForL1;
+          from.key === ChainKey.polygonzkevm ? true : env.forceUpdateGlobalExitRootForL1;
 
         return contract
           .bridgeAsset(
@@ -864,7 +864,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
      
       const { account, chainId, provider } = connectedProvider.data;
       const contract = Bridge__factory.connect(to.bridgeContractAddress, provider.getSigner());
-      const isL2Claim = to.key === "polygon-zkevm";
+      const isL2Claim = to.key === ChainKey.polygonzkevm;
       const apiUrl = env.bridgeApiUrl;
       const networkId = from.networkId;
 

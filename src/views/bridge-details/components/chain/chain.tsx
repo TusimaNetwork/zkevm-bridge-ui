@@ -14,7 +14,7 @@ interface ChainProps {
 export const Chain: FC<ChainProps> = ({ chain, className }) => {
   const classes = useChainStyles();
 
-  if (chain.key === "ethereum") {
+  if (chain.key === domain.ChainKey.ethereum) {
     return (
       <Typography className={className} type="body1">
         <EthChainIcon /> {chain.name}

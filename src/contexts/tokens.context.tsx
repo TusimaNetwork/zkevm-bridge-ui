@@ -16,11 +16,11 @@ import * as ethereum from "src/adapters/ethereum";
 import { cleanupCustomTokens, getCustomTokens } from "src/adapters/storage";
 import { getEthereumErc20Tokens } from "src/adapters/tokens";
 import tokenIconDefaultUrl from "src/assets/icons/tokens/erc20-icon.svg";
-import { getEtherToken, getExchangeAddress, getOrigExchangeAddress, } from "src/constants";
+import { ETH_TOKEN_LOGO_URI, TSMAddressZero, TSMToken, getEtherToken, getExchangeAddress, getOrigExchangeAddress, } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
 import { useErrorContext } from "src/contexts/error.context";
 import { useProvidersContext } from "src/contexts/providers.context";
-import { Chain, Env, EthereumChainId, Token } from "src/domain";
+import { Chain, ChainKey, Env, EthereumChainId, Token } from "src/domain";
 import { Bridge__factory } from "src/types/contracts/bridge";
 import { Erc20__factory } from "src/types/contracts/erc-20";
 import axios from "src/utils/axios";
@@ -75,6 +75,7 @@ interface TokensContext {
   getToken: (params: GetTokenParams) => Promise<{token:Token,origtoken:Token}>;
   getTokenFromAddress: (params: GetTokenFromAddressParams) => Promise<Token>;
   tokens?: Token[];
+  PETHToken?:Token
 }
 
 const tokensContextNotReadyMsg = "The tokens context is not yet ready";
@@ -88,11 +89,12 @@ const tokensContext = createContext<TokensContext>({
 });
 
 const TokensProvider: FC<PropsWithChildren> = (props) => {
-  const env = useEnvContext();
-  const { notifyError } = useErrorContext();
-  const { changeNetwork, connectedProvider } = useProvidersContext();
-  const [tokens, setTokens] = useState<Token[]>();
-  const fetchedTokens = useRef<Token[]>([]);
+  const env = useEnvContext()
+  const { notifyError } = useErrorContext()
+  const { changeNetwork, connectedProvider } = useProvidersContext()
+  const [tokens, setTokens] = useState<Token[]>()
+  const fetchedTokens = useRef<Token[]>([])
+  const [PETHToken,setPETHToken]=useState<Token>()
 
   /**
    * Provided a token, its native chain and any other chain, computes the address of the wrapped token on the other chain
@@ -116,7 +118,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       );
     },
     []
-  );
+  )
 
   /**
    * Provided a token and a chain, when the token is wrapped, returns the native token's networkId and address and throws otherwise
@@ -139,7 +141,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       });
     },
     []
-  );
+  )
 
   /**
    * Provided a token, if its property wrappedToken is missing, adds it and returns the new token
@@ -164,8 +166,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           nativeChain,
           otherChain: wrappedChain,
           token,
-        })
-          .then((wrappedAddress) => {
+        }).then((wrappedAddress) => {
             const newToken: Token = {
               ...token,
               wrappedToken: {
@@ -174,15 +175,19 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
               },
             };
             return newToken;
-          })
-          .catch((e) => {
+          }).catch((e) => {
+            console.log({
+              nativeChain,
+              otherChain: wrappedChain,
+              token,
+            })
             notifyError(e);
             return Promise.resolve(token);
           });
       }
     },
     [env, computeWrappedTokenAddress, notifyError]
-  );
+  )
 
   const getTokenFromAddress = useCallback(
     async ({ address, chain }: GetTokenFromAddressParams): Promise<Token> => {
@@ -234,7 +239,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         });
     },
     [addWrappedToken, env, getNativeTokenInfo]
-  );
+  )
 
   const fetchToken=(tokenAddress: string,chain: Chain | Token)=>{
     const newtoken_list = [
@@ -261,8 +266,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           `The chain with the originNetwork "${originNetwork}" could not be found in the list of supported Chains`
         );
       }
-      const tokenAddress = getExchangeAddress(newAddress, chain.chainId)
-      const originTokenAddress = getOrigExchangeAddress(newAddress, chain.chainId)
+      const tokenAddress = getExchangeAddress(newAddress)
+      const originTokenAddress = getOrigExchangeAddress(newAddress,PETHToken, chain.chainId)
      const token = fetchToken(tokenAddress,chain) 
      const origtoken = fetchToken(originTokenAddress,chain)
       if (token) {
@@ -282,7 +287,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       }
     },
     [tokens, getTokenFromAddress]
-  );
+  )
 
   const getErc20TokenBalance = useCallback(
     async ({ accountAddress, chain, tokenAddress }: GetErc20TokenBalanceParams) => {
@@ -293,7 +298,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       return await erc20Contract.balanceOf(accountAddress);
     },
     []
-  );
+  )
 
   const approve = useCallback(
     ({ amount, from, owner, provider, spender, token }: ApproveParams) => {
@@ -315,28 +320,53 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       }
     },
     [connectedProvider, changeNetwork]
-  );
+  )
 
-  // initialize tokens
-  useEffect(() => {
+  const initTokens=(PETHToken:Token)=>{
     if (env) {
+      setPETHToken(PETHToken)
       const ethereumChains = env.chains.map((chain)=>chain.chainId)
       getEthereumErc20Tokens()
-        .then((ethereumErc20Tokens) =>
-          Promise.all(
-            ethereumErc20Tokens.filter((token) => ethereumChains.includes(token.chainId)).map((token) => addWrappedToken({ token }))).then((chainTokens) => {
-              const tokens = [...env.chains.map(itm=>getEtherToken(itm)), ...chainTokens];
-              cleanupCustomTokens(tokens);
-              setTokens(tokens);
-            })
-            .catch(notifyError)
-        )
-        .catch(notifyError);
+      .then((ethereumErc20Tokens) =>
+        Promise.all(
+          ethereumErc20Tokens.filter((token) => ethereumChains.includes(token.chainId)).map((token) => addWrappedToken({ token }))).then((chainTokens) => {
+            const tokens = [...env.chains.map(itm=>getEtherToken(itm)),PETHToken,TSMToken, ...chainTokens];
+            cleanupCustomTokens(tokens);
+            setTokens(tokens);
+          })
+          .catch(notifyError)
+      )
+      .catch(notifyError);
     }
-  }, [env, addWrappedToken, notifyError]);
+   
+  }
+  const initEPTHToken=async()=>{
+    if (env) {
+      const polygonzkevm = env.chains.find(itm=>itm.key === ChainKey.polygonzkevm)
+      if(polygonzkevm){
+        // console.log({polygonzkevm},polygonzkevm.bridgeContractAddress, polygonzkevm.provider)
+        const contract = Bridge__factory.connect(polygonzkevm.bridgeContractAddress, polygonzkevm.provider);
+         contract.getTokenWrappedAddress('0',TSMAddressZero).then((address)=>initTokens({
+          address,
+          chainId: EthereumChainId.EAGLE,
+          decimals: 18,
+          logoURI: ETH_TOKEN_LOGO_URI,
+          name: "PETH",
+          symbol: "PETH",
+         })).catch(console.log)
+         
+      }
+    }
+  }
+  
+  // initialize tokens
+  useEffect(() => {
+    initEPTHToken() 
+  }, [env, addWrappedToken, notifyError])
 
   const value = useMemo(() => {
     return {
+      PETHToken,
       addWrappedToken,
       approve,
       getErc20TokenBalance,

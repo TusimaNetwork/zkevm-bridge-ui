@@ -218,7 +218,7 @@ const envToDomain = ({
       rpcUrl: VITE_POLYGON_ZK_EVM_RPC_URL,
     },
   }).then((chains) => {
-    const ethereumChain = chains.find((chain) => chain.key === "ethereum");
+    const ethereumChain = chains.find((chain) => chain.key === domain.ChainKey.ethereum);
 
     if (!ethereumChain) {
       throw new Error("Ethereum chain not found");

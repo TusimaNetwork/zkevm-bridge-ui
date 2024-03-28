@@ -1,10 +1,11 @@
 import { StaticJsonRpcProvider } from "@ethersproject/providers";
 import { ethers } from "ethers";
-
+import { useTokensContext } from "src/contexts/tokens.context";
 import { ReactComponent as EthChainIcon } from "src/assets/icons/chains/ethereum.svg";
 import TusimaLogo from "src/components/TusimaLogo";
 import {
   Chain,
+  ChainKey,
   Currency,
   EthereumChain,
   EthereumChainId,
@@ -122,7 +123,7 @@ export const getChains = ({
         chainId: ethereumNetwork.chainId,
         explorerUrl: ethereum.explorerUrl,
         Icon: EthChainIcon,
-        key: "ethereum",
+        key: ChainKey.ethereum,
         name: getEthereumNetworkName(ethereumNetwork.chainId),
         nativeCurrency: {
           decimals: 18,
@@ -139,7 +140,7 @@ export const getChains = ({
         chainId: polygonZkEVMNetwork.chainId,
         explorerUrl: polygonZkEVM.explorerUrl,
         Icon: TusimaLogo,
-        key: "polygon-zkevm",
+        key: ChainKey.polygonzkevm,
         // name: polygonZkEVMNetworkName,
         name: "Tusima Eagle",
         nativeCurrency: {
@@ -153,14 +154,7 @@ export const getChains = ({
     ];
   });
 };
-export const PETHToken: Token = {
-  address: "0x630C6AB678E8040461bC194B445ac800F0CEf732",
-  chainId: EthereumChainId.EAGLE,
-  decimals: 18,
-  logoURI: ETH_TOKEN_LOGO_URI,
-  name: "PETH",
-  symbol: "PETH",
-};
+
 export const TSMToken: Token = {
   address: "0x539a827822b2a532092b8A08919DCAC4B00bead1",
   chainId: EthereumChainId.SEPOLIA,
@@ -186,29 +180,23 @@ export const TSMNAVToken: Token = {
   symbol: "TSM",
 };
 export const TSMAddressZero="0x0000000000000000000000000000000000000001"
-export const getExchangeAddress = (address: string, chainId: number) => {
-  //做到这里了。是token转换的bug，再详情页初始化token的时候和展示token 图标和名称是对拧着的。这里要想办法解决一下
+export const getExchangeAddress = (address: string) => {
   if (address === TSMAddressZero) {
     return ethers.constants.AddressZero
   }
   return address
 }
-export const getOrigExchangeAddress = (address: string, chainId: number) => {
+export const getOrigExchangeAddress = (address: string,PETHToken:any, chainId: number) => {
   if (chainId === EthereumChainId.SEPOLIA) {
     return address === ethers.constants.AddressZero ? TSMToken.address : ethers.constants.AddressZero;
   }
-  return address === TSMAddressZero ? PETHToken.address : ethers.constants.AddressZero;
+  return address === TSMAddressZero && PETHToken ? PETHToken.address : ethers.constants.AddressZero;
 };
 export const isEagleChain = (chain: Chain | Token) => {
   return chain.chainId === EthereumChainId.EAGLE;
 };
-export const isEaglePETH = (token: Token) => {
-  return (
-    isEagleChain(token) &&
-    String(PETHToken.address).toLocaleLowerCase() === String(token.address).toLocaleLowerCase()
-  );
-};
-export const getToToken = (token: Token): Token => {
+
+export const getToToken = (token: Token,PETHToken:any): Token => {
   if (isEagleChain(token)) {
     return token.address === ethers.constants.AddressZero ? TSMToken : { ...ETHNavToken };
   } else if (
@@ -216,7 +204,7 @@ export const getToToken = (token: Token): Token => {
   ) {
     return { ...TSMNAVToken, chainId: token.chainId };
   }
-  return PETHToken;
+  return PETHToken ? PETHToken:token;
 };
 export const getEtherToken = (chain: Chain | Token, chainId?: number): Token => {
   if (isEagleChain(chain)) return { ...TSMNAVToken, chainId: chainId || chain.chainId };

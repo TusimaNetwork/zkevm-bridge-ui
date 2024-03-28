@@ -3,7 +3,7 @@ import React, { FC } from "react";
 import { ReactComponent as XMarkIcon } from "src/assets/icons/xmark.svg";
 import { useErrorContext } from "src/contexts/error.context";
 import { useProvidersContext } from "src/contexts/providers.context";
-import { Chain, EthereumChainId } from "src/domain";
+import { Chain, ChainKey, EthereumChainId } from "src/domain";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
 import { FromLabel } from "src/utils/labels";
 import { isMetaMaskUserRejectedRequestError } from "src/utils/types";
@@ -38,7 +38,7 @@ export const NetworkSelectorTabs: FC<NetworkSelectorTabsProps> = ({ onClick,chai
           // });
         }}>
           {/* <chain.Icon className={classes.icon} /> */}
-          <Typography type="body1">{chain.key === 'ethereum'?FromLabel.Deposit:FromLabel.Withdraw}</Typography>
+          <Typography type="body1">{chain.key === ChainKey.ethereum?FromLabel.Deposit:FromLabel.Withdraw}</Typography>
         </button>
       ))}
     </div>

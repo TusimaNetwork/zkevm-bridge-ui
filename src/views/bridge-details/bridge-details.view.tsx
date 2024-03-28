@@ -14,7 +14,7 @@ import { useErrorContext } from "src/contexts/error.context";
 import { usePriceOracleContext } from "src/contexts/price-oracle.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
-import { AsyncTask, Bridge } from "src/domain";
+import { AsyncTask, Bridge, ChainKey } from "src/domain";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
 import { routes } from "src/routes";
 import { formatFiatAmount, formatTokenAmount, multiplyAmounts } from "src/utils/amounts";
@@ -387,7 +387,7 @@ export const BridgeDetails: FC = () => {
               </div>
             )}
           </Card>
-          {(status === "initiated" || (status === "on-hold" && from.key === "polygon-zkevm")) && (
+          {(status === "initiated" || (status === "on-hold" && from.key === ChainKey.polygonzkevm)) && (
             <div className={classes.finaliseRow}>
               <Button
                 disabled={status === "initiated" || isFinaliseButtonDisabled}

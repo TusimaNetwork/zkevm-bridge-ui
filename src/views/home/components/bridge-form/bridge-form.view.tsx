@@ -1,15 +1,15 @@
 import { BigNumber } from "ethers";
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useMatches, useNavigate, useNavigation, useParams, useRevalidator } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { addCustomToken, getChainCustomTokens, removeCustomToken } from "src/adapters/storage";
 import { ReactComponent as ArrowDown } from "src/assets/icons/arrow-down.svg";
 import { ReactComponent as CaretDown } from "src/assets/icons/caret-down.svg";
-import {  getEtherToken, getToToken, isEagleChain, isEaglePETH,  } from "src/constants";
+import {  getEtherToken, getToToken,  } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
-import { AsyncTask, Chain, FormData, Token } from "src/domain";
+import { AsyncTask, Chain, ChainKey, FormData, Token } from "src/domain";
 import { useAddnetwork } from "src/hooks/use-addnetwork";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
 import { FromLabel } from "src/utils/labels";
@@ -44,7 +44,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const classes = useBridgeFormStyles()
   const callIfMounted = useCallIfMounted()
   const env = useEnvContext()
-  const { getErc20TokenBalance, tokens: defaultTokens } = useTokensContext()
+  const { getErc20TokenBalance, tokens: defaultTokens,PETHToken } = useTokensContext()
   const { connectedProvider, connectWallet } = useProvidersContext()
   const [balanceFrom, setBalanceFrom] = useState<AsyncTask<BigNumber, string>>({
     status: "pending",
@@ -98,7 +98,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
 
   const onChainButtonClick = (from: Chain) => {
     if (env) {
-      const hash = from.key==="ethereum"?FromLabel.Deposit.toLocaleLowerCase():FromLabel.Withdraw.toLocaleLowerCase()
+      const hash = from.key===ChainKey.ethereum?FromLabel.Deposit.toLocaleLowerCase():FromLabel.Withdraw.toLocaleLowerCase()
         navigate(`#${hash}`,{replace:true})
         setSelectToken(undefined)
         setChains(undefined)
@@ -121,10 +121,10 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   },[token,selectedChains])
 
   const toToken=useMemo(()=>{
-    if(selectedChains && fromToken){
-      return getToToken(fromToken)
+    if(selectedChains && fromToken && PETHToken){
+      return getToToken(fromToken,PETHToken)
     }
-  },[token,selectedChains])
+  },[token,selectedChains,PETHToken])
 
   const onCloseTokenSelector = () => {
     setIsTokenListOpen(false)
@@ -192,6 +192,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     if (selectedChains && defaultTokens) {
       const { from } = selectedChains;
       const chainTokens = [...getChainCustomTokens(from), ...defaultTokens];
+      
       setTokens(
         chainTokens.map((token) => ({
           ...token,
@@ -211,6 +212,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       const getUpdatedTokens = (tokens: Token[] | undefined, updatedToken: Token) =>
         tokens ? tokens.map((tkn) =>tkn.address === updatedToken.address && tkn.chainId === updatedToken.chainId ? updatedToken : tkn) : undefined
 
+        
       setTokens(() =>
         tokens.map((token: Token) => {
           getTokenBalance(token, selectedChains.from).then((balance): void => {
@@ -273,10 +275,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   )
 
   const isPrivate = useMemo(
-    () =>
-      connectedProvider.status === "successful"
-        ? supportedChainIds.includes(connectedProvider.data.chainId)
-        : false,
+    () => connectedProvider.status === "successful" ? supportedChainIds.includes(connectedProvider.data.chainId) : false,
     [supportedChainIds, connectedProvider]
   )
 
