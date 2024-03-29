@@ -76,6 +76,7 @@ export const BridgeDetails: FC = () => {
   const onClaim = () => {
     if (bridge.status === "successful" && bridge.data.status === "on-hold") {
       setIsFinaliseButtonDisabled(true);
+      console.log({data:bridge.data})
       claim({ bridge: bridge.data })
         .then(() => {
           navigate(routes.activity.path);
