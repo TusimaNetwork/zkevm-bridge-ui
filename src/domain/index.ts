@@ -48,6 +48,7 @@ export interface ConnectedViemProvider {
 
 export interface Token {
   address: string;
+  old_address?:string;
   balance?: AsyncTask<BigNumber, string>;
   chainId: number;
   decimals: number;

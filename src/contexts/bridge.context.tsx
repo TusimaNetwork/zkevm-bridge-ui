@@ -411,9 +411,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
 
         const tokenPrice = tokenPrices[token.address];
 
-        const fiatAmount =
-          tokenPrice !== undefined && tokenPrice !== null
-            ? multiplyAmounts(
+        const fiatAmount = tokenPrice !== undefined && tokenPrice !== null ? multiplyAmounts(
               {
                 precision: FIAT_DISPLAY_PRECISION,
                 value: tokenPrice,
@@ -423,13 +421,12 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
                 value: amount,
               },
               FIAT_DISPLAY_PRECISION
-            )
-            : undefined;
+            ) : undefined
 
         const id = serializeBridgeId({
           depositCount,
           networkId: from.networkId,
-        });
+        })
 
         switch (claim.status) {
           case "pending": {
@@ -905,7 +902,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             mainExitRoot,
             rollupExitRoot,
             tokenOriginNetwork,
-            token.address,
+            token?.old_address ?? token.address,
             to.networkId,
             destinationAddress,
             amount,

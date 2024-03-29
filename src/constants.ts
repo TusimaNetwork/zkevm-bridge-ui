@@ -171,15 +171,17 @@ export const ETHNavToken: Token = {
   name: "Ether",
   symbol: "ETH",
 };
+
+export const TSMAddressZero="0x0000000000000000000000000000000000000001"
 export const TSMNAVToken: Token = {
   address: ethers.constants.AddressZero,
+  old_address:TSMAddressZero,
   chainId: EthereumChainId.SEPOLIA,
   decimals: 18,
   logoURI: TSM_TOKEN_LOGO_URI,
   name: "TSM",
   symbol: "TSM",
 };
-export const TSMAddressZero="0x0000000000000000000000000000000000000001"
 export const getExchangeAddress = (address: string) => {
   if (address === TSMAddressZero) {
     return ethers.constants.AddressZero
