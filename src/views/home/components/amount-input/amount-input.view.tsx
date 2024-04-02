@@ -9,13 +9,14 @@ import { Typography } from "src/views/shared/typography/typography.view";
 
 interface AmountInputProps {
   balance: BigNumber;
+  maxAmountConsideringFee?:BigNumber,
   onChange: (params: { amount?: BigNumber; error?: string }) => void;
   token: Token;
   value?: BigNumber;
   disabled?:boolean
 }
 
-export const AmountInput: FC<AmountInputProps> = ({ balance, onChange, token, value,disabled }) => {
+export const AmountInput: FC<AmountInputProps> = ({ balance, onChange,maxAmountConsideringFee, token, value,disabled }) => {
   const defaultInputValue = value ? formatTokenAmount(value, token) : "";
   const [inputValue, setInputValue] = useState(defaultInputValue);
   const classes = useAmountInputStyles(inputValue.length);
@@ -45,9 +46,9 @@ export const AmountInput: FC<AmountInputProps> = ({ balance, onChange, token, va
   };
 
   const onMax = () => {
-    if (balance.gt(0) && !disabled) {
-      setInputValue(formatTokenAmount(balance, token));
-      processOnChangeCallback(balance);
+    if (maxAmountConsideringFee && maxAmountConsideringFee.gt(0) && !disabled) {
+      setInputValue(formatTokenAmount(maxAmountConsideringFee, token));
+      processOnChangeCallback(maxAmountConsideringFee);
     } else {
       setInputValue("");
       processOnChangeCallback();
