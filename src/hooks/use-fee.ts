@@ -1,40 +1,31 @@
 import { BigNumber } from "ethers";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { getCurrency } from "src/adapters/storage";
 import { FIAT_DISPLAY_PRECISION, getEtherToken } from "src/constants";
-import { useBridgeContext } from "src/contexts/bridge.context";
-import { usePriceOracleContext } from "src/contexts/price-oracle.context";
-import { useProvidersContext } from "src/contexts/providers.context";
-import { useUIContext } from "src/contexts/ui.context";
-import { AsyncTask, Gas, TokenSpendPermission, FormData, Env } from "src/domain";
-import { routes } from "src/routes";
+import { AsyncTask, Gas, FormData, Env } from "src/domain";
 import { formatFiatAmount, formatTokenAmount, multiplyAmounts } from "src/utils/amounts";
 import { calculateMaxTxFee } from "src/utils/fees";
 import { getCurrencySymbol } from "src/utils/labels";
-import { isTokenEther } from "src/utils/tokens";
-import { isAsyncTaskDataAvailable } from "src/utils/types";
-import { useCallIfMounted } from "./use-call-if-mounted";
 export const useFee = ({
   formData,
   estimatedGas,
   env,
   maxAmountConsideringFee,
 }: {
-  formData?: FormData;
-  estimatedGas: AsyncTask<Gas, string>;
+  formData?: FormData
+  estimatedGas: AsyncTask<Gas, string>
   env?: Env;
-  maxAmountConsideringFee?: BigNumber;
+  maxAmountConsideringFee?: BigNumber
 }) => {
-  const [bridgedTokenFiatPrice, setBridgedTokenFiatPrice] = useState<BigNumber>();
-  const [etherTokenFiatPrice, setEtherTokenFiatPrice] = useState<BigNumber>();
-  const currencySymbol = getCurrencySymbol(getCurrency());
+  const [bridgedTokenFiatPrice, setBridgedTokenFiatPrice] = useState<BigNumber>()
+  const [etherTokenFiatPrice, setEtherTokenFiatPrice] = useState<BigNumber>()
+  const currencySymbol = getCurrencySymbol(getCurrency())
   if (!maxAmountConsideringFee || !env || estimatedGas?.status !== "successful" || !formData) {
-    return {};
+    return {}
   }
   
-  const { from, to, token } = formData;
-  const etherToken = getEtherToken(from);
+  const { from, to, token } = formData
+  const etherToken = getEtherToken(from)
 
   const fiatAmount =
     bridgedTokenFiatPrice &&
@@ -48,49 +39,39 @@ export const useFee = ({
         value: maxAmountConsideringFee,
       },
       FIAT_DISPLAY_PRECISION
-    );
+    )
 
-  const fee = calculateMaxTxFee(estimatedGas.data);
-  const fiatFee =
-    env.fiatExchangeRates.areEnabled &&
-    etherTokenFiatPrice &&
-    multiplyAmounts(
+  const fee = calculateMaxTxFee(estimatedGas.data)
+  const fiatFee = env.fiatExchangeRates.areEnabled && etherTokenFiatPrice && multiplyAmounts(
       {
         precision: FIAT_DISPLAY_PRECISION,
-        value: etherTokenFiatPrice,
+        value: etherTokenFiatPrice
       },
       {
         precision: etherToken.decimals,
-        value: fee,
+        value: fee
       },
       FIAT_DISPLAY_PRECISION
-    );
-
-  const tokenAmountString = `${
-    maxAmountConsideringFee.gt(0) ? formatTokenAmount(maxAmountConsideringFee, token) : "0"
-  } ${token.symbol}`;
+    )
+  const tokenAmountString = `${ maxAmountConsideringFee.gt(0) ? formatTokenAmount(maxAmountConsideringFee, token) : "0" } ${token.symbol}`
   
-  console.log({tokenAmountString,maxAmountConsideringFee:maxAmountConsideringFee.toString()})
-
-  const fiatAmountString = env.fiatExchangeRates.areEnabled
-    ? `${currencySymbol}${fiatAmount ? formatFiatAmount(fiatAmount) : "--"}`
-    : undefined;
+  const fiatAmountString = env.fiatExchangeRates.areEnabled ? `${currencySymbol}${fiatAmount ? formatFiatAmount(fiatAmount) : "--"}` : undefined
 
   const absMaxPossibleAmountConsideringFee = formatTokenAmount(
     maxAmountConsideringFee.abs(),
     etherToken
-  );
+  )
 
-  const feeBaseErrorString = "You don't have enough ETH to cover the transaction fee";
+  const feeBaseErrorString = "You don't have enough ETH to cover the transaction fee"
   const feeErrorString = maxAmountConsideringFee.isNegative()
     ? `${feeBaseErrorString}\nYou need at least ${absMaxPossibleAmountConsideringFee} extra ETH`
     : maxAmountConsideringFee.eq(0)
     ? `${feeBaseErrorString}\nThe maximum transferable amount is 0 after considering the fee`
-    : undefined;
+    : undefined
 
-  const etherFeeString = `${formatTokenAmount(fee, etherToken)} ${etherToken.symbol}`;
-  const fiatFeeString = fiatFee ? `${currencySymbol}${formatFiatAmount(fiatFee)}` : undefined;
-  const feeString = fiatFeeString ? `${etherFeeString} ~ ${fiatFeeString}` : etherFeeString;
+  const etherFeeString = `${formatTokenAmount(fee, etherToken)} ${etherToken.symbol}`
+  const fiatFeeString = fiatFee ? `${currencySymbol}${formatFiatAmount(fiatFee)}` : undefined
+  const feeString = fiatFeeString ? `${etherFeeString} ~ ${fiatFeeString}` : etherFeeString
 
   // useEffect(() => {
   //   if (formData) {

@@ -20,6 +20,8 @@ import { useInputMaxAmount } from "src/hooks/use-input-max-amount";
 import { FromLabel } from "src/utils/labels";
 import { isTokenEther, selectTokenAddress } from "src/utils/tokens";
 import { isAsyncTaskDataAvailable } from "src/utils/types";
+import { ApprovalInfo } from "src/views/bridge-confirmation/components/approval-info/approval-info.view";
+import { BridgeButton } from "src/views/bridge-confirmation/components/bridge-button/bridge-button.view";
 import { AmountInput } from "src/views/home/components/amount-input/amount-input.view";
 import { useBridgeFormStyles } from "src/views/home/components/bridge-form/bridge-form.styles";
 import { TokenSelector } from "src/views/home/components/token-selector/token-selector.view";
@@ -173,9 +175,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       env,
       maxAmountConsideringFee,
     })
-
     // console.log({ tokenAmountString,maxAmountConsideringFee:maxAmountConsideringFee?.toString(), feeString, feeErrorString })
-
 
   const onAddToken = (token: Token) => {
     if (tokens) {
@@ -405,6 +405,18 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         <Button disabled={isPrivate && !notLogin && (!amount || amount.isZero() || inputError !== undefined)} type="submit">
           {notLogin ? "Connect Wallet" : isPrivate ? "Continue" : "Exchange to Ethereum"}
         </Button>
+
+        {/* <BridgeButton
+          approvalTask={approvalTask}
+          isDisabled={maxAmountConsideringFee?.lte(0) || isBridgeInProgress}
+          isTxApprovalRequired={tokenSpendPermission?.type === "approval"}
+          onApprove={onApprove}
+          onBridge={onBridge}
+          token={token}
+        />
+        {tokenSpendPermission?.type === "approval" && <ApprovalInfo />} */}
+        {/* {error && <ErrorMessage error={error} />} */}
+
         {amount && inputError && <ErrorMessage error={inputError}/>}
       </div>
       {chains && (
