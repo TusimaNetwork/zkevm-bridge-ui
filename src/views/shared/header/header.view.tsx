@@ -22,9 +22,9 @@ export const Header: FC<HeaderProps> = ({ backTo, Subtitle, title }) => {
     <header className={classes.header}>
       <div className={classes.topRow}>
         <div className={`${classes.block} ${classes.leftBlock}`}>
-          <Link className={classes.sideButton} state={backTo.state} to={route}>
+          {/* <Link className={classes.sideButton} state={backTo.state} to={route}>
             <ArrowLeftIcon className={classes.icon} />
-          </Link>
+          </Link> */}
         </div>
         <div className={`${classes.block} ${classes.centerBlock}`}>
           <Typography type="h1">{title}</Typography>

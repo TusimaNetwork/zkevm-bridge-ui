@@ -185,6 +185,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
 
       const {token,origtoken} = await getToken({
         env,
+        destNetId:dest_net,
         originNetwork: network_id,
         tokenOriginAddress: orig_addr,
       });
@@ -337,7 +338,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             getToken({
               env,
               originNetwork: network_id,
-
+              destNetId:dest_net,
               tokenOriginAddress: orig_addr,
             }).then(({token,origtoken}) => [
               ...accDeposits,
@@ -894,8 +895,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             isL2Claim:isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
         })
       const executeClaim = () =>
-        contract
-          .claimAsset(
+        contract.claimAsset(
             merkleProof,
             // rollupMerkleProof,
             depositCount,
@@ -908,8 +908,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             amount,
             metadata,
             isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
-          )
-          .then((txData) => {
+          ).then((txData) => {
             storage.addAccountPendingTx(account, env, {
               amount,
               claimTxHash: txData.hash,
@@ -920,10 +919,9 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
               to,
               token,
               type: "claim",
-            });
-
+            })
             return txData;
-          });
+          })
 
       if (to.chainId === chainId) {
         return executeClaim();
