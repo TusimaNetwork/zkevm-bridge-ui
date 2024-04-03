@@ -183,21 +183,24 @@ export const TSMNAVToken: Token = {
   symbol: "TSM",
 }
 export const getExchangeAddress = (address: string,chainId:number) => {
+  console.log(address, chainId)
   if (address === TSMAddressZero) {
     return ethers.constants.AddressZero
   }
   return address
 }
 export const getOrigExchangeAddress = (address: string, TETHToken: any, chainId: number) => {
-  // console.log(chainId === EthereumChainId.SEPOLIA, chainId, EthereumChainId.SEPOLIA);
-  if (chainId === EthereumChainId.SEPOLIA) {
-    return address === ethers.constants.AddressZero
-      ? TSMToken.address
-      : ethers.constants.AddressZero;
-  } else if (chainId === EthereumChainId.EAGLE && address === ethers.constants.AddressZero) {
+  console.log(chainId === EthereumChainId.SEPOLIA, chainId, EthereumChainId.SEPOLIA,address === ethers.constants.AddressZero);
+  if (chainId === EthereumChainId.SEPOLIA && address === TSMAddressZero) {
+    return ethers.constants.AddressZero 
+    // return address === ethers.constants.AddressZero
+    //   ? TSMToken.address
+    //   : ethers.constants.AddressZero;
+  } else if (address === ethers.constants.AddressZero) {
     return TSMToken.address
   }
-  return address === TSMAddressZero && TETHToken ? TETHToken.address : ethers.constants.AddressZero
+  return address
+  // return address === TSMAddressZero && TETHToken ? TETHToken.address : ethers.constants.AddressZero
 }
 
 export const isEagleChain = (chain: Chain | Token) => {

@@ -286,12 +286,13 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         );
       }
     
-      const tokenAddress = getExchangeAddress(newAddress, to_chain.chainId);
+      const tokenAddress = getExchangeAddress(newAddress, form_chain.chainId);
 
-      // console.log({form_chain,to_chain,newAddress,tokenAddress})
       const originTokenAddress = getOrigExchangeAddress(newAddress, TETHToken, form_chain.chainId);
       const token = fetchToken(tokenAddress, form_chain);
       const origtoken = fetchToken(originTokenAddress, form_chain);
+    
+      console.log({origtoken,originTokenAddress,form_chain}) 
       if (token) {
         return { token, origtoken: origtoken || token };
       } else {

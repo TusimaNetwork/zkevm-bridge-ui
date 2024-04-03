@@ -406,7 +406,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         <Button disabled={isPrivate && !notLogin && (!amount || amount.isZero() || inputError !== undefined)} type="submit">
           {notLogin ? "Connect Wallet" : isPrivate ? "Continue" : "Exchange to Ethereum"}
         </Button>
-
         {/* <BridgeButton
           approvalTask={approvalTask}
           isDisabled={maxAmountConsideringFee?.lte(0) || isBridgeInProgress}
@@ -417,7 +416,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         />
         {tokenSpendPermission?.type === "approval" && <ApprovalInfo />} */}
         {/* {error && <ErrorMessage error={error} />} */}
-
         {amount && inputError && <ErrorMessage error={inputError}/>}
       </div>
       {chains && (
