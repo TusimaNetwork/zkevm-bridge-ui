@@ -3,7 +3,7 @@ export type RouteId =
   | "bridgeConfirmation"
   | "bridgeDetails"
   | "home"
-  | "login"
+  // | "login"
   | "networkError"
   | "settings";
 
@@ -31,14 +31,14 @@ export const routes: {
   },
   home: {
     id: "home",
-    isPrivate: true,
+    isPrivate: false,
     path: "/",
   },
-  login: {
-    id: "login",
-    isPrivate: false,
-    path: "/login",
-  },
+  // login: {
+  //   id: "login",
+  //   isPrivate: false,
+  //   path: "/login",
+  // },
   networkError: {
     id: "networkError",
     isPrivate: false,

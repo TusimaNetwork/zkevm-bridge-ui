@@ -7,14 +7,21 @@ import { ReactComponent as ArrowDown } from "src/assets/icons/arrow-down.svg";
 import { ReactComponent as CaretDown } from "src/assets/icons/caret-down.svg";
 import {  getEtherToken, getToToken,  } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
+import { usePriceOracleContext } from "src/contexts/price-oracle.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
 import { AsyncTask, Chain, ChainKey, FormData, Token } from "src/domain";
 import { useAddnetwork } from "src/hooks/use-addnetwork";
+import { useApprove } from "src/hooks/use-approve";
+import { useBridge } from "src/hooks/use-bridge";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
+import { useFee } from "src/hooks/use-fee";
+import { useInputMaxAmount } from "src/hooks/use-input-max-amount";
 import { FromLabel } from "src/utils/labels";
 import { isTokenEther, selectTokenAddress } from "src/utils/tokens";
 import { isAsyncTaskDataAvailable } from "src/utils/types";
+import { ApprovalInfo } from "src/views/bridge-confirmation/components/approval-info/approval-info.view";
+import { BridgeButton } from "src/views/bridge-confirmation/components/bridge-button/bridge-button.view";
 import { AmountInput } from "src/views/home/components/amount-input/amount-input.view";
 import { useBridgeFormStyles } from "src/views/home/components/bridge-form/bridge-form.styles";
 import { TokenSelector } from "src/views/home/components/token-selector/token-selector.view";
@@ -27,6 +34,7 @@ import { NetworkSelectorTabs } from "src/views/shared/network-selector-tabs/netw
 import { Spinner } from "src/views/shared/spinner/spinner.view";
 import { TokenBalance } from "src/views/shared/token-balance/token-balance.view";
 import { Typography } from "src/views/shared/typography/typography.view";
+import useSWR from "swr";
 
 interface BridgeFormProps {
   account: string;
@@ -59,7 +67,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const [tokens, setTokens] = useState<Token[]>()
   const [isTokenListOpen, setIsTokenListOpen] = useState(false)
   const { onAddNetwork } = useAddnetwork()
-
+  const { getTokenPrice } = usePriceOracleContext();
   const onAmountInputChange = ({ amount, error }: { amount?: BigNumber; error?: string }) => {
     setAmount(amount)
     setInputError(error)
@@ -76,6 +84,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       connectedProvider.status === "successful" && 
       connectedProvider.data.chainId === ZkEVMChain.chainId ? FromLabel.Withdraw.toLocaleLowerCase():FromLabel.Deposit.toLocaleLowerCase()
     }
+
     return has
   },[asHash,connectedProvider,env?.chains])
 
@@ -129,6 +138,44 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const onCloseTokenSelector = () => {
     setIsTokenListOpen(false)
   }
+
+  const tokenBalance2 = useMemo(()=>{
+    return balanceFrom?.status === "successful" ? balanceFrom.data : undefined
+  },[balanceFrom])
+  const formData2 = useMemo(()=>{
+    if(!selectedChains || !token || balanceFrom?.status !== "successful"){
+      return 
+    }
+    return {
+      amount: balanceFrom.data,
+      from: selectedChains.from,
+      to: selectedChains.to,
+      token: token,
+    }
+  },[selectedChains,balanceFrom?.status,token])
+  // console.log({tokenBalance2:tokenBalance2?.toString(),token:token?.symbol})
+  const { onApprove, tokenSpendPermission, approvalTask } = useApprove({
+    formData:formData2,
+    // setError,
+  })
+  const { maxAmountConsideringFee, estimatedGas } = useInputMaxAmount({
+    formData:formData2,
+    tokenBalance:tokenBalance2,
+    tokenSpendPermission,
+  })
+  const { onBridge, isBridgeInProgress } = useBridge({
+    formData:formData2,
+    estimatedGas,
+    tokenSpendPermission,
+    maxAmountConsideringFee,
+  })
+  const { tokenAmountString, feeString, feeErrorString } = useFee({
+      formData:formData2,
+      estimatedGas,
+      env,
+      maxAmountConsideringFee,
+    })
+    // console.log({ tokenAmountString,maxAmountConsideringFee:maxAmountConsideringFee?.toString(), feeString, feeErrorString })
 
   const onAddToken = (token: Token) => {
     if (tokens) {
@@ -213,8 +260,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         tokens ? tokens.map((tkn) =>tkn.address === updatedToken.address && tkn.chainId === updatedToken.chainId ? updatedToken : tkn) : undefined
 
         
-      setTokens(() =>
-        tokens.map((token: Token) => {
+      setTokens(() => tokens.map((token: Token) => {
           getTokenBalance(token, selectedChains.from).then((balance): void => {
               callIfMounted(() => {
                 const updatedToken: Token = {
@@ -283,14 +329,14 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       setAmount(undefined)
   }, [connectedProvider, env, isPrivate])
 
-  useEffect(() => {
-    // Load default form values
-    if (formData) {
-      setSelectToken(formData.token)
-      setAmount(formData.amount)
-      onResetForm()
-    }
-  }, [formData, onResetForm])
+  // useEffect(() => {
+  //   // Load default form values
+  //   if (formData) {
+  //     setSelectToken(formData.token)
+  //     setAmount(formData.amount)
+  //     onResetForm()
+  //   }
+  // }, [formData, onResetForm])
 
   if (!env || !selectedChains || !tokens || !token || !toToken) {
     return (
@@ -330,6 +376,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
                 ? balanceFrom.data
                 : BigNumber.from(0)
             }
+            maxAmountConsideringFee={maxAmountConsideringFee}
             disabled={!isPrivate}
             onChange={onAmountInputChange}
             token={token}
@@ -358,6 +405,18 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         <Button disabled={isPrivate && !notLogin && (!amount || amount.isZero() || inputError !== undefined)} type="submit">
           {notLogin ? "Connect Wallet" : isPrivate ? "Continue" : "Exchange to Ethereum"}
         </Button>
+
+        {/* <BridgeButton
+          approvalTask={approvalTask}
+          isDisabled={maxAmountConsideringFee?.lte(0) || isBridgeInProgress}
+          isTxApprovalRequired={tokenSpendPermission?.type === "approval"}
+          onApprove={onApprove}
+          onBridge={onBridge}
+          token={token}
+        />
+        {tokenSpendPermission?.type === "approval" && <ApprovalInfo />} */}
+        {/* {error && <ErrorMessage error={error} />} */}
+
         {amount && inputError && <ErrorMessage error={inputError}/>}
       </div>
       {chains && (
