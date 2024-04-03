@@ -9,9 +9,7 @@ import { useApprove } from "src/hooks/use-approve";
 import { useBridge } from "src/hooks/use-bridge";
 import { useFee } from "src/hooks/use-fee";
 import { useInputMaxAmount } from "src/hooks/use-input-max-amount";
-import {
-  isAsyncTaskDataAvailable,
-} from "src/utils/types";
+import { isAsyncTaskDataAvailable } from "src/utils/types";
 import { useBridgeConfirmationStyles } from "src/views/bridge-confirmation/bridge-confirmation.styles";
 import { ApprovalInfo } from "src/views/bridge-confirmation/components/approval-info/approval-info.view";
 import { BridgeButton } from "src/views/bridge-confirmation/components/bridge-button/bridge-button.view";
@@ -44,12 +42,7 @@ export const BridgeConfirmation: FC = () => {
     tokenSpendPermission,
     maxAmountConsideringFee,
   })
-  const { tokenAmountString, feeString, feeErrorString } = useFee({
-      formData:formData,
-      estimatedGas,
-      env,
-      maxAmountConsideringFee,
-    })
+  
 
   if (
     !env ||
@@ -62,43 +55,9 @@ export const BridgeConfirmation: FC = () => {
     return <PageLoader />;
   }
 
-  const { from, to, token } = formData;
+  const { token } = formData;
   
   return (
-    <div className={classes.contentWrapper}>
-      <Header backTo={{ routeKey: "home" }} title="Confirm Bridge" />
-      <Card className={classes.card}>
-        <Icon className={classes.tokenIcon} isRounded size={46} url={token.logoURI} />
-        <Typography type="h1">{tokenAmountString}</Typography>
-        {/* {fiatAmountString && (
-          <Typography className={classes.fiat} type="body2">
-            {fiatAmountString}
-          </Typography>
-        )} */}
-        <div className={classes.chainsRow}>
-          <div className={classes.chainBox}>
-            <from.Icon className={classes.icons}/>
-            <Typography className={classes.chainName} type="body1">
-              {from.name}
-            </Typography>
-          </div>
-          <ArrowRightIcon className={classes.arrowIcon} />
-          <div className={classes.chainBox}>
-            <to.Icon className={classes.icons}/>
-            <Typography className={classes.chainName} type="body1">
-              {to.name}
-            </Typography>
-          </div>
-        </div>
-        <div className={classes.feeBlock}>
-          <Typography type="body2">Estimated gas fee</Typography>
-          <div className={classes.fee}>
-            <Icon isRounded size={20} url={token.chainId === EthereumChainId.EAGLE?TSM_TOKEN_LOGO_URI:ETH_TOKEN_LOGO_URI} />
-            <Typography type="body1">{feeString}</Typography>
-          </div>
-        </div>
-      </Card>
-      <div className={classes.button}>
         <BridgeButton
           approvalTask={approvalTask}
           isDisabled={maxAmountConsideringFee.lte(0) || isBridgeInProgress}
@@ -107,10 +66,5 @@ export const BridgeConfirmation: FC = () => {
           onBridge={onBridge}
           token={token}
         />
-        {tokenSpendPermission.type === "approval" && <ApprovalInfo />}
-        {error && <ErrorMessage error={error} />}
-      </div>
-      {feeErrorString && <ErrorMessage className={classes.error} error={feeErrorString} />}
-    </div>
   );
 };

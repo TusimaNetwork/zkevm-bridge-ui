@@ -8,17 +8,22 @@ import { AsyncTask, Gas, TokenSpendPermission, FormData } from "src/domain";
 import { routes } from "src/routes";
 import { calculateMaxTxFee } from "src/utils/fees";
 import { isTokenEther } from "src/utils/tokens";
-import { isAsyncTaskDataAvailable } from "src/utils/types";
+import { isAsyncTaskDataAvailable, isMetaMaskUserRejectedRequestError } from "src/utils/types";
+import { useCallIfMounted } from "./use-call-if-mounted";
+import { useErrorContext } from "src/contexts/error.context";
+import { parseError } from "src/adapters/error";
 export const useBridge = ({
   formData,
   estimatedGas,
   tokenSpendPermission,
   maxAmountConsideringFee,
+  setError
 }: {
   formData?: FormData;
   estimatedGas: AsyncTask<Gas, string>;
   tokenSpendPermission?: TokenSpendPermission;
   maxAmountConsideringFee?: BigNumber;
+  setError?:any
 }) => {
   const { openSnackbar } = useUIContext();
 
@@ -26,8 +31,11 @@ export const useBridge = ({
   const [isBridgeInProgress, setIsBridgeInProgress] = useState(false);
   const navigate = useNavigate();
   const { connectedProvider } = useProvidersContext();
+  const { notifyError } = useErrorContext();
+  const callIfMounted = useCallIfMounted();
 
-  const onBridge = () => {
+  const onBridge = (e?:MouseEvent) => {
+    e?.stopPropagation()
     if (
       formData &&
       isAsyncTaskDataAvailable(connectedProvider) &&
@@ -54,18 +62,18 @@ export const useBridge = ({
           // setFormData(undefined);
         })
         .catch((error) => {
-          // callIfMounted(() => {
-          //   setIsBridgeInProgress(false);
-          //   if (isMetaMaskUserRejectedRequestError(error) === false) {
-          //     void parseError(error).then((parsed) => {
-          //       if (parsed === "wrong-network") {
-          //         setError(`Switch to ${from.name} to continue`);
-          //       } else {
-          //         notifyError(error);
-          //       }
-          //     });
-          //   }
-          // });
+          callIfMounted(() => {
+            setIsBridgeInProgress(false);
+            if (isMetaMaskUserRejectedRequestError(error) === false) {
+              void parseError(error).then((parsed) => {
+                if (parsed === "wrong-network") {
+                  setError(`Switch to ${from.name} to continue`);
+                } else {
+                  notifyError(error);
+                }
+              });
+            }
+          });
         });
     }
   }

@@ -31,7 +31,8 @@ export const useApprove = ({
   const [tokenSpendPermission, setTokenSpendPermission] = useState<TokenSpendPermission>();
   const [tokenBalance, setTokenBalance] = useState<BigNumber>();
 
-  const onApprove = () => {
+  const onApprove = (e?:MouseEvent) => {
+    e?.stopPropagation()
     if (isAsyncTaskDataAvailable(connectedProvider) && formData) {
       setApprovalTask({ status: "loading" });
       const { amount, from, token } = formData;

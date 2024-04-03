@@ -52,7 +52,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const classes = useBridgeFormStyles()
   const callIfMounted = useCallIfMounted()
   const env = useEnvContext()
-  const { getErc20TokenBalance, tokens: defaultTokens,PETHToken } = useTokensContext()
+  const { getErc20TokenBalance, tokens: defaultTokens,TETHToken } = useTokensContext()
   const { connectedProvider, connectWallet } = useProvidersContext()
   const [balanceFrom, setBalanceFrom] = useState<AsyncTask<BigNumber, string>>({
     status: "pending",
@@ -130,10 +130,10 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   },[token,selectedChains])
 
   const toToken=useMemo(()=>{
-    if(selectedChains && fromToken && PETHToken){
-      return getToToken(fromToken,PETHToken)
+    if(selectedChains && fromToken && TETHToken){
+      return getToToken(fromToken,TETHToken)
     }
-  },[token,selectedChains,PETHToken])
+  },[token,selectedChains,TETHToken])
 
   const onCloseTokenSelector = () => {
     setIsTokenListOpen(false)
@@ -142,6 +142,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const tokenBalance2 = useMemo(()=>{
     return balanceFrom?.status === "successful" ? balanceFrom.data : undefined
   },[balanceFrom])
+
   const formData2 = useMemo(()=>{
     if(!selectedChains || !token || balanceFrom?.status !== "successful"){
       return 

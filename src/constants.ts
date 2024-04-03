@@ -151,9 +151,9 @@ export const getChains = ({
         networkId: polygonZkEVM.networkId,
         provider: polygonZkEVMProvider,
       },
-    ];
-  });
-};
+    ]
+  })
+}
 
 export const TSMToken: Token = {
   address: "0x539a827822b2a532092b8A08919DCAC4B00bead1",
@@ -162,7 +162,7 @@ export const TSMToken: Token = {
   logoURI: TSM_TOKEN_LOGO_URI,
   name: "TSM",
   symbol: "TSM",
-};
+}
 export const ETHNavToken: Token = {
   address: ethers.constants.AddressZero,
   chainId: EthereumChainId.EAGLE,
@@ -170,55 +170,61 @@ export const ETHNavToken: Token = {
   logoURI: ETH_TOKEN_LOGO_URI,
   name: "Ether",
   symbol: "ETH",
-};
+}
 
-export const TSMAddressZero="0x0000000000000000000000000000000000000001"
+export const TSMAddressZero = "0x0000000000000000000000000000000000000001";
 export const TSMNAVToken: Token = {
   address: ethers.constants.AddressZero,
-  old_address:TSMAddressZero,
+  old_address: TSMAddressZero,
   chainId: EthereumChainId.SEPOLIA,
   decimals: 18,
   logoURI: TSM_TOKEN_LOGO_URI,
   name: "TSM",
   symbol: "TSM",
-};
-export const getExchangeAddress = (address: string) => {
+}
+export const getExchangeAddress = (address: string,chainId:number) => {
   if (address === TSMAddressZero) {
     return ethers.constants.AddressZero
   }
   return address
 }
-export const getOrigExchangeAddress = (address: string,PETHToken:any, chainId: number) => {
+export const getOrigExchangeAddress = (address: string, TETHToken: any, chainId: number) => {
+  // console.log(chainId === EthereumChainId.SEPOLIA, chainId, EthereumChainId.SEPOLIA);
   if (chainId === EthereumChainId.SEPOLIA) {
-    return address === ethers.constants.AddressZero ? TSMToken.address : ethers.constants.AddressZero;
+    return address === ethers.constants.AddressZero
+      ? TSMToken.address
+      : ethers.constants.AddressZero;
+  } else if (chainId === EthereumChainId.EAGLE && address === ethers.constants.AddressZero) {
+    return TSMToken.address
   }
-  return address === TSMAddressZero && PETHToken ? PETHToken.address : ethers.constants.AddressZero;
-};
-export const isEagleChain = (chain: Chain | Token) => {
-  return chain.chainId === EthereumChainId.EAGLE;
-};
+  return address === TSMAddressZero && TETHToken ? TETHToken.address : ethers.constants.AddressZero
+}
 
-export const getToToken = (token: Token,PETHToken:any): Token => {
+export const isEagleChain = (chain: Chain | Token) => {
+  return chain.chainId === EthereumChainId.EAGLE
+}
+
+export const getToToken = (token: Token, TETHToken: any): Token => {
   if (isEagleChain(token)) {
-    return token.address === ethers.constants.AddressZero ? TSMToken : { ...ETHNavToken };
+    return token.address === ethers.constants.AddressZero ? TSMToken : { ...ETHNavToken }
   } else if (
     String(TSMToken.address).toLocaleLowerCase() === String(token.address).toLocaleLowerCase()
   ) {
-    return { ...TSMNAVToken, chainId: token.chainId };
+    return { ...TSMNAVToken, chainId: token.chainId }
   }
-  return PETHToken ? PETHToken:token;
-};
+  return TETHToken ? TETHToken : token
+}
 export const getEtherToken = (chain: Chain | Token, chainId?: number): Token => {
-  if (isEagleChain(chain)) return { ...TSMNAVToken, chainId: chainId || chain.chainId };
-  return { ...ETHNavToken, chainId: chainId || chain.chainId };
-};
+  if (isEagleChain(chain)) return { ...TSMNAVToken, chainId: chainId || chain.chainId }
+  return { ...ETHNavToken, chainId: chainId || chain.chainId }
+}
 
 export const getUsdcToken = ({
   address,
-  chainId,
+  chainId
 }: {
-  address: string;
-  chainId: number;
+  address: string
+  chainId: number
 }): Token => ({
   address,
   chainId,
