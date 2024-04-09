@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { BigNumber, constants as ethersConstants } from "ethers";
+import { BigNumber, ethers, constants as ethersConstants } from "ethers";
 import {
   FC,
   PropsWithChildren,
@@ -277,28 +277,28 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       if (!form_chain) {
         throw new Error(
           `The chain with the originNetwork "${originNetwork}" could not be found in the list of supported Chains`
-        );
+        )
       }
       const to_chain = env.chains.find((chain) => chain.networkId === destNetId);
       if (!to_chain) {
         throw new Error(
           `The chain with the originNetwork "${destNetId}" could not be found in the list of supported Chains`
-        );
+        )
       }
-    
-      const tokenAddress = getExchangeAddress(newAddress, to_chain.chainId);
 
-      // console.log({form_chain,to_chain,newAddress,tokenAddress})
-      const originTokenAddress = getOrigExchangeAddress(newAddress, TETHToken, form_chain.chainId);
-      const token = fetchToken(tokenAddress, form_chain);
-      const origtoken = fetchToken(originTokenAddress, form_chain);
+      const chain = form_chain.chainId ===EthereumChainId.EAGLE && newAddress === ethers.constants.AddressZero ? to_chain : form_chain;
+
+      const tokenAddress = getExchangeAddress(newAddress)
+      const originTokenAddress = getOrigExchangeAddress(newAddress, to_chain.chainId,form_chain.chainId)
+      const token = fetchToken(tokenAddress, chain)
+      const origtoken = fetchToken(originTokenAddress, to_chain)
       if (token) {
-        return { token, origtoken: origtoken || token };
+        return { token, origtoken: origtoken || token }
       } else {
         const token = await getTokenFromAddress({ address: tokenAddress, chain: form_chain })
           .then((token) => {
-            fetchedTokens.current = [...fetchedTokens.current, token];
-            return token;
+            fetchedTokens.current = [...fetchedTokens.current, token]
+            return token
           })
           .catch(() => {
             throw new Error(
@@ -328,8 +328,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         throw new Error("Connected provider is not available");
       }
 
-      const executeApprove = async () =>
-        ethereum.approve({ amount, from, owner, provider, spender, token });
+      const executeApprove = async () => ethereum.approve({ amount, from, owner, provider, spender, token });
 
       if (from.chainId === connectedProvider.data.chainId) {
         return executeApprove();
