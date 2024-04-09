@@ -49,8 +49,8 @@ export const Activity: FC = () => {
 
   const fetchBridgesAbortController = useRef<AbortController>(new AbortController());
 
-  const headerBorderObserved = useRef<HTMLDivElement>(null);
-  const headerBorderTarget = useRef<HTMLDivElement>(null);
+  const headerBorderObserved = useRef<HTMLDivElement>(null)
+  const headerBorderTarget = useRef<HTMLDivElement>(null)
 
   useIntersection({
     className: classes.stickyContentBorder,
@@ -58,16 +58,15 @@ export const Activity: FC = () => {
     target: headerBorderTarget,
   })
 
-  const onDisplayAll = () => setDisplayAll(true);
-  const onDisplayPending = () => setDisplayAll(false);
+  const onDisplayAll = () => setDisplayAll(true)
+  const onDisplayPending = () => setDisplayAll(false)
 
   const onClaim = (bridge: Bridge) => {
     if (bridge.status === "on-hold") {
-      setAreBridgesDisabled(true);
+      setAreBridgesDisabled(true)
       claim({
         bridge,
-      })
-        .then(() => {
+      }).then(() => {
           openSnackbar({
             text: "Transaction successfully submitted.",
             type: "success-msg",
@@ -78,9 +77,9 @@ export const Activity: FC = () => {
             if (isMetaMaskUserRejectedRequestError(error) === false) {
               void parseError(error).then((parsed) => {
                 if (parsed === "wrong-network") {
-                  setWrongNetworkBridges([...wrongNetworkBridges, bridge.id]);
+                  setWrongNetworkBridges([...wrongNetworkBridges, bridge.id])
                 } else {
-                  notifyError(error);
+                  notifyError(error)
                 }
               })
             }
@@ -91,15 +90,15 @@ export const Activity: FC = () => {
             getPendingBridges(apiBridges.data)
               .then((data) => {
                 callIfMounted(() => {
-                  setPendingBridges({ data, status: "successful" });
+                  setPendingBridges({ data, status: "successful" })
                 })
               })
               .catch((error) => {
                 callIfMounted(() => {
-                  notifyError(error);
+                  notifyError(error)
                 })
               })
-              .finally(() => setAreBridgesDisabled(false));
+              .finally(() => setAreBridgesDisabled(false))
           }
         })
     }
@@ -108,16 +107,16 @@ export const Activity: FC = () => {
   const processFetchBridgesSuccess = useCallback(
     (bridges: Bridge[]) => {
       setLastLoadedItem(bridges.length);
-      setApiBridges({ data: bridges, status: "successful" });
+      setApiBridges({ data: bridges, status: "successful" })
       getPendingBridges(bridges)
         .then((data) => {
           callIfMounted(() => {
-            setPendingBridges({ data, status: "successful" });
+            setPendingBridges({ data, status: "successful" })
           });
         })
         .catch((error) => {
           callIfMounted(() => {
-            notifyError(error);
+            notifyError(error)
           });
         });
     },
@@ -132,7 +131,7 @@ export const Activity: FC = () => {
             error: undefined,
             status: "failed",
           });
-          notifyError(error);
+          notifyError(error)
         }
       });
     },
@@ -146,10 +145,10 @@ export const Activity: FC = () => {
       apiBridges.status === "successful" &&
       apiBridges.data.length < total
     ) {
-      setApiBridges({ data: apiBridges.data, status: "loading-more-items" });
+      setApiBridges({ data: apiBridges.data, status: "loading-more-items" })
 
       // A new page requested by the user cancels any other fetch in progress
-      fetchBridgesAbortController.current.abort();
+      fetchBridgesAbortController.current.abort()
 
       fetchBridges({
         env,
@@ -159,11 +158,11 @@ export const Activity: FC = () => {
       })
         .then(({ bridges, total }) => {
           callIfMounted(() => {
-            processFetchBridgesSuccess(bridges);
-            setTotal(total);
-          });
+            processFetchBridgesSuccess(bridges)
+            setTotal(total)
+          })
         })
-        .catch(processFetchBridgesError);
+        .catch(processFetchBridgesError)
     }
   };
 
@@ -178,18 +177,16 @@ export const Activity: FC = () => {
         limit: PAGE_SIZE,
         offset: 0,
         type: "load",
-      })
-        .then(({ bridges, total }) => {
+      }).then(({ bridges, total }) => {
           callIfMounted(() => {
-            processFetchBridgesSuccess(bridges);
+            processFetchBridgesSuccess(bridges)
             setTotal(total);
-          });
-        })
-        .catch(processFetchBridgesError);
+          })
+      }).catch(processFetchBridgesError)
     }
     return () => {
-      fetchBridgesAbortController.current.abort();
-    };
+      fetchBridgesAbortController.current.abort()
+    }
   }, [
     connectedProvider,
     env,
@@ -198,7 +195,7 @@ export const Activity: FC = () => {
     fetchBridges,
     processFetchBridgesError,
     processFetchBridgesSuccess,
-  ]);
+  ])
 
   useEffect(() => {
     // Polling bridges
@@ -213,27 +210,26 @@ export const Activity: FC = () => {
             ? { data: apiBridges.data, status: "reloading" }
             : { status: "loading" }
         );
-        fetchBridgesAbortController.current = new AbortController();
+        fetchBridgesAbortController.current = new AbortController()
         fetchBridges({
           abortSignal: fetchBridgesAbortController.current.signal,
           env,
           ethereumAddress: connectedProvider.data.account,
           quantity: lastLoadedItem,
           type: "reload",
-        })
-          .then(({ bridges, total }) => {
+        }).then(({ bridges, total }) => {
             callIfMounted(() => {
-              processFetchBridgesSuccess(bridges);
-              setTotal(total);
+              processFetchBridgesSuccess(bridges)
+              setTotal(total)
             });
           })
-          .catch(processFetchBridgesError);
+          .catch(processFetchBridgesError)
       };
-      const intervalId = setInterval(refreshBridges, AUTO_REFRESH_RATE);
+      const intervalId = setInterval(refreshBridges, AUTO_REFRESH_RATE)
 
       return () => {
-        clearInterval(intervalId);
-      };
+        clearInterval(intervalId)
+      }
     }
   }, [
     connectedProvider,
@@ -244,7 +240,7 @@ export const Activity: FC = () => {
     processFetchBridgesError,
     processFetchBridgesSuccess,
     callIfMounted,
-  ]);
+  ])
 
   useEffect(() => {
     // Polling lastVerifiedBatch
@@ -274,21 +270,21 @@ export const Activity: FC = () => {
             setLastVerifiedBatch({
               error: "An error occurred getting the last verified batch",
               status: "failed",
-            });
-          });
-      };
-      refreshLastVerifiedBatch();
-      const intervalId = setInterval(refreshLastVerifiedBatch, AUTO_REFRESH_RATE);
+            })
+          })
+      }
+      refreshLastVerifiedBatch()
+      const intervalId = setInterval(refreshLastVerifiedBatch, AUTO_REFRESH_RATE)
 
       return () => {
-        clearInterval(intervalId);
+        clearInterval(intervalId)
       };
     }
-  }, [env]);
+  }, [env])
 
   useEffect(() => {
-    setWrongNetworkBridges([]);
-  }, [connectedProvider]);
+    setWrongNetworkBridges([])
+  }, [connectedProvider])
 
   const mergeBridges = (apiBridges: Bridge[], pendingBridges: PendingBridge[]) => {
     return [
@@ -307,8 +303,8 @@ export const Activity: FC = () => {
         ],
         []
       ),
-    ];
-  };
+    ]
+  }
 
   const EmptyMessage = () => (
     <Card className={classes.emptyMessage}>
@@ -316,7 +312,7 @@ export const Activity: FC = () => {
         ? "Bridge activity will be shown here"
         : "There are no pending bridges at the moment"}
     </Card>
-  );
+  )
 
   const Tabs = ({ all, pending }: { all: number; pending: number }) => (
     <div className={classes.filterBoxes}>

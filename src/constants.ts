@@ -110,7 +110,7 @@ export const getChains = ({
   const poeContract = ProofOfEfficiency__factory.connect(
     ethereum.poeContractAddress,
     ethereumProvider
-  );
+  )
 
   return Promise.all([
     ethereumProvider.getNetwork().catch(() => Promise.reject(ProviderError.Ethereum)),
@@ -173,6 +173,7 @@ export const ETHNavToken: Token = {
 }
 
 export const TSMAddressZero = "0x0000000000000000000000000000000000000001";
+
 export const TSMNAVToken: Token = {
   address: ethers.constants.AddressZero,
   old_address: TSMAddressZero,
@@ -182,25 +183,26 @@ export const TSMNAVToken: Token = {
   name: "TSM",
   symbol: "TSM",
 }
-export const getExchangeAddress = (address: string,chainId:number) => {
-  console.log(address, chainId)
+
+export const getExchangeAddress = (address: string) => {
   if (address === TSMAddressZero) {
     return ethers.constants.AddressZero
   }
   return address
 }
-export const getOrigExchangeAddress = (address: string, TETHToken: any, chainId: number) => {
-  console.log(chainId === EthereumChainId.SEPOLIA, chainId, EthereumChainId.SEPOLIA,address === ethers.constants.AddressZero);
-  if (chainId === EthereumChainId.SEPOLIA && address === TSMAddressZero) {
-    return ethers.constants.AddressZero 
-    // return address === ethers.constants.AddressZero
-    //   ? TSMToken.address
-    //   : ethers.constants.AddressZero;
-  } else if (address === ethers.constants.AddressZero) {
+
+export const getOrigExchangeAddress = (address: string, toChainId: number,fromChainId:number) => {
+  console.log({
+    toChainId,
+    fromChainId,address
+  })
+  if(fromChainId === EthereumChainId.EAGLE && address === ethers.constants.AddressZero){
     return TSMToken.address
   }
+  if (address === TSMAddressZero) {
+    return ethers.constants.AddressZero
+  }
   return address
-  // return address === TSMAddressZero && TETHToken ? TETHToken.address : ethers.constants.AddressZero
 }
 
 export const isEagleChain = (chain: Chain | Token) => {
@@ -217,6 +219,7 @@ export const getToToken = (token: Token, TETHToken: any): Token => {
   }
   return TETHToken ? TETHToken : token
 }
+
 export const getEtherToken = (chain: Chain | Token, chainId?: number): Token => {
   if (isEagleChain(chain)) return { ...TSMNAVToken, chainId: chainId || chain.chainId }
   return { ...ETHNavToken, chainId: chainId || chain.chainId }
