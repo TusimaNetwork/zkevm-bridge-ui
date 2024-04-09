@@ -278,7 +278,6 @@ export const BridgeDetails: FC = () => {
 
       const fromEthToken = getEtherToken(from);
       const toEthToken = getEtherToken(to);
-      console.log({to,toEthToken})
       if (env === undefined) {
         return null;
       }
