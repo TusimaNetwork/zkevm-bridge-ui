@@ -146,6 +146,11 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           throw new Error(`Can not find a native token for the address "${address}"`);
         }
         return tokenInfo;
+      }).catch((e)=>{
+        console.log(e)
+        return new Promise((resolve, reject)=>{
+          reject(e);
+        })
       });
     },
     []
@@ -214,6 +219,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         .then(() => trustWalletLogoUrl)
         .catch(() => tokenIconDefaultUrl);
 
+        // console.log({logoURI})
       return getNativeTokenInfo({ address, chain })
         .then(({ originNetwork, originTokenAddress }) => {
           // the provided address belongs to a wrapped token
@@ -223,7 +229,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           }
           return {
             address: originTokenAddress,
-            chainId: originalTokenChain.chainId,
+            chainId: chain.chainId,
             decimals,
             logoURI,
             name,
@@ -234,7 +240,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
             },
           };
         })
-        .catch(() => {
+        .catch((e) => {
+          console.debug(e)
           // the provided address belongs to a native token
           return addWrappedToken({
             token: {
@@ -286,8 +293,11 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         )
       }
 
-      const chain = form_chain.chainId ===EthereumChainId.EAGLE && newAddress === ethers.constants.AddressZero ? to_chain : form_chain;
-
+      console.log({
+        form_chain,to_chain,sss:!(form_chain.chainId ===EthereumChainId.EAGLE && newAddress === ethers.constants.AddressZero)
+      })
+      const chain = form_chain.chainId ===EthereumChainId.EAGLE ? newAddress === ethers.constants.AddressZero ? to_chain: form_chain:to_chain;
+      console.log(newAddress === ethers.constants.AddressZero,newAddress,form_chain.chainId ===EthereumChainId.EAGLE,'test')
       const tokenAddress = getExchangeAddress(newAddress)
       const originTokenAddress = getOrigExchangeAddress(newAddress, to_chain.chainId,form_chain.chainId)
       const token = fetchToken(tokenAddress, chain)
