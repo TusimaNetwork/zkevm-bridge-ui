@@ -205,19 +205,42 @@ export const getOrigExchangeAddress = (address: string, toChainId: number,fromCh
   return address
 }
 
+//验证是否是eagle链
 export const isEagleChain = (chain: Chain | Token) => {
   return chain.chainId === EthereumChainId.EAGLE
 }
-
+//验证是否是sepolia链
+export const isSepoliaChain = (chain: Chain | Token) => {
+  return chain.chainId === EthereumChainId.SEPOLIA
+}
+//验证是否是eagle链的tsm token
+export const isEagleEthToken = (token: Token) => {
+  return isEagleChain(token) && token.address === ethers.constants.AddressZero
+}
+//验证是否是eagle链的eth token
+export const isSpoliaEthToken = (token: Token) => {
+  return isSepoliaChain(token) && token.address === ethers.constants.AddressZero
+}
+//验证是否是sepolia的tsm token
+export const isSepoliaTSMToken = (token: Token,) => {
+  return isSepoliaChain(token) && token.address === TSMToken.address
+}
+//验证是否是sepolia的tsm token
+export const isEagleTETHToken = (token: Token,TETHToken:Token) => {
+  return isEagleChain(token) && token.address === TETHToken.address
+}
 export const getToToken = (token: Token, TETHToken: any): Token => {
-  if (isEagleChain(token)) {
-    return token.address === ethers.constants.AddressZero ? TSMToken : { ...ETHNavToken }
-  } else if (
-    String(TSMToken.address).toLocaleLowerCase() === String(token.address).toLocaleLowerCase()
-  ) {
-    return { ...TSMNAVToken, chainId: token.chainId }
+  // console.log(isTokenEther(token),token.chainId , token.address === TSMToken.address )
+  if ( isEagleEthToken(token) ) {
+    return TSMToken
+  } else if ( isSpoliaEthToken(token) ) {
+    return TETHToken
+  }else if(isSepoliaTSMToken(token)){
+    return TSMNAVToken 
+  }else if(isEagleTETHToken(token,TETHToken)){
+    return ETHNavToken 
   }
-  return TETHToken ? TETHToken : token
+  return token
 }
 
 export const getEtherToken = (chain: Chain | Token, chainId?: number): Token => {
