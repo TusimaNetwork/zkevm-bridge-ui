@@ -130,6 +130,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   },[token,selectedChains])
 
   const toToken=useMemo(()=>{
+    // console.log({fromToken})
     if(selectedChains && fromToken && TETHToken){
       return getToToken(fromToken,TETHToken)
     }

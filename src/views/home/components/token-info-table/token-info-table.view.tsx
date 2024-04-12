@@ -4,7 +4,7 @@ import { FC } from "react";
 import { ReactComponent as CopyIcon } from "src/assets/icons/copy.svg";
 import { ReactComponent as NewWindowIcon } from "src/assets/icons/new-window.svg";
 import { useEnvContext } from "src/contexts/env.context";
-import { ChainKey, Token } from "src/domain";
+import { ChainKey, EthereumChainId, Token } from "src/domain";
 import { getShortenedEthereumAddress } from "src/utils/addresses";
 import { copyToClipboard } from "src/utils/browser";
 import { isTokenEther } from "src/utils/tokens";
@@ -95,9 +95,9 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
       </div>
     );
   } else {
-    const nativeTokenChain = env.chains.find(({ chainId }) => chainId === token.chainId);
+    const nativeTokenChain = env.chains.find(({ chainId }) => chainId === EthereumChainId.SEPOLIA);
     const nativeTokenAddress = token.address;
-
+// console.log({chainId:token})
     const wrappedTokenChainId = token.wrappedToken?.chainId;
     const wrappedTokenAddress = token.wrappedToken?.address;
 

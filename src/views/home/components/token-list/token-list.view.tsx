@@ -76,11 +76,12 @@ export const TokenList: FC<TokenListProps> = ({
     token.symbol.toLowerCase().includes(term.toLowerCase());
 
   const updateTokenList = (tokensWithBalance: Token[], searchTerm: string) => {
-    const newFilteredTokens = tokensWithBalance.filter(
-      getTokenFilterByTerm(chains.from, searchTerm)
-    );
-
-    setFilteredTokens(newFilteredTokens);
+    // const newFilteredTokens = tokensWithBalance.filter(
+    //   getTokenFilterByTerm(chains.from, searchTerm)
+    // );
+    const newFilteredTokens: any[] = []
+// console.log(newFilteredTokens)
+    // setFilteredTokens(newFilteredTokens);
     setCustomToken({ status: "pending" });
 
     if (ethersUtils.isAddress(searchTerm) && newFilteredTokens.length === 0) {
