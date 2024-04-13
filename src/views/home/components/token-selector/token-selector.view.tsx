@@ -1,39 +1,39 @@
-import { FC, MouseEvent, useEffect, useState } from "react";
+import { FC, MouseEvent, useEffect, useState } from "react"
 
-import { Chain, Token } from "src/domain";
-import { TokenAdder } from "src/views/home/components/token-adder/token-adder.view";
-import { TokenInfo } from "src/views/home/components/token-info/token-info.view";
-import { TokenList } from "src/views/home/components/token-list/token-list.view";
-import { useTokenSelectorStyles } from "src/views/home/components/token-selector/token-selector.styles";
-import { Card } from "src/views/shared/card/card.view";
-import { Portal } from "src/views/shared/portal/portal.view";
+import { Chain, Token } from "src/domain"
+import { TokenAdder } from "src/views/home/components/token-adder/token-adder.view"
+import { TokenInfo } from "src/views/home/components/token-info/token-info.view"
+import { TokenList } from "src/views/home/components/token-list/token-list.view"
+import { useTokenSelectorStyles } from "src/views/home/components/token-selector/token-selector.styles"
+import { Card } from "src/views/shared/card/card.view"
+import { Portal } from "src/views/shared/portal/portal.view"
 
 type Screen =
   | {
-      type: "token-list";
+      type: "token-list"
     }
   | {
       token: Token;
-      type: "token-adder";
+      type: "token-adder"
     }
   | {
       token: Token;
-      type: "token-info";
-    };
+      type: "token-info"
+    }
 
 interface SelectedChains {
-  from: Chain;
-  to: Chain;
+  from: Chain
+  to: Chain
 }
 
 interface TokenSelectorProps {
-  account: string;
-  chains: SelectedChains;
-  onAddToken: (token: Token) => void;
-  onClose: () => void;
-  onRemoveToken: (token: Token) => void;
-  onSelectToken: (token: Token) => void;
-  tokens: Token[];
+  account: string
+  chains: SelectedChains
+  onAddToken: (token: Token) => void
+  onClose: () => void
+  onRemoveToken: (token: Token) => void
+  onSelectToken: (token: Token) => void
+  tokens: Token[]
 }
 
 export const TokenSelector: FC<TokenSelectorProps> = ({
@@ -45,66 +45,65 @@ export const TokenSelector: FC<TokenSelectorProps> = ({
   onSelectToken,
   tokens,
 }) => {
-  const classes = useTokenSelectorStyles();
+  const classes = useTokenSelectorStyles()
 
   const [screen, setScreen] = useState<Screen>({
-    type: "token-list",
-  });
+    type: "token-list"
+  })
 
   const onOutsideClick = (event: MouseEvent) => {
     if (event.target === event.currentTarget) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   const onNavigateToTokenAdder = (token: Token) => {
     setScreen({
       token,
-      type: "token-adder",
-    });
-  };
+      type: "token-adder"
+    })
+  }
 
   const onNavigateToTokenInfo = (token: Token) => {
     setScreen({
       token,
-      type: "token-info",
-    });
-  };
+      type: "token-info"
+    })
+  }
 
   const onNavigateToTokenList = () => {
     setScreen({
-      type: "token-list",
-    });
-  };
+      type: "token-list"
+    })
+  }
 
   const onAddTokenToList = (token: Token) => {
-    onAddToken(token);
+    onAddToken(token)
     setScreen({
-      type: "token-list",
-    });
-  };
+      type: "token-list"
+    })
+  }
 
   const onRemoveTokenFromList = (token: Token) => {
     onRemoveToken(token);
     setScreen({
-      type: "token-list",
-    });
-  };
+      type: "token-list"
+    })
+  }
 
   useEffect(() => {
     const onKeyUp = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        onClose();
+        onClose()
       }
-    };
+    }
 
-    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("keyup", onKeyUp)
 
     return () => {
-      window.removeEventListener("keyup", onKeyUp);
-    };
-  }, [onClose]);
-
+      window.removeEventListener("keyup", onKeyUp)
+    }
+  }, [onClose])
   return (
     <Portal>
       <div className={classes.background} onMouseDown={onOutsideClick}>
