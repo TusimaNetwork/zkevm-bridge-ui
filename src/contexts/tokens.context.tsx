@@ -140,7 +140,23 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       originTokenAddress: string;
     }> => {
       const bridgeContract = Bridge__factory.connect(chain.bridgeContractAddress, chain.provider);
-
+      if([TETHToken?.address.toLocaleLowerCase(),TSMToken?.address.toLocaleLowerCase()].includes(address.toLocaleLowerCase())){
+        return new Promise((resolve, reject)=>{
+          resolve({
+            originNetwork: 1, 
+            originTokenAddress: address
+          })
+        });
+      }
+      // console.log(address === TSMToken?.address && chain.chainId === EthereumChainId.SEPOLIA,address === TSMToken?.address , chain.chainId , EthereumChainId.SEPOLIA)
+      // if(address === TSMToken?.address && chain.chainId === EthereumChainId.SEPOLIA){
+      //   return new Promise((resolve, reject)=>{
+      //     resolve({
+      //       originNetwork: 1, 
+      //       originTokenAddress: 
+      //     })
+      //   });
+      // }
       return bridgeContract.wrappedTokenToTokenInfo(address).then((tokenInfo) => {
         if (tokenInfo.originTokenAddress === ethersConstants.AddressZero) {
           throw new Error(`Can not find a native token for the address "${address}"`);
@@ -153,7 +169,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         })
       });
     },
-    []
+    [TETHToken]
   );
 
   /**
@@ -175,6 +191,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         const wrappedChain =
           nativeChain.chainId === ethereumChain.chainId ? polygonZkEVMChain : ethereumChain;
 
+          console.log({token,wrappedChain,nativeChain})
         return computeWrappedTokenAddress({
           nativeChain,
           otherChain: wrappedChain,

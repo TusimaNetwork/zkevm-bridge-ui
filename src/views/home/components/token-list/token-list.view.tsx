@@ -5,7 +5,7 @@ import { isChainNativeCustomToken } from "src/adapters/storage";
 import { ReactComponent as InfoIcon } from "src/assets/icons/info.svg";
 import { ReactComponent as MagnifyingGlassIcon } from "src/assets/icons/magnifying-glass.svg";
 import { ReactComponent as XMarkIcon } from "src/assets/icons/xmark.svg";
-import { TOKEN_BLACKLIST } from "src/constants";
+import { TOKEN_BLACKLIST, isEagleTETHToken, isSepoliaTSMToken } from "src/constants";
 import { useTokensContext } from "src/contexts/tokens.context";
 import { AsyncTask, Chain, Token } from "src/domain";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
@@ -43,7 +43,7 @@ export const TokenList: FC<TokenListProps> = ({
 }) => {
   const classes = useTokenListStyles();
   const callIfMounted = useCallIfMounted();
-  const { getErc20TokenBalance, getTokenFromAddress } = useTokensContext();
+  const { getErc20TokenBalance, getTokenFromAddress,TETHToken } = useTokensContext();
   const [searchInputValue, setSearchInputValue] = useState<string>("");
   const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
   const [customToken, setCustomToken] = useState<AsyncTask<Token, string>>({
@@ -170,6 +170,9 @@ export const TokenList: FC<TokenListProps> = ({
       : undefined;
 
   const tokensLists=useMemo(()=>filteredTokens.filter((itm)=>itm.chainId === chains.from.chainId),[filteredTokens,chains?.from])
+  if(!TETHToken){
+    return <div></div>
+  }
   return (
     <div className={classes.tokenList}>
       <TokenSelectorHeader onClose={onClose} title="Select token" />
@@ -202,7 +205,7 @@ export const TokenList: FC<TokenListProps> = ({
           </Typography>
         ) : (
           tokensLists.map((token) => {
-            const isImportedCustomToken = isChainNativeCustomToken(token, chains.from);
+            const isImportedCustomToken = isChainNativeCustomToken(token, chains.from) || isEagleTETHToken(token,TETHToken) || isSepoliaTSMToken(token);
             const isNonImportedCustomToken =
               !isImportedCustomToken &&
               customToken.status === "successful" &&

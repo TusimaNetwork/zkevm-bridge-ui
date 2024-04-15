@@ -230,7 +230,6 @@ export const isEagleTETHToken = (token: Token,TETHToken:Token) => {
   return isEagleChain(token) && token.address === TETHToken.address
 }
 export const getToToken = (token: Token, TETHToken: any): Token => {
-  // console.log(isTokenEther(token),token.chainId , token.address === TSMToken.address )
   if ( isEagleEthToken(token) ) {
     return TSMToken
   } else if ( isSpoliaEthToken(token) ) {

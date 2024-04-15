@@ -1,9 +1,11 @@
 import { constants as ethersConstants } from "ethers";
-import { FC } from "react";
+import { FC, useMemo } from "react";
 
 import { ReactComponent as CopyIcon } from "src/assets/icons/copy.svg";
 import { ReactComponent as NewWindowIcon } from "src/assets/icons/new-window.svg";
+import { TSMToken, getToToken } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
+import { useTokensContext } from "src/contexts/tokens.context";
 import { ChainKey, EthereumChainId, Token } from "src/domain";
 import { getShortenedEthereumAddress } from "src/utils/addresses";
 import { copyToClipboard } from "src/utils/browser";
@@ -17,13 +19,15 @@ interface TokenInfoTableProps {
 }
 
 export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) => {
-  const classes = useTokenInfoTableStyles();
-  const env = useEnvContext();
-
+  const classes = useTokenInfoTableStyles()
+  const env = useEnvContext()
+  const { TETHToken } = useTokensContext()
+  
   if (!env) {
     return null;
   }
-
+  const ethereum = env.chains[0]
+  const polygonZkEVM = env.chains[1]
   const nameRow = (
     <div className={classes.row}>
       <Typography className={classes.alignRow} type="body2">
@@ -56,22 +60,54 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
       </Typography>
     </div>
   );
+  // console.log({token},'1222')
+  const l1TokenAddress = useMemo(() => {
+    return token.chainId === EthereumChainId.EAGLE && isTokenEther(token)
+      ? TSMToken.address || ''
+      : ethersConstants.AddressZero
+  }, [token, TETHToken])
+
+  const l2TokenAddress = useMemo(() => {
+
+    return token.chainId === EthereumChainId.SEPOLIA && isTokenEther(token)
+      ? TETHToken?.address || ''
+      : ethersConstants.AddressZero
+  }, [token, TETHToken])
 
   if (isTokenEther(token)) {
-    const ethereum = env.chains[0];
-    const polygonZkEVM = env.chains[1];
-
     const ethereumRow = (
       <div className={classes.row}>
         <Typography className={classes.alignRow} type="body2">
           <ethereum.Icon className={classes.chainIcon} />
           L1 token address
         </Typography>
-        <Typography className={classes.alignRow} type="body1">
-          {getShortenedEthereumAddress(ethersConstants.AddressZero)}
-        </Typography>
+        <div className={classes.rowRightBlock}>
+          <Typography className={classes.alignRow} type="body1">
+            {getShortenedEthereumAddress(l1TokenAddress)}
+          </Typography>
+          {!isTokenEther(l1TokenAddress) &&  (
+            <>
+              <button
+                className={classes.button}
+                onClick={() => {
+                  copyToClipboard(l1TokenAddress)
+                }}
+              >
+                <CopyIcon className={classes.copyIcon} />
+              </button>
+              <a
+                className={classes.button}
+                href={`${ethereum.explorerUrl}/address/${l1TokenAddress}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <NewWindowIcon className={classes.newWindowIcon} />
+              </a>
+            </>
+          )}
+        </div>
       </div>
-    );
+    )
 
     const polygonZkEVMRow = (
       <div className={classes.row}>
@@ -79,11 +115,33 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
           <polygonZkEVM.Icon className={classes.chainIcon} />
           L2 token address
         </Typography>
-        <Typography className={classes.alignRow} type="body1">
-          {getShortenedEthereumAddress(ethersConstants.AddressZero)}
-        </Typography>
+        <div className={classes.rowRightBlock}>
+          <Typography className={classes.alignRow} type="body1">
+            {getShortenedEthereumAddress(l2TokenAddress)}
+          </Typography>
+          {!isTokenEther(l2TokenAddress) && (
+            <>
+              <button
+                className={classes.button}
+                onClick={() => {
+                  copyToClipboard(l2TokenAddress);
+                }}
+              >
+                <CopyIcon className={classes.copyIcon} />
+              </button>
+              <a
+                className={classes.button}
+                href={`${polygonZkEVM.explorerUrl}/address/${l2TokenAddress}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <NewWindowIcon className={classes.newWindowIcon} />
+              </a>
+            </>
+          )}
+        </div>
       </div>
-    );
+    )
 
     return (
       <div className={`${classes.wrapper} ${className || ""}`}>
@@ -93,30 +151,38 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
         {symbolRow}
         {decimalsRow}
       </div>
-    );
+    )
   } else {
-    const nativeTokenChain = env.chains.find(({ chainId }) => chainId === EthereumChainId.SEPOLIA);
-    const nativeTokenAddress = token.address;
-// console.log({chainId:token})
-    const wrappedTokenChainId = token.wrappedToken?.chainId;
-    const wrappedTokenAddress = token.wrappedToken?.address;
 
-    const wrappedTokenChain =
-      wrappedTokenChainId !== undefined
-        ? env.chains.find(({ chainId }) => chainId === wrappedTokenChainId)
-        : undefined;
+    const nativeTokenAddress = useMemo(()=>{
+      if(token.address === TETHToken?.address){
+        return ethersConstants.AddressZero
+      }
+      return token.address
+    },[token,TETHToken])
 
-    const nativeAddressRow = nativeTokenChain ? (
+    
+    const wrappedTokenAddress = useMemo(()=>{
+      if(token.address === TETHToken?.address){
+        return TETHToken.address 
+      }
+      if(token.address === TSMToken?.address){
+        return ethersConstants.AddressZero
+      }
+      return token.wrappedToken?.address
+    },[token,TETHToken])
+    
+    const nativeAddressRow = ethereum ? (
       <div className={classes.row}>
         <Typography className={classes.alignRow} type="body2">
-          <nativeTokenChain.Icon className={classes.chainIcon} />
-          {`${nativeTokenChain.key === ChainKey.ethereum ? "L1" : "L2"} token address`}
+          <ethereum.Icon className={classes.chainIcon} />
+          {`L1 token address`}
         </Typography>
         <div className={classes.rowRightBlock}>
           <Typography className={classes.tokenAddress} type="body1">
             {getShortenedEthereumAddress(nativeTokenAddress)}
           </Typography>
-          <button
+          {!isTokenEther(nativeTokenAddress) && <><button
             className={classes.button}
             onClick={() => {
               copyToClipboard(nativeTokenAddress);
@@ -126,27 +192,28 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
           </button>
           <a
             className={classes.button}
-            href={`${nativeTokenChain.explorerUrl}/address/${nativeTokenAddress}`}
+            href={`${ethereum.explorerUrl}/address/${nativeTokenAddress}`}
             rel="noreferrer"
             target="_blank"
           >
             <NewWindowIcon className={classes.newWindowIcon} />
-          </a>
+          </a></>}
         </div>
       </div>
-    ) : null;
+    ) : null
 
     const wrappedAddressRow =
-      wrappedTokenChain && wrappedTokenAddress ? (
+    polygonZkEVM && wrappedTokenAddress ? (
         <div className={classes.row}>
           <Typography className={classes.alignRow} type="body2">
-            <wrappedTokenChain.Icon className={classes.chainIcon} />
-            {`${wrappedTokenChain.key === ChainKey.ethereum ? "L1" : "L2"} token address`}
+            <polygonZkEVM.Icon className={classes.chainIcon} />
+            {`L2 token address`}
           </Typography>
           <div className={classes.rowRightBlock}>
             <Typography className={classes.tokenAddress} type="body1">
               {getShortenedEthereumAddress(wrappedTokenAddress)}
             </Typography>
+           {!isTokenEther(wrappedTokenAddress) && <>
             <button
               className={classes.button}
               onClick={() => {
@@ -157,15 +224,16 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
             </button>
             <a
               className={classes.button}
-              href={`${wrappedTokenChain.explorerUrl}/address/${wrappedTokenAddress}`}
+              href={`${polygonZkEVM.explorerUrl}/address/${wrappedTokenAddress}`}
               rel="noreferrer"
               target="_blank"
             >
               <NewWindowIcon className={classes.newWindowIcon} />
             </a>
+           </>} 
           </div>
         </div>
-      ) : null;
+      ) : null
 
     return (
       <div className={`${classes.wrapper} ${className || ""}`}>
@@ -175,6 +243,6 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
         {symbolRow}
         {decimalsRow}
       </div>
-    );
+    )
   }
-};
+}
