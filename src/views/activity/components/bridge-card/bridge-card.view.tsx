@@ -209,7 +209,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
             <div className={classes.bottom}>
               <Typography type="body2">{remainingBatchesMsg}</Typography>
               <button className={classes.finaliseButton} disabled>
-              Claim
+              Finalise
               </button>
             </div>
           </Card></Link>
@@ -274,7 +274,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 disabled={isFinaliseDisabled}
                 onClick={onClaimButtonClick}
               >
-                Finalise
+                Claim
               </button>
             </div>
           </Card></Link>
