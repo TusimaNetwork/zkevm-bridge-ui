@@ -191,7 +191,6 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         const wrappedChain =
           nativeChain.chainId === ethereumChain.chainId ? polygonZkEVMChain : ethereumChain;
 
-          console.log({token,wrappedChain,nativeChain})
         return computeWrappedTokenAddress({
           nativeChain,
           otherChain: wrappedChain,
@@ -313,7 +312,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       const chain = form_chain.chainId ===EthereumChainId.EAGLE ? newAddress === ethers.constants.AddressZero ? to_chain: form_chain:to_chain;
       const tokenAddress = getExchangeAddress(newAddress)
       const originTokenAddress = getOrigExchangeAddress(newAddress, to_chain.chainId,form_chain.chainId)
-      console.log({newAddress,tokenAddress,originTokenAddress})
+      // console.log({newAddress,tokenAddress,originTokenAddress})
       const token = fetchToken(tokenAddress, chain)
       const origtoken = fetchToken(originTokenAddress, to_chain)
       if (token) {

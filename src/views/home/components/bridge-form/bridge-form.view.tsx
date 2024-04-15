@@ -349,8 +349,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
       </div>
     )
   }
-
-  console.log(isPrivate , !notLogin , (!amount || amount.isZero() || inputError !== undefined))
+  // console.log(isPrivate , !notLogin , (!amount || amount.isZero() || inputError !== undefined))
   return (
     <form className={classes.form} onSubmit={onFormSubmit}>
       <NetworkSelectorTabs onClick={onChainButtonClick} chainId={token.chainId} chains={env.chains}/>

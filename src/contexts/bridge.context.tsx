@@ -874,12 +874,13 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         }
       );
 
-      const isTokenNativeOfToChain = token.chainId === to.chainId;
+      const isTokenNativeOfToChain = token.chainId === from.chainId;
       const isMetadataRequired = !isTokenEther(token) && !isTokenNativeOfToChain;
       const metadata = isMetadataRequired
         ? await getErc20TokenEncodedMetadata({ chain: from, token })
         : "0x";
 
+        console.log({isMetadataRequired,isTokenNativeOfToChain,token,to})
         console.log({
           merkleProof,
             // rollupMerkleProof,

@@ -192,10 +192,10 @@ export const getExchangeAddress = (address: string) => {
 }
 
 export const getOrigExchangeAddress = (address: string, toChainId: number,fromChainId:number) => {
-  console.log({
-    toChainId,
-    fromChainId,address
-  })
+  // console.log({
+  //   toChainId,
+  //   fromChainId,address
+  // })
   if(fromChainId === EthereumChainId.EAGLE && address === ethers.constants.AddressZero){
     return TSMToken.address
   }
