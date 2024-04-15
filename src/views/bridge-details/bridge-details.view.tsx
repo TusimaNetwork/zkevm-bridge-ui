@@ -394,7 +394,7 @@ export const BridgeDetails: FC = () => {
                 disabled={status === "initiated" || isFinaliseButtonDisabled}
                 onClick={onClaim}
               >
-                Finalise
+               Cliam 
               </Button>
               {incorrectNetworkMessage && <ErrorMessage error={incorrectNetworkMessage} />}
             </div>

@@ -309,14 +309,11 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           `The chain with the originNetwork "${destNetId}" could not be found in the list of supported Chains`
         )
       }
-
-      console.log({
-        form_chain,to_chain,sss:!(form_chain.chainId ===EthereumChainId.EAGLE && newAddress === ethers.constants.AddressZero)
-      })
+     
       const chain = form_chain.chainId ===EthereumChainId.EAGLE ? newAddress === ethers.constants.AddressZero ? to_chain: form_chain:to_chain;
-      console.log(newAddress === ethers.constants.AddressZero,newAddress,form_chain.chainId ===EthereumChainId.EAGLE,'test')
       const tokenAddress = getExchangeAddress(newAddress)
       const originTokenAddress = getOrigExchangeAddress(newAddress, to_chain.chainId,form_chain.chainId)
+      console.log({newAddress,tokenAddress,originTokenAddress})
       const token = fetchToken(tokenAddress, chain)
       const origtoken = fetchToken(originTokenAddress, to_chain)
       if (token) {

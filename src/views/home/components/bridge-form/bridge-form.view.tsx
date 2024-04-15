@@ -17,6 +17,7 @@ import { useBridge } from "src/hooks/use-bridge";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
 import { useFee } from "src/hooks/use-fee";
 import { useInputMaxAmount } from "src/hooks/use-input-max-amount";
+import { formatTokenAmount } from "src/utils/amounts";
 import { FromLabel } from "src/utils/labels";
 import { isTokenEther, selectTokenAddress } from "src/utils/tokens";
 import { isAsyncTaskDataAvailable } from "src/utils/types";
@@ -67,11 +68,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
   const [tokens, setTokens] = useState<Token[]>()
   const [isTokenListOpen, setIsTokenListOpen] = useState(false)
   const { onAddNetwork } = useAddnetwork()
-  const { getTokenPrice } = usePriceOracleContext();
-  const onAmountInputChange = ({ amount, error }: { amount?: BigNumber; error?: string }) => {
-    setAmount(amount)
-    setInputError(error)
-  }
+
 
   const supportedChainIds = useMemo(() => (env ? env.chains.map((chain) => chain.chainId) : []),[env])
 
@@ -114,7 +111,11 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         setAmount(undefined)
     }
   }
-
+  const onAmountInputChange = ({ amount, error }: { amount?: BigNumber; error?: string }) => {
+    if(!token) return 
+    setAmount(amount)
+    setInputError(error)
+  }
   const onTokenDropdownClick = () => {
     setIsTokenListOpen(true);
   }
@@ -349,6 +350,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     )
   }
 
+  console.log(isPrivate , !notLogin , (!amount || amount.isZero() || inputError !== undefined))
   return (
     <form className={classes.form} onSubmit={onFormSubmit}>
       <NetworkSelectorTabs onClick={onChainButtonClick} chainId={token.chainId} chains={env.chains}/>
@@ -382,6 +384,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
             disabled={!isPrivate}
             onChange={onAmountInputChange}
             token={token}
+            maxLength={6}
             value={amount} />
         </div>
       </Card>

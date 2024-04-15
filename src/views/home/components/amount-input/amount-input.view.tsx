@@ -14,9 +14,10 @@ interface AmountInputProps {
   token: Token
   value?: BigNumber
   disabled?:boolean
+  maxLength?:number
 }
 
-export const AmountInput: FC<AmountInputProps> = ({ balance, onChange,maxAmountConsideringFee, token, value,disabled }) => {
+export const AmountInput: FC<AmountInputProps> = ({ balance, onChange,maxAmountConsideringFee,maxLength, token, value,disabled }) => {
   const defaultInputValue = value ? formatTokenAmount(value, token) : ""
   const [inputValue, setInputValue] = useState(defaultInputValue)
   const classes = useAmountInputStyles(inputValue.length)
@@ -32,12 +33,11 @@ export const AmountInput: FC<AmountInputProps> = ({ balance, onChange,maxAmountC
 
   const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
-    const decimals = token.decimals
+    const decimals =  maxLength ?? token.decimals
     const regexToken = `^(?!0\\d|\\.)\\d*(?:\\.\\d{0,${decimals}})?$`
     const INPUT_REGEX = new RegExp(regexToken)
     const isInputValid = INPUT_REGEX.test(value)
     const amount = value.length > 0 && isInputValid ? parseUnits(value, token.decimals) : undefined
-
     if (isInputValid) {
       setInputValue(value)
       processOnChangeCallback(amount)

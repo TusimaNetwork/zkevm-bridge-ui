@@ -887,13 +887,14 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             mainExitRoot,
             rollupExitRoot,
             tokenOriginNetwork,
-            token:token.address,
+            token:token?.old_address ?? token.address,
             to:to.networkId,
             destinationAddress,
             amount,
             metadata,
             isL2Claim:isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
         })
+
       const executeClaim = () =>
         contract.claimAsset(
             merkleProof,

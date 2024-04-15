@@ -338,6 +338,7 @@ interface GetTxFeePaidParams {
 
 function getTxFeePaid({ chain, txHash }: GetTxFeePaidParams): Promise<BigNumber | undefined> {
   return chain.provider.getTransactionReceipt(txHash).then((txReceipt) => {
+    console.log({txReceipt})
     if (txReceipt) {
       if (txReceipt.effectiveGasPrice) {
         return calculateTransactionReceiptFee({ txReceipt, type: "eip-1559" });

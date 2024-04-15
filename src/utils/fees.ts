@@ -31,12 +31,13 @@ export const calculateTransactionReceiptFee = (
   params: CalculateTransactionReceiptFeeParams
 ): BigNumber | undefined => {
   if (params.type === "eip-1559") {
-    const { effectiveGasPrice, gasUsed } = params.txReceipt;
+    const { effectiveGasPrice, gasUsed,cumulativeGasUsed } = params.txReceipt;
 
     if (!effectiveGasPrice || !gasUsed) {
       return undefined;
     }
 
+    // console.log('gasUsed:',gasUsed.toString(),effectiveGasPrice.toString(),cumulativeGasUsed?.toString());
     return gasUsed.mul(effectiveGasPrice);
   } else {
     const { gasUsed } = params.txReceipt;

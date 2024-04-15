@@ -7,7 +7,7 @@ export const formatTokenAmount = (value: BigNumber, token: Token): string => {
   const amount = ethers.utils.formatUnits(value, token.decimals);
   const [whole, decimals = ""] = amount.split(".")
   const trimmed = decimals.length > TOKEN_DISPLAY_PRECISION ? decimals.slice(0, TOKEN_DISPLAY_PRECISION) : decimals;
-  return trimmed === "" || trimmed === "0" ? whole : `${whole}.${trimmed}`
+  return trimmed === "" || trimmed === "0" ? whole : Number(`${whole}.${trimmed}`).toString()
 }
 
 export const formatFiatAmount = (value: BigNumber): string => {
