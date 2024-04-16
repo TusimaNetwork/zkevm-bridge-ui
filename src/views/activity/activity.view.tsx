@@ -221,10 +221,10 @@ export const Activity: FC = () => {
             callIfMounted(() => {
               processFetchBridgesSuccess(bridges)
               setTotal(total)
-            });
+            })
           })
           .catch(processFetchBridgesError)
-      };
+      }
       const intervalId = setInterval(refreshBridges, AUTO_REFRESH_RATE)
 
       return () => {

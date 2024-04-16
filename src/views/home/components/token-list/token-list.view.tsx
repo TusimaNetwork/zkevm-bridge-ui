@@ -192,20 +192,13 @@ export const TokenList: FC<TokenListProps> = ({
                   className={classes.tokenButtonWrapper}
                   key={`${token.chainId}-${token.address}`}
                 >
-                  <button
-                    className={classes.tokenButton}
-                    onClick={() => onSelectToken(token)}
-                    role="button"
-                  >
+                  <button className={classes.tokenButton} onClick={() => onSelectToken(token)} role="button" >
                     <div className={classes.tokenInfo}>
                       <Icon className={classes.tokenIcon} isRounded size={24} url={token.logoURI} />
                       <Typography type="body1">{token.name}</Typography>
                     </div>
                   </button>
-                  <button
-                    className={classes.addTokenButton}
-                    onClick={() => onNavigateToTokenAdder(token)}
-                  >
+                  <button className={classes.addTokenButton} onClick={() => onNavigateToTokenAdder(token)}>
                     <Typography type="body1">Add token</Typography>
                   </button>
                 </div>
