@@ -172,6 +172,21 @@ export const getDeposits = ({
     });
 };
 
+interface getTransactionReceiptParams{
+  txHash: string;
+}
+export const getTransactionReceipt = ({txHash}:getTransactionReceiptParams): Promise<{
+  gas_price:string,
+  gas_used:string
+}>=>{
+  return axios.request({
+    baseURL: `/`,
+    method:'GET',
+    url: `/explore_api/v2/transactions/${txHash}`,
+  }).then(res=>{
+    return res.data
+  })
+}
 interface GetDepositParams {
   abortSignal?: AbortSignal;
   apiUrl: string;

@@ -21,11 +21,10 @@ interface TokenBalanceProps {
 export const TokenBalance: FC<TokenBalanceProps> = ({ spinnerSize, token,chain, typographyProps,account }) => {
   const classes = useTokenBalanceStyles();
   const [balance,setBalance]=useState(token.balance);
-  const { getErc20TokenBalance, getTokenFromAddress,TETHToken } = useTokensContext()
+  const { getErc20TokenBalance } = useTokensContext()
 
   const getTokenBalance = useCallback(
     (token: Token, chain: Chain): Promise<BigNumber> => {
-      console.log({chain})
       if (isTokenEther(token)) {
         return chain.provider.getBalance(account)
       } else {
@@ -35,14 +34,16 @@ export const TokenBalance: FC<TokenBalanceProps> = ({ spinnerSize, token,chain, 
           tokenAddress: selectTokenAddress(token, chain)
         })
       }
-    },
-    [account, getErc20TokenBalance]
-  )
+    },[account, getErc20TokenBalance])
  
   useEffect(()=>{
-    getTokenBalance(token,chain).then(balance=>(setBalance(
-      { data: balance, status: "successful" }
-    )))
+    if(!account){
+      setBalance({ data: BigNumber.from(0), status: "successful" })
+      return 
+    }
+    getTokenBalance(token,chain).then(balance=>{
+      setBalance({ data: balance, status: "successful" })
+    })
   },[account])
   const loader = (
     <div className={classes.loader}>

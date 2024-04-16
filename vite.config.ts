@@ -34,6 +34,11 @@ export default defineConfig({
         target: 'https://bridge.eagle.tusima.network',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
+      '/explore_api': {
+        target: 'https://explore.eagle.tusima.network',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/explore_api/, '/api'),
       }
     },
   },

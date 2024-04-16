@@ -31,7 +31,7 @@ export const calculateTransactionReceiptFee = (
   params: CalculateTransactionReceiptFeeParams
 ): BigNumber | undefined => {
   if (params.type === "eip-1559") {
-    const { effectiveGasPrice, gasUsed,cumulativeGasUsed } = params.txReceipt;
+    const { effectiveGasPrice, gasUsed } = params.txReceipt;
 
     if (!effectiveGasPrice || !gasUsed) {
       return undefined;

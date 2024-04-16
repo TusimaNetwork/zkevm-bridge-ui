@@ -174,10 +174,8 @@ export const BridgeDetails: FC = () => {
   useEffect(() => {
     if (env !== undefined && env.fiatExchangeRates.areEnabled && bridge.status === "successful") {
       const { amount, from, token } = bridge.data;
-
       // fiat amount
-      getTokenPrice({ chain: from, token })
-        .then((tokenPrice) => {
+      getTokenPrice({ chain: from, token }).then((tokenPrice) => {
           callIfMounted(() => {
             setFiatAmount(
               multiplyAmounts(
@@ -191,14 +189,14 @@ export const BridgeDetails: FC = () => {
                 },
                 FIAT_DISPLAY_PRECISION
               )
-            );
-          });
+            )
+          })
         })
         .catch(() =>
           callIfMounted(() => {
             setFiatAmount(undefined);
           })
-        );
+        )
     }
   }, [env, bridge, getTokenPrice, callIfMounted]);
 
@@ -206,10 +204,9 @@ export const BridgeDetails: FC = () => {
     if (tokens && env?.fiatExchangeRates.areEnabled && bridge.status === "successful") {
       const { from } = bridge.data;
 
-      const token = tokens.find((t) => t.symbol === "WETH");
+      const token = tokens.find((t) => t.symbol === "WETH")
       if (token) {
-        getTokenPrice({ chain: from, token })
-          .then((tokenPrice) => {
+        getTokenPrice({ chain: from, token }).then((tokenPrice) => {
             callIfMounted(() => {
               setFiatFees({
                 step1: ethFees.step1
@@ -238,14 +235,13 @@ export const BridgeDetails: FC = () => {
                       FIAT_DISPLAY_PRECISION
                     )
                   : undefined,
-              });
-            });
-          })
-          .catch(() =>
-            callIfMounted(() => {
-              setFiatFees({});
+              })
             })
-          );
+          }).catch(() =>
+            callIfMounted(() => {
+              setFiatFees({})
+            })
+          )
       }
     }
   }, [env, bridge, ethFees, getTokenPrice, callIfMounted, tokens]);

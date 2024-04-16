@@ -13,11 +13,12 @@ import {
   EIP_2612_PERMIT_TYPEHASH,
   UNISWAP_DOMAIN_TYPEHASH,
 } from "src/constants";
-import { Chain, Permit, Token, TxStatus } from "src/domain";
+import { Chain, EthereumChainId, Permit, Token, TxStatus } from "src/domain";
 import { Erc20__factory } from "src/types/contracts/erc-20";
 import { calculateTransactionReceiptFee } from "src/utils/fees";
 import { isTokenEther, selectTokenAddress } from "src/utils/tokens";
 import { StrictSchema } from "src/utils/type-safety";
+import { getDeposit, getTransactionReceipt } from "./bridge-api";
 
 const ethereumAccountsParser = StrictSchema<string[]>()(z.array(z.string()));
 
@@ -25,11 +26,9 @@ const silentlyGetConnectedAccounts = (provider: Web3Provider): Promise<string[]>
   if (!provider.provider.request) {
     throw Error("No request method is available from the provider to get the Ethereum accounts");
   }
-  return provider.provider
-    .request({ method: "eth_accounts" })
-    .then((accounts) => {
-      return ethereumAccountsParser.parse(accounts)
-    });
+  return provider.provider.request({ method: "eth_accounts" }).then((accounts) => {
+    return ethereumAccountsParser.parse(accounts);
+  });
 };
 
 const getBatchNumberOfL2Block = async (
@@ -47,12 +46,10 @@ const getBatchNumberOfL2Block = async (
 };
 
 const getConnectedAccounts = (provider: Web3Provider): Promise<string[]> => {
-  return provider
-    .send("eth_requestAccounts", [])
-    .then((accounts) => {
-      // console.log({accounts})
-      return ethereumAccountsParser.parse(accounts)
-    });
+  return provider.send("eth_requestAccounts", []).then((accounts) => {
+    // console.log({accounts})
+    return ethereumAccountsParser.parse(accounts);
+  });
 };
 
 interface GetPermitParams {
@@ -337,8 +334,35 @@ interface GetTxFeePaidParams {
 }
 
 function getTxFeePaid({ chain, txHash }: GetTxFeePaidParams): Promise<BigNumber | undefined> {
+  if (chain.chainId === EthereumChainId.EAGLE) {
+    console.log({ chain, txHash });
+    //effectiveGasPrice, gasUsed,cumulativeGasUsed
+    return getTransactionReceipt({ txHash }).then((receipt) => {
+      //  console.log(gas_price,gas_used)
+      const txReceipt = {
+        to: "",
+        from: "",
+        contractAddress: "",
+        transactionIndex: 0,
+        logsBloom: "",
+        blockHash: "",
+        transactionHash: txHash,
+        logs: [],
+        blockNumber: 0, // Add missing properties
+        confirmations: null, // Add missing properties
+        cumulativeGasUsed: BigNumber.from(0), // Add missing properties
+        byzantium: false, // Add missing properties with default values
+        type: 0, // Add missing properties
+        effectiveGasPrice: BigNumber.from(receipt.gas_price),
+        gasUsed: BigNumber.from(receipt.gas_used),
+      };
+      return calculateTransactionReceiptFee({ txReceipt, type: "eip-1559" });
+    });
+    // gas_used
+    //gas_price
+  }
   return chain.provider.getTransactionReceipt(txHash).then((txReceipt) => {
-    console.log({txReceipt})
+    console.log({ txReceipt });
     if (txReceipt) {
       if (txReceipt.effectiveGasPrice) {
         return calculateTransactionReceiptFee({ txReceipt, type: "eip-1559" });
