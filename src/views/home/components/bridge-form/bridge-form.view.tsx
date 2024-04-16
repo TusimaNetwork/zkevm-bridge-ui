@@ -49,7 +49,7 @@ interface SelectedChains {
   to: Chain;
 }
 
-export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm, onSubmit }) => {
+export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
   const classes = useBridgeFormStyles()
   const callIfMounted = useCallIfMounted()
   const env = useEnvContext()
@@ -157,7 +157,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     }
   },[selectedChains,balanceFrom?.status,token])
   // console.log({tokenBalance2:tokenBalance2?.toString(),token:token?.symbol})
-  const { onApprove, tokenSpendPermission, approvalTask } = useApprove({
+  const { tokenSpendPermission } = useApprove({
     formData:formData2,
     // setError,
   })
@@ -166,18 +166,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     tokenBalance:tokenBalance2,
     tokenSpendPermission,
   })
-  const { onBridge, isBridgeInProgress } = useBridge({
-    formData:formData2,
-    estimatedGas,
-    tokenSpendPermission,
-    maxAmountConsideringFee,
-  })
-  const { tokenAmountString, feeString, feeErrorString } = useFee({
-      formData:formData2,
-      estimatedGas,
-      env,
-      maxAmountConsideringFee,
-    })
+  
     // console.log({ tokenAmountString,maxAmountConsideringFee:maxAmountConsideringFee?.toString(), feeString, feeErrorString })
 
   const onAddToken = (token: Token) => {
@@ -258,6 +247,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
     // Load the balances of all the tokens of the primary chain (from)
     const areTokensPending = tokens?.some((tkn) => tkn.balance?.status === "pending")
 
+    // console.log({account,areTokensPending})
     if (selectedChains && tokens && areTokensPending) {
       const getUpdatedTokens = (tokens: Token[] | undefined, updatedToken: Token) =>
         tokens ? tokens.map((tkn) =>tkn.address === updatedToken.address && tkn.chainId === updatedToken.chainId ? updatedToken : tkn) : undefined
@@ -271,7 +261,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
                   balance: {
                     data: balance,
                     status: "successful",
-                  },
+                  }
                 }
                 setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken))
               })
@@ -291,7 +281,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
         })
       )
     }
-  }, [callIfMounted, defaultTokens, getTokenBalance, selectedChains, tokens])
+  }, [callIfMounted, defaultTokens, getTokenBalance, selectedChains, tokens,account])
 
   useEffect(() => {
     // Load the balance of the selected token in both networks
@@ -365,7 +355,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
           </div>
           <div className={classes.rightBox}>
             <Typography type="body2">Balance</Typography>
-            <TokenBalance spinnerSize={14} token={{ ...token, balance: balanceFrom }} typographyProps={{ type: "body1" }}/>
+            <TokenBalance spinnerSize={14} chain={selectedChains.from} account={account} token={{ ...token, balance: balanceFrom }} typographyProps={{ type: "body1" }}/>
           </div>
         </div>
         <div className={`${classes.row} ${classes.middleRow}`}>
@@ -401,7 +391,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, formData, onResetForm
           </div>
           <div className={classes.rightBox}>
             <Typography type="body2">Balance</Typography>
-            <TokenBalance spinnerSize={14} token={{ ...toToken, balance: balanceTo }} typographyProps={{ type: "body1" }}/>
+            <TokenBalance spinnerSize={14} chain={selectedChains.from} account={account} token={{ ...toToken, balance: balanceTo }} typographyProps={{ type: "body1" }}/>
           </div>
         </div>
       </Card>

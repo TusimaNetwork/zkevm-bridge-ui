@@ -1,8 +1,10 @@
 import { BigNumber } from "ethers";
-import { FC } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
+import { useTokensContext } from "src/contexts/tokens.context";
 
-import { Token } from "src/domain";
+import { Chain, Token } from "src/domain";
 import { formatTokenAmount } from "src/utils/amounts";
+import { isTokenEther, selectTokenAddress } from "src/utils/tokens";
 import { isAsyncTaskDataAvailable } from "src/utils/types";
 import { Spinner } from "src/views/shared/spinner/spinner.view";
 import { useTokenBalanceStyles } from "src/views/shared/token-balance/token-balance.styles";
@@ -12,16 +14,43 @@ interface TokenBalanceProps {
   spinnerSize: number;
   token: Token;
   typographyProps: TypographyProps;
+  account:string
+  chain: Chain;
 }
 
-export const TokenBalance: FC<TokenBalanceProps> = ({ spinnerSize, token, typographyProps }) => {
+export const TokenBalance: FC<TokenBalanceProps> = ({ spinnerSize, token,chain, typographyProps,account }) => {
   const classes = useTokenBalanceStyles();
+  const [balance,setBalance]=useState(token.balance);
+  const { getErc20TokenBalance, getTokenFromAddress,TETHToken } = useTokensContext()
+
+  const getTokenBalance = useCallback(
+    (token: Token, chain: Chain): Promise<BigNumber> => {
+      console.log({chain})
+      if (isTokenEther(token)) {
+        return chain.provider.getBalance(account)
+      } else {
+        return getErc20TokenBalance({
+          accountAddress: account,
+          chain: chain,
+          tokenAddress: selectTokenAddress(token, chain)
+        })
+      }
+    },
+    [account, getErc20TokenBalance]
+  )
+ 
+  useEffect(()=>{
+    getTokenBalance(token,chain).then(balance=>(setBalance(
+      { data: balance, status: "successful" }
+    )))
+  },[account])
   const loader = (
     <div className={classes.loader}>
       <Spinner size={spinnerSize} />
       <Typography {...typographyProps}>&nbsp;{token.symbol}</Typography>
     </div>
   );
+
 
   if (!token.balance) {
     return loader;
