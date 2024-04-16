@@ -241,7 +241,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
         }))
       )
     }
-  }, [defaultTokens, selectedChains])
+  }, [defaultTokens, selectedChains,account])
 
   useEffect(() => {
     // Load the balances of all the tokens of the primary chain (from)
@@ -252,7 +252,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       const getUpdatedTokens = (tokens: Token[] | undefined, updatedToken: Token) =>
         tokens ? tokens.map((tkn) =>tkn.address === updatedToken.address && tkn.chainId === updatedToken.chainId ? updatedToken : tkn) : undefined
 
-        
       setTokens(() => tokens.map((token: Token) => {
           getTokenBalance(token, selectedChains.from).then((balance): void => {
               callIfMounted(() => {

@@ -19,60 +19,60 @@ interface TokenBalanceProps {
 }
 
 export const TokenBalance: FC<TokenBalanceProps> = ({ spinnerSize, token,chain, typographyProps,account }) => {
-  const classes = useTokenBalanceStyles();
-  const [balance,setBalance]=useState(token.balance);
-  const { getErc20TokenBalance } = useTokensContext()
+  const classes = useTokenBalanceStyles()
+  const [balance,setBalance]=useState(token.balance)
+  // const { getErc20TokenBalance } = useTokensContext()
 
-  const getTokenBalance = useCallback(
-    (token: Token, chain: Chain): Promise<BigNumber> => {
-      if (isTokenEther(token)) {
-        return chain.provider.getBalance(account)
-      } else {
-        return getErc20TokenBalance({
-          accountAddress: account,
-          chain: chain,
-          tokenAddress: selectTokenAddress(token, chain)
-        })
-      }
-    },[account, getErc20TokenBalance])
+  // const getTokenBalance = useCallback(
+  //   (token: Token, chain: Chain): Promise<BigNumber> => {
+  //     if (isTokenEther(token)) {
+  //       return chain.provider.getBalance(account)
+  //     } else {
+  //       return getErc20TokenBalance({
+  //         accountAddress: account,
+  //         chain: chain,
+  //         tokenAddress: selectTokenAddress(token, chain)
+  //       })
+  //     }
+  //   },[account, getErc20TokenBalance])
  
   useEffect(()=>{
     if(!account){
       setBalance({ data: BigNumber.from(0), status: "successful" })
       return 
     }
-    getTokenBalance(token,chain).then(balance=>{
-      setBalance({ data: balance, status: "successful" })
-    })
+    // getTokenBalance(token,chain).then(balance=>{
+    //   setBalance({ data: balance, status: "successful" })
+    // })
   },[account])
   const loader = (
     <div className={classes.loader}>
       <Spinner size={spinnerSize} />
       <Typography {...typographyProps}>&nbsp;{token.symbol}</Typography>
     </div>
-  );
+  )
 
 
   if (!token.balance) {
-    return loader;
+    return loader
   }
 
   switch (token.balance.status) {
     case "pending":
     case "loading":
     case "reloading": {
-      return loader;
+      return loader
     }
     case "successful":
     case "failed": {
       const formattedTokenAmount = formatTokenAmount(
         isAsyncTaskDataAvailable(token.balance) ? token.balance.data : BigNumber.from(0),
         token
-      );
+      )
 
       return (
         <Typography {...typographyProps}>{`${formattedTokenAmount} ${token.symbol}`}</Typography>
-      );
+      )
     }
   }
-};
+}

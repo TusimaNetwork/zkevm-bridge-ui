@@ -47,12 +47,12 @@ export const TokenList: FC<TokenListProps> = ({
   const [searchInputValue, setSearchInputValue] = useState<string>("")
   const [filteredTokens, setFilteredTokens] = useState<Token[]>([])
   const [customToken, setCustomToken] = useState<AsyncTask<Token, string>>({
-    status: "pending",
+    status: "pending"
   })
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const getTokenBalance = useCallback(
-    (token: Token, chain: Chain): Promise<BigNumber> => {
+  
+  const getTokenBalance = useCallback( (token: Token, chain: Chain): Promise<BigNumber> => {
       if (isTokenEther(token)) {
         return chain.provider.getBalance(account)
       } else {
@@ -62,9 +62,7 @@ export const TokenList: FC<TokenListProps> = ({
           tokenAddress: selectTokenAddress(token, chain)
         })
       }
-    },
-    [account, getErc20TokenBalance]
-  )
+    }, [account, getErc20TokenBalance] )
 
   const updateTokenList = ( searchTerm: string) => {
     const newFilteredTokens: any[] = []
@@ -141,16 +139,12 @@ export const TokenList: FC<TokenListProps> = ({
 
   useEffect(() => {
     setFilteredTokens(tokens)
-  }, [tokens])
+  }, [tokens,account])
 
-  const error =
-    customToken.status === "failed"
-      ? customToken.error
-      : searchInputValue.length > 0 && filteredTokens.length === 0
-      ? "No result found"
-      : undefined
+  const error = customToken.status === "failed" ? customToken.error : searchInputValue.length > 0 && filteredTokens.length === 0 ? "No result found" : undefined
 
-  const tokensLists=useMemo(()=>filteredTokens.filter((itm)=>itm.chainId === chains.from.chainId),[filteredTokens,chains?.from])
+  const tokensLists=useMemo(()=>filteredTokens.filter((itm)=>itm.chainId === chains.from.chainId),[filteredTokens,chains?.from,account])
+
   if(!TETHToken){
     return <div></div>
   }
