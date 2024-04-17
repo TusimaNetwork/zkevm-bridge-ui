@@ -78,7 +78,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
 
   const onCardClick = (bridge: Exclude<Bridge, PendingBridge>) => {
     //给这个参数禁用了。下面使用了link标签跳转
-    return
+    // return
     navigate(`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`)
   };
 
@@ -163,8 +163,8 @@ export const BridgeCard: FC<BridgeCardProps> = ({
     case "initiated": {
       if (bridge.from.key === ChainKey.ethereum) {
         return (
-          <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+            {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
             <div className={classes.top}>
               <div className={classes.infoContainer}>
                 <div className={classes.circle}>{BridgeIcon}</div>
@@ -181,12 +181,13 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 {!fiatAmountString && <div className={classes.amount}>{BridgeAmount}</div>}
               </div>
             </div>
-          </Card></Link>
+            {/* </Link> */}
+          </Card>
         );
       } else {
         return (
-          <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+            {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
             <div className={classes.top}>
               <div className={classes.row}>
                 <p className={classes.steps}>STEP 1/2</p>
@@ -212,15 +213,16 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 Claim 
               </button>
             </div>
-          </Card></Link>
+            {/* </Link> */}
+          </Card>
         );
       }
     }
     case "on-hold": {
       if (bridge.from.key === ChainKey.ethereum) {
         return (
-          <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+            {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
             <div className={classes.top}>
               <div className={classes.infoContainer}>
                 <div className={classes.circle}>{BridgeIcon}</div>
@@ -237,13 +239,13 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 {!fiatAmountString && <div className={classes.amount}>{BridgeAmount}</div>}
               </div>
             </div>
+            {/* </Link> */}
           </Card>
-          </Link>
         );
       } else {
         return (
-          <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+            {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
             <div className={classes.top}>
               <div className={classes.row}>
                 <p className={classes.steps}>STEP 2/2</p>
@@ -277,14 +279,15 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 Claim
               </button>
             </div>
-          </Card></Link>
+            {/* </Link> */}
+          </Card>
         );
       }
     }
     case "completed": {
       return (
-        <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}>
         <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+          {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
           <div className={classes.top}>
             <div className={classes.infoContainer}>
               <div className={classes.circle}>{BridgeIcon}</div>
@@ -301,8 +304,8 @@ export const BridgeCard: FC<BridgeCardProps> = ({
               {!fiatAmountString && <div className={classes.amount}>{BridgeAmount}</div>}
             </div>
           </div>
+          {/* </Link> */}
         </Card>
-        </Link>
       );
     }
   }

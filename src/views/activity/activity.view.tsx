@@ -199,11 +199,7 @@ export const Activity: FC = () => {
 
   useEffect(() => {
     // Polling bridges
-    if (
-      env &&
-      connectedProvider.status === "successful" &&
-      (apiBridges.status === "successful" || apiBridges.status === "failed")
-    ) {
+    if ( env && connectedProvider.status === "successful" && (apiBridges.status === "successful" || apiBridges.status === "failed") ) {
       const refreshBridges = () => {
         setApiBridges(
           apiBridges.status === "successful"
@@ -218,15 +214,13 @@ export const Activity: FC = () => {
           quantity: lastLoadedItem,
           type: "reload",
         }).then(({ bridges, total }) => {
-            callIfMounted(() => {
-              processFetchBridgesSuccess(bridges)
-              setTotal(total)
-            })
+          callIfMounted(() => {
+            processFetchBridgesSuccess(bridges)
+            setTotal(total)
           })
-          .catch(processFetchBridgesError)
+        }).catch(processFetchBridgesError)
       }
       const intervalId = setInterval(refreshBridges, AUTO_REFRESH_RATE)
-
       return () => {
         clearInterval(intervalId)
       }
@@ -396,22 +390,17 @@ export const Activity: FC = () => {
             {filteredList.length ? (
               <InfiniteScroll
                 isLoading={apiBridges.status === "loading-more-items"}
-                onLoadNextPage={onLoadNextPage}
-              >
+                onLoadNextPage={onLoadNextPage} >
                 {filteredList.map((bridge) =>
                   bridge.status === "pending" ? (
-                    <div
-                      className={classes.bridgeCardwrapper}
-                      key={bridge.depositTxHash || bridge.claimTxHash}
-                    >
+                    <div className={classes.bridgeCardwrapper} key={bridge.depositTxHash || bridge.claimTxHash}>
                       <BridgeCard
                         bridge={bridge}
                         env={env}
                         isFinaliseDisabled={true}
                         lastVerifiedBatch={lastVerifiedBatch}
                         networkError={false}
-                        showFiatAmount={env !== undefined && env.fiatExchangeRates.areEnabled}
-                      />
+                        showFiatAmount={env !== undefined && env.fiatExchangeRates.areEnabled} />
                     </div>
                   ) : (
                     <div className={classes.bridgeCardwrapper} key={bridge.id}>
@@ -422,8 +411,7 @@ export const Activity: FC = () => {
                         lastVerifiedBatch={lastVerifiedBatch}
                         networkError={wrongNetworkBridges.includes(bridge.id)}
                         onClaim={() => onClaim(bridge)}
-                        showFiatAmount={env !== undefined && env.fiatExchangeRates.areEnabled}
-                      />
+                        showFiatAmount={env !== undefined && env.fiatExchangeRates.areEnabled} />
                     </div>
                   )
                 )}
