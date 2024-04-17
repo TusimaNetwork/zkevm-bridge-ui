@@ -310,7 +310,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       if (token) {
         return { token, origtoken: origtoken || token }
       } else {
-        const chain = form_chain.chainId ===EthereumChainId.EAGLE ?  to_chain: form_chain;
+        const chain = form_chain.chainId ===EthereumChainId.EAGLE ?  to_chain:form_chain;
         const token = await getTokenFromAddress({ address: newAddress, chain: chain })
           .then((token) => {
             fetchedTokens.current = [...fetchedTokens.current, token]

@@ -30,6 +30,7 @@ interface TokenListProps {
   onNavigateToTokenInfo: (token: Token) => void
   onSelectToken: (token: Token) => void
   tokens: Token[];
+  // reloadBalances:any
 }
 
 export const TokenList: FC<TokenListProps> = ({
@@ -40,6 +41,7 @@ export const TokenList: FC<TokenListProps> = ({
   onNavigateToTokenInfo,
   onSelectToken,
   tokens,
+  // reloadBalances
 }) => {
   const classes = useTokenListStyles()
   const callIfMounted = useCallIfMounted()
@@ -50,8 +52,8 @@ export const TokenList: FC<TokenListProps> = ({
     status: "pending"
   })
   const inputRef = useRef<HTMLInputElement>(null)
+ const [newTokens,setNewTokens]=useState<Token[]>(tokens)
 
-  
   const getTokenBalance = useCallback( (token: Token, chain: Chain): Promise<BigNumber> => {
       if (isTokenEther(token)) {
         return chain.provider.getBalance(account)
@@ -90,7 +92,7 @@ export const TokenList: FC<TokenListProps> = ({
                         }
                   )
                 })
-              }).catch(() => {
+            }).catch(() => {
                 callIfMounted(() => {
                   setCustomToken((currentCustomToken) =>
                     currentCustomToken.status === "pending"
@@ -104,9 +106,8 @@ export const TokenList: FC<TokenListProps> = ({
                         }
                   )
                 })
-              })
-          }).catch(() =>
-            callIfMounted(() => {
+            })
+        }).catch(() => callIfMounted(() => {
               setCustomToken({
                 error: "The token couldn't be found on the selected network.",
                 status: "failed",
@@ -125,6 +126,48 @@ export const TokenList: FC<TokenListProps> = ({
     }
   }
 
+  const reloadBalances=()=>{
+    // Load the balances of all the tokens of the primary chain (from)
+    // const areTokensPending = tokens?.some((tkn) => tkn.balance?.status === "pending")
+
+    const areTokensPending = true
+    // console.log({account,areTokensPending})
+    if (chains && tokens && areTokensPending) {
+      const getUpdatedTokens = (tokens: Token[] , updatedToken: Token) =>
+        tokens.map((tkn) =>tkn.address === updatedToken.address && tkn.chainId === updatedToken.chainId ? updatedToken : tkn)
+
+      setNewTokens(() => tokens.map((token: Token) => {
+          getTokenBalance(token, chains.from).then((balance): void => {
+              callIfMounted(() => {
+                const updatedToken: Token = {
+                  ...token,
+                  balance: {
+                    data: balance,
+                    status: "successful",
+                  }
+                }
+                setNewTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken))
+              })
+          }).catch(() => {
+              callIfMounted(() => {
+                const updatedToken: Token = {
+                  ...token,
+                  balance: {
+                    error: "Couldn't retrieve token balance",
+                    status: "failed",
+                  }
+                }
+                setNewTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken))
+              })
+          })
+          return { ...token, balance: { status: "loading" } }
+        })
+      )
+    }
+  }
+  useEffect(()=>{
+    reloadBalances()
+  },[])
   useEffect(() => {
     if (customToken.status === "successful") {
       setFilteredTokens([customToken.data])
@@ -138,8 +181,8 @@ export const TokenList: FC<TokenListProps> = ({
   }, []);
 
   useEffect(() => {
-    setFilteredTokens(tokens)
-  }, [tokens,account])
+    setFilteredTokens(newTokens)
+  }, [newTokens,account])
 
   const error = customToken.status === "failed" ? customToken.error : searchInputValue.length > 0 && filteredTokens.length === 0 ? "No result found" : undefined
 

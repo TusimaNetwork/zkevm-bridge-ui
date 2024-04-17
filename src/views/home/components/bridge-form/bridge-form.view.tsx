@@ -243,11 +243,12 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
     }
   }, [defaultTokens, selectedChains,account])
 
-  useEffect(() => {
+  const reloadBalances=()=>{
     // Load the balances of all the tokens of the primary chain (from)
-    const areTokensPending = tokens?.some((tkn) => tkn.balance?.status === "pending")
+    // const areTokensPending = tokens?.some((tkn) => tkn.balance?.status === "pending")
 
-    // console.log({account,areTokensPending})
+    const areTokensPending = true
+    console.log({account,areTokensPending})
     if (selectedChains && tokens && areTokensPending) {
       const getUpdatedTokens = (tokens: Token[] | undefined, updatedToken: Token) =>
         tokens ? tokens.map((tkn) =>tkn.address === updatedToken.address && tkn.chainId === updatedToken.chainId ? updatedToken : tkn) : undefined
@@ -264,7 +265,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
                 }
                 setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken))
               })
-            }).catch(() => {
+          }).catch(() => {
               callIfMounted(() => {
                 const updatedToken: Token = {
                   ...token,
@@ -275,12 +276,15 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
                 }
                 setTokens((currentTokens) => getUpdatedTokens(currentTokens, updatedToken))
               })
-            })
+          })
           return { ...token, balance: { status: "loading" } }
         })
       )
     }
-  }, [callIfMounted, defaultTokens, getTokenBalance, selectedChains, tokens,account])
+  }
+  useEffect(() => {
+    // initBalances()
+  }, [callIfMounted, defaultTokens, getTokenBalance,isTokenListOpen, selectedChains, tokens,account])
 
   useEffect(() => {
     // Load the balance of the selected token in both networks
@@ -419,6 +423,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       )}
       {isTokenListOpen && (
         <TokenSelector
+          // reloadBalances={reloadBalances}
           account={account}
           chains={selectedChains}
           onAddToken={onAddToken}

@@ -34,6 +34,7 @@ interface TokenSelectorProps {
   onRemoveToken: (token: Token) => void
   onSelectToken: (token: Token) => void
   tokens: Token[]
+  // reloadBalances:any
 }
 
 export const TokenSelector: FC<TokenSelectorProps> = ({
@@ -44,6 +45,7 @@ export const TokenSelector: FC<TokenSelectorProps> = ({
   onRemoveToken,
   onSelectToken,
   tokens,
+  // reloadBalances
 }) => {
   const classes = useTokenSelectorStyles()
 
@@ -113,6 +115,7 @@ export const TokenSelector: FC<TokenSelectorProps> = ({
               case "token-list": {
                 return (
                   <TokenList
+                  // reloadBalances={reloadBalances}
                     account={account}
                     chains={chains}
                     onClose={onClose}
