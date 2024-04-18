@@ -396,8 +396,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         );
         contract
           .getTokenWrappedAddress("0", TSMAddressZero)
-          .then((address) =>
-            initTokens({
+          .then((address) => initTokens({
               address,
               chainId: EthereumChainId.EAGLE,
               decimals: 18,

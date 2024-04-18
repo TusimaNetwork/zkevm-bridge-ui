@@ -334,6 +334,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
   //   }
   // }, [formData, onResetForm])
 
+  console.log({env , selectedChains , tokens , token , toToken,defaultTokens})
   if (!env || !selectedChains || !tokens || !token || !toToken) {
     return (
       <div className={classes.spinner}>
