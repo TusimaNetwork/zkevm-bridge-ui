@@ -10,4 +10,4 @@ services:
       sh -c "git pull && docker compose build "
     container_name: zkevm-bridge-ui
     ports:
-      - 9000:80
+      - 8130:80
