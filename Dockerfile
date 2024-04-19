@@ -9,7 +9,7 @@ COPY scripts ./scripts
 COPY abis ./abis
 
 RUN npm install
-
+RUN npm run generate-contract-types
 COPY . .
 
 WORKDIR /
