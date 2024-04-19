@@ -14,4 +14,4 @@ COPY . .
 
 WORKDIR /
 
-ENTRYPOINT ["/bin/sh", "/app/scripts/deploy.sh"]
+ENTRYPOINT ["/bin/sh", "/app/scripts/deploy-dev.sh"]
