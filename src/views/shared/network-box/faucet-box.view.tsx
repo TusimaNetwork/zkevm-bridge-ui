@@ -29,7 +29,7 @@ export const FaucetBox: FC<{ address: string }> = ({ address }) => {
           <span className={classes.listItem_t}>1000 {token}</span>
             <button
               className={classes.button_mini}
-              disabled={isAddButtonDisabled.TSM}
+              disabled={isAddButtonDisabled[token]}
               onClick={() => onAddToken(token)}
             >
               <MetaMaskIcon className={classes.buttonIcon} />
