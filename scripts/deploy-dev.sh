@@ -92,7 +92,7 @@
 # echo "$(cat /app/.env)"
 
 # Build app
-cd /app && npm run build && npm run generate-contract-types
+cd /app && npm run build && npm run generate-contract-types-dev
 
 # Copy nginx config
 cp /app/deployment/nginx.conf /etc/nginx/conf.d/default.conf

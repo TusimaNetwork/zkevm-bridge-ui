@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "generate-contract-types": "./scripts/generate-contract-types.sh",
+    "generate-contract-types-dev": "./scripts/generate-contract-types-dev.sh",
     "prepare": "husky install",
-    "postinstall": "npm run generate-contract-types",
     "format": "prettier --write .",
     "lint": "eslint './src/**/*.{ts,tsx}'",
     "lint:fix": "npm run lint -- --fix",
