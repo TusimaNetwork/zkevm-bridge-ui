@@ -14,6 +14,7 @@ import { DepositWarningModal } from "src/views/home/components/deposit-warning-m
 import { Header } from "src/views/home/components/header/header.view";
 import { useHomeStyles } from "src/views/home/home.styles";
 import { NetworkBox } from "src/views/shared/network-box/network-box.view";
+import { FaucetBox } from "src/views/shared/network-box/faucet-box.view";
 import { Typography } from "src/views/shared/typography/typography.view";
 import { Spinner } from "../shared/spinner/spinner.view";
 
@@ -87,6 +88,7 @@ export const Home = (): JSX.Element => {
           )}
            <div className={classes.networkBoxWrapper}>
             <NetworkBox />
+            <FaucetBox address={connectedProvider.data.account}/>
           </div>
         </>
       ):<div className={classes.spinner}>

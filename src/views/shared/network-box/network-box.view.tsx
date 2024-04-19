@@ -31,7 +31,7 @@ export const NetworkBox: FC = () => {
 
 
   return (
-    <Card>
+    <Card className={classes.networkProBox}>
       <div className={classes.networkBox}>
         <Typography type="body1">{env.chains[1].name}</Typography>
         <ul className={classes.list}>

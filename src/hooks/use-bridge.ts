@@ -25,14 +25,13 @@ export const useBridge = ({
   maxAmountConsideringFee?: BigNumber;
   setError?:any
 }) => {
-  const { openSnackbar } = useUIContext();
-
-  const { bridge, estimateBridgeGas } = useBridgeContext();
-  const [isBridgeInProgress, setIsBridgeInProgress] = useState(false);
-  const navigate = useNavigate();
-  const { connectedProvider } = useProvidersContext();
-  const { notifyError } = useErrorContext();
-  const callIfMounted = useCallIfMounted();
+  const { openSnackbar } = useUIContext()
+  const { bridge } = useBridgeContext()
+  const [isBridgeInProgress, setIsBridgeInProgress] = useState(false)
+  const navigate = useNavigate()
+  const { connectedProvider } = useProvidersContext()
+  const { notifyError } = useErrorContext()
+  const callIfMounted = useCallIfMounted()
 
   const onBridge = (e?:MouseEvent) => {
     e?.stopPropagation()
@@ -57,7 +56,7 @@ export const useBridge = ({
           openSnackbar({
             text: "Transaction successfully submitted",
             type: "success-msg",
-          });
+          })
           navigate(routes.activity.path);
           // setFormData(undefined);
         })
@@ -71,15 +70,15 @@ export const useBridge = ({
                 } else {
                   notifyError(error);
                 }
-              });
+              })
             }
-          });
-        });
+          })
+        })
     }
   }
 
   return {
     onBridge,
     isBridgeInProgress,
-  };
-};
+  }
+}

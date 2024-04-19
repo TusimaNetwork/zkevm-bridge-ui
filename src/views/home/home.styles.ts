@@ -39,7 +39,11 @@ export const useHomeStyles = createUseStyles((theme: Theme) => ({
   },
   networkBoxWrapper: {
     margin: [0, "auto", theme.spacing(3)],
-    maxWidth: theme.maxWidth,
+    // maxWidth: theme.maxWidth,
+    maxWidth:1088,
     width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    gap: theme.spacing(2),
   },
 }));
