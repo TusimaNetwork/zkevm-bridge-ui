@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "post": "./scripts/generate-contract-types.sh",
-    "postdev": "./scripts/generate-contract-types-dev.sh",
+    "generate-contract-types": "./scripts/generate-contract-types.sh",
+    "generate-contract-types-dev": "./scripts/generate-contract-types-dev.sh",
     "prepare": "husky install",
     "format": "prettier --write .",
     "lint": "eslint './src/**/*.{ts,tsx}'",
