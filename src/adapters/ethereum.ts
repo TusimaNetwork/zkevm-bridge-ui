@@ -335,7 +335,7 @@ interface GetTxFeePaidParams {
 
 function getTxFeePaid({ chain, txHash }: GetTxFeePaidParams): Promise<BigNumber | undefined> {
   if (chain.chainId === EthereumChainId.EAGLE) {
-    console.log({ chain, txHash });
+    // console.log({ chain, txHash });
     //effectiveGasPrice, gasUsed,cumulativeGasUsed
     return getTransactionReceipt({ txHash }).then((receipt) => {
       //  console.log(gas_price,gas_used)
@@ -362,7 +362,7 @@ function getTxFeePaid({ chain, txHash }: GetTxFeePaidParams): Promise<BigNumber 
     //gas_price
   }
   return chain.provider.getTransactionReceipt(txHash).then((txReceipt) => {
-    console.log({ txReceipt });
+    // console.log({ txReceipt });
     if (txReceipt) {
       if (txReceipt.effectiveGasPrice) {
         return calculateTransactionReceiptFee({ txReceipt, type: "eip-1559" });

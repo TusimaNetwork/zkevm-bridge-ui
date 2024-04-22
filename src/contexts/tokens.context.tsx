@@ -302,11 +302,14 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       }
      
       const chain = form_chain.chainId ===EthereumChainId.EAGLE ? newAddress === ethers.constants.AddressZero ? to_chain: form_chain:to_chain;
+
+      const chain2 = form_chain.chainId ===EthereumChainId.SEPOLIA && newAddress === TSMAddressZero ? form_chain: to_chain;
       const tokenAddress = getExchangeAddress(newAddress)
       const originTokenAddress = getOrigExchangeAddress(newAddress, to_chain.chainId,form_chain.chainId)
       // console.log({newAddress,tokenAddress,originTokenAddress})
       const token = fetchToken(tokenAddress, chain)
-      const origtoken = fetchToken(originTokenAddress, to_chain)
+      const origtoken = fetchToken(originTokenAddress,chain2)
+      console.log(token?.address,origtoken?.address,tokenAddress,originTokenAddress,chain.chainId,to_chain.chainId,newAddress)
       if (token) {
         return { token, origtoken: origtoken || token }
       } else {

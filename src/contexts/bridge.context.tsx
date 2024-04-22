@@ -190,7 +190,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         tokenOriginAddress: orig_addr,
       });
 
-      console.log({ready_for_claim,})
+      // console.log({ready_for_claim,})
       const claim: Deposit["claim"] =
         claim_tx_hash !== '' 
           ? { status: "claimed", txHash: claim_tx_hash }

@@ -92,7 +92,7 @@ export const DepositWarningModal: FC<DepositWarningModalProps> = ({
       <div onClick={onCancel} className={classes2.background}>
         <Card onClick={onCancelCard} className={classes.card}>
         
-      <Header backTo={{ routeKey: "home" }} title="Confirm Bridge" />
+      <Header backTo={{ routeKey: "home" }} title={`Confirm ${to.chainId === EthereumChainId.EAGLE?'Bridge':'Withdraw'}`} />
       {!env ||
       !formData ||
       !tokenBalance ||
