@@ -130,6 +130,7 @@ export const DepositWarningModal: FC<DepositWarningModalProps> = ({
       </Card>
       <div className={classes.button}>
         <BridgeButton
+        isWithdraw={to.chainId === EthereumChainId.SEPOLIA}
           approvalTask={approvalTask}
           isDisabled={maxAmountConsideringFee.lte(0) || isBridgeInProgress}
           isTxApprovalRequired={tokenSpendPermission.type === "approval"}

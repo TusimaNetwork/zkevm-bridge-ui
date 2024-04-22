@@ -10,6 +10,7 @@ interface BridgeButtonProps {
   onApprove: () => void;
   onBridge: () => void;
   token: Token;
+  isWithdraw: boolean;
 }
 
 export const BridgeButton: FC<BridgeButtonProps> = ({
@@ -19,10 +20,11 @@ export const BridgeButton: FC<BridgeButtonProps> = ({
   onApprove,
   onBridge,
   token,
+  isWithdraw
 }) => {
   const bridgeButton = (
     <Button disabled={isDisabled} onClick={onBridge}>
-      Bridge
+      {isWithdraw?'Withdraw':'Bridge'}
     </Button>
   );
 
