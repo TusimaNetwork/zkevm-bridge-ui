@@ -38,7 +38,7 @@ export const UNISWAP_V2_ROUTER_02_FACTORY_ADDRESS = "0x5C69bEe701ef814a2B6a3EDD4
 
 export const PREFERRED_CURRENCY_KEY = "currency";
 
-export const CUSTOM_TOKENS_KEY = "customTokens";
+export const CUSTOM_TOKENS_KEY = "customTokens_list";
 
 export const PENDING_TXS_KEY = "pendingTxs";
 
@@ -74,8 +74,6 @@ export const TSM_TOKEN_LOGO_URI = "/icons/tokens/tusima.png";
 export const POLYGON_SUPPORT_URL = "https://support.polygon.technology";
 
 export const POLYGON_TERMS_AND_CONDITIONS_URL = "https://polygon.technology/terms-of-use";
-
-export const POLYGON_PRIVACY_POLICY_URL = "https://polygon.technology/privacy-policy";
 
 export const POLYGON_ZKEVM_RISK_DISCLOSURES_URL =
   "https://wiki.polygon.technology/docs/zkEVM/#polygon-zkevm-risk-disclosures";

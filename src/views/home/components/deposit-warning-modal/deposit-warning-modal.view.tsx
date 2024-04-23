@@ -1,14 +1,9 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useState } from "react";
 import {
-  DEPOSIT_CHECK_WORD,
   ETH_TOKEN_LOGO_URI,
-  POLYGON_PRIVACY_POLICY_URL,
-  POLYGON_TERMS_AND_CONDITIONS_URL,
-  POLYGON_ZKEVM_RISK_DISCLOSURES_URL,
   TSM_TOKEN_LOGO_URI,
 } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
-import { useFormContext } from "src/contexts/form.context";
 import { ReactComponent as ArrowRightIcon } from "src/assets/icons/arrow-right.svg";
 import { EthereumChainId, FormData } from "src/domain";
 import { useApprove } from "src/hooks/use-approve";
@@ -18,9 +13,7 @@ import { useInputMaxAmount } from "src/hooks/use-input-max-amount";
 import { isAsyncTaskDataAvailable } from "src/utils/types";
 import { useBridgeConfirmationStyles } from "src/views/bridge-confirmation/bridge-confirmation.styles";
 import { useDepositWarningModalStyles } from "src/views/home/components/deposit-warning-modal/deposit-warning-modal.styles";
-import { TextMatchForm } from "src/views/home/components/text-match-form/text-match-form.view";
 import { Card } from "src/views/shared/card/card.view";
-import { ExternalLink } from "src/views/shared/external-link/external-link.view";
 import { Header } from "src/views/shared/header/header.view";
 import { Icon } from "src/views/shared/icon/icon.view";
 import { PageLoader } from "src/views/shared/page-loader/page-loader.view";

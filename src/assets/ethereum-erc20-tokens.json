@@ -15,7 +15,22 @@
     "decimals": 18,
     "logoURI": "/icons/tokens/0xCD6b2a3DE83182af377AEC5d71C261A0031E2fB8/logo.png"
   },
- 
+  {
+    "name": "USDT",
+    "address": "0xaa3540dfDF1DD14Bf5E129E410a03754Af13dFdA",
+    "chainId": 1001,
+    "symbol": "USDT",
+    "decimals": 18,
+    "logoURI": "/icons/tokens/0xaa3540dfDF1DD14Bf5E129E410a03754Af13dFdA/logo.png"
+  },
+  {
+    "name": "USDC",
+    "address": "0xCb749E09b471Ad7d53091970D99B8182a21A444D",
+    "chainId": 1001,
+    "symbol": "USDC",
+    "decimals": 18,
+    "logoURI": "/icons/tokens/0xCb749E09b471Ad7d53091970D99B8182a21A444D/logo.png"
+  }, 
   {
     "name": "Dai Stablecoin",
     "address": "0xD7E55eB808693D5Ff81a3391c59886C7E0449f35",
