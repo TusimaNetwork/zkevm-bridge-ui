@@ -108,13 +108,11 @@ export const Activity: FC = () => {
     (bridges: Bridge[]) => {
       setLastLoadedItem(bridges.length);
       setApiBridges({ data: bridges, status: "successful" })
-      getPendingBridges(bridges)
-        .then((data) => {
+      getPendingBridges(bridges).then((data) => {
           callIfMounted(() => {
             setPendingBridges({ data, status: "successful" })
           });
-        })
-        .catch((error) => {
+        }).catch((error) => {
           callIfMounted(() => {
             notifyError(error)
           });

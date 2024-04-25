@@ -180,10 +180,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         }
         const ethereumChain = env.chains[0]
         const polygonZkEVMChain = env.chains[1]
-        const nativeChain =
-          token.chainId === ethereumChain.chainId ? ethereumChain : polygonZkEVMChain
-        const wrappedChain =
-          nativeChain.chainId === ethereumChain.chainId ? polygonZkEVMChain : ethereumChain
+        const nativeChain = token.chainId === ethereumChain.chainId ? ethereumChain : polygonZkEVMChain
+        const wrappedChain = nativeChain.chainId === ethereumChain.chainId ? polygonZkEVMChain : ethereumChain
 
         return computeWrappedTokenAddress({
           nativeChain,
@@ -224,10 +222,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       const decimals = await erc20Contract.decimals()
       const symbol = await erc20Contract.symbol();
       const trustWalletLogoUrl = `/icons/tokens/${address}/logo.png`;
-      const logoURI = await axios
-        .head(trustWalletLogoUrl)
-        .then(() => trustWalletLogoUrl)
-        .catch(() => tokenIconDefaultUrl);
+      const logoURI = await axios.head(trustWalletLogoUrl).then(() => trustWalletLogoUrl).catch(() => tokenIconDefaultUrl);
 
       return getNativeTokenInfo({ address, chain }).then(({ originNetwork, originTokenAddress }) => {
           // the provided address belongs to a wrapped token
@@ -309,7 +304,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       // console.log({newAddress,tokenAddress,originTokenAddress})
       const token = fetchToken(tokenAddress, chain)
       const origtoken = fetchToken(originTokenAddress,chain2)
-      console.log(token?.address,origtoken?.address,tokenAddress,originTokenAddress,chain.chainId,to_chain.chainId,newAddress)
+      // console.log(token?.address,origtoken?.address,tokenAddress,originTokenAddress,chain.chainId,to_chain.chainId,newAddress)
       if (token) {
         return { token, origtoken: origtoken || token }
       } else {

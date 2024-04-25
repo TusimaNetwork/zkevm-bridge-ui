@@ -43,8 +43,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
     status: "pending",
   });
 
-  const [blockNumber, fromKey] =
-    bridge.status !== "pending" ? [bridge.blockNumber, bridge.from.key] : [undefined, undefined];
+  const [blockNumber, fromKey] = bridge.status !== "pending" ? [bridge.blockNumber, bridge.from.key] : [undefined, undefined];
 
   useEffect(() => {
     if (status === "initiated" && fromKey === ChainKey.polygonzkevm) {
