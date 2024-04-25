@@ -268,7 +268,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             token,
             origtoken,
             tokenOriginNetwork: orig_net,
-          }
+          };
         }
       }
     },
@@ -568,7 +568,6 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
 
       const account = connectedProvider.data.account;
       const pendingTxs = storage.getAccountPendingTxs(account, env);
-      
       const isPendingDepositInApiBridges = (depositTxHash: string) => {
         return bridges.find((bridge) => {
           return (
@@ -601,6 +600,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
           const provider =
             pendingTx.type === "deposit" ? pendingTx.from.provider : pendingTx.to.provider;
           const tx = await provider.getTransaction(txHash);
+
           if (isTxCanceled(tx)) {
             return storage.removeAccountPendingTx(account, env, pendingTx.depositTxHash);
           }
@@ -638,15 +638,19 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
 
       return Promise.all(
         storage.getAccountPendingTxs(connectedProvider.data.account, env).map(async (tx) => {
-          const chain = env.chains.find((chain) => chain.key === tx.from.key)
-          // console.log({chain})
-          const {token,origtoken} = await getToken( {
+          const chain = env.chains.find((chain) => chain.key === tx.from.key);
+          
+          // const token = await addWrappedToken({ token: tx.token });
+          const {token,origtoken} = await getToken({
             env,
-      originNetwork:tx.from.networkId,
-      tokenOriginAddress: tx.token.address,
-      destNetId:tx.to.networkId
+            destNetId:tx.to.networkId,
+            originNetwork: tx.from.networkId,
+            tokenOriginAddress: tx.token.address,
           })
-          const tokenPrice = chain && env.fiatExchangeRates.areEnabled ? await getTokenPrice({ chain, token: tx.token }) : undefined;
+          const tokenPrice =
+            chain && env.fiatExchangeRates.areEnabled
+              ? await getTokenPrice({ chain, token: tx.token })
+              : undefined;
           const fiatAmount = tokenPrice && multiplyAmounts(
               {
                 precision: FIAT_DISPLAY_PRECISION,
@@ -668,11 +672,11 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             from: tx.from,
             status: "pending",
             to: tx.to,
-            origtoken,
+            origtoken:origtoken,
             token,
-          }
+          };
         })
-      )
+      );
     },
     [env, connectedProvider, cleanPendingTxs, addWrappedToken, getTokenPrice]
   );
@@ -691,15 +695,15 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
 
       const contract = Bridge__factory.connect(from.bridgeContractAddress, from.provider);
       const amount = BigNumber.from(0);
-      const overrides: CallOverrides = isTokenEther(token)
-        ? { from: destinationAddress, value: amount }
-        : { from: destinationAddress };
+      const overrides: CallOverrides = isTokenEther(token) ? { from: destinationAddress, value: amount } : { from: destinationAddress };
 
       const tokenAddress = selectTokenAddress(token, from);
-      const forceUpdateGlobalExitRoot = from.key === ChainKey.polygonzkevm ? true : env.forceUpdateGlobalExitRootForL1;
+      const forceUpdateGlobalExitRoot =
+        from.key === ChainKey.polygonzkevm ? true : env.forceUpdateGlobalExitRootForL1;
 
-      const gasLimit =
-        from.key === ChainKey.ethereum ? await contract.estimateGas
+        
+      const gasLimit = from.key === ChainKey.ethereum
+          ? await contract.estimateGas
             .bridgeAsset(
               to.networkId,
               destinationAddress,
@@ -710,9 +714,15 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
               overrides
             )
             .then((gasLimit) => {
-              const gasLimitIncrease = gasLimit.div(BigNumber.from(100)).mul(BRIDGE_CALL_GAS_LIMIT_INCREASE_PERCENTAGE);
+              const gasLimitIncrease = gasLimit
+                .div(BigNumber.from(100))
+                .mul(BRIDGE_CALL_GAS_LIMIT_INCREASE_PERCENTAGE);
+
               const increasedGasLimit = gasLimit.add(gasLimitIncrease);
-              return tokenSpendPermission.type === "permit" ? increasedGasLimit.add(BRIDGE_CALL_PERMIT_GAS_LIMIT_INCREASE) : increasedGasLimit;
+
+              return tokenSpendPermission.type === "permit"
+                ? increasedGasLimit.add(BRIDGE_CALL_PERMIT_GAS_LIMIT_INCREASE)
+                : increasedGasLimit;
             })
           : BigNumber.from(300000);
 
@@ -722,7 +732,9 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         return { data: { gasLimit, maxFeePerGas }, type: "eip-1559" };
       } else {
         const legacyGasPrice = gasPrice || (await from.provider.getGasPrice());
-        const gasPriceIncrease = legacyGasPrice.div(BigNumber.from(100)).mul(GAS_PRICE_INCREASE_PERCENTAGE);
+        const gasPriceIncrease = legacyGasPrice
+          .div(BigNumber.from(100))
+          .mul(GAS_PRICE_INCREASE_PERCENTAGE);
 
         return {
           data: {
@@ -758,7 +770,10 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
       const contract = Bridge__factory.connect(from.bridgeContractAddress, provider.getSigner());
       const overrides: CallOverrides = {
         value: isTokenEther(token) ? amount : undefined,
-        ...(gas ? gas.data : (await estimateBridgeGas({ destinationAddress, from, to, token, tokenSpendPermission })).data),
+        ...(gas
+          ? gas.data
+          : (await estimateBridgeGas({ destinationAddress, from, to, token, tokenSpendPermission }))
+            .data),
       };
 
       const executeBridge = async () => {
@@ -772,12 +787,13 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
               spender: from.bridgeContractAddress,
               token,
               value: amount,
-            }) : "0x";
+            })
+            : "0x";
 
-        const forceUpdateGlobalExitRoot =
-          from.key === ChainKey.polygonzkevm ? true : env.forceUpdateGlobalExitRootForL1;
+        const forceUpdateGlobalExitRoot = from.key === ChainKey.polygonzkevm ? true : env.forceUpdateGlobalExitRootForL1;
 
-        return contract.bridgeAsset(
+        return contract
+          .bridgeAsset(
             to.networkId,
             destinationAddress,
             amount,
@@ -835,6 +851,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
       if (env === undefined) {
         throw new Error("Env is not available");
       }
+
      
       const { account, chainId, provider } = connectedProvider.data;
       const contract = Bridge__factory.connect(to.bridgeContractAddress, provider.getSigner());
@@ -850,81 +867,54 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         }
       );
 
-      const isTokenNativeOfToChain = token.chainId === from.chainId;
+      const isTokenNativeOfToChain = token.chainId === to.chainId;
       const isMetadataRequired = !isTokenEther(token) && !isTokenNativeOfToChain;
-      const metadata = isMetadataRequired
-        ? await getErc20TokenEncodedMetadata({ chain: from, token })
-        : "0x";
+      const metadata = isMetadataRequired ? await getErc20TokenEncodedMetadata({ chain: from, token }) : "0x";
 
-        // console.log({isMetadataRequired,isTokenNativeOfToChain,token,to})
-        // console.log({
-        //   merkleProof,
-        //     // rollupMerkleProof,
-        //     depositCount,
-        //     mainExitRoot,
-        //     rollupExitRoot,
-        //     tokenOriginNetwork,
-        //     token:token?.old_address ?? token.address,
-        //     to:to.networkId,
-        //     destinationAddress,
-        //     amount,
-        //     metadata,
-        //     isL2Claim:isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
-        // })
+        console.log({isMetadataRequired,isTokenNativeOfToChain,token,to,metadata})
+        console.log({
+          merkleProof,
+            // rollupMerkleProof,
+            depositCount,
+            mainExitRoot,
+            rollupExitRoot,
+            tokenOriginNetwork,
+            token:token?.old_address ?? token.address,
+            to:to.networkId,
+            destinationAddress,
+            amount,
+            metadata,
+            isL2Claim:isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
+        })
 
       const executeClaim = () =>
-       {
-        // const finallys = {
-        //   amount,
-        //   claimTxHash: '0x0add29f6d6c5145e987643e99f26140cbfbc748686e0ec8e15a563d533b27f57',
-        //   depositTxHash,
-        //   destinationAddress,
-        //   from,
-        //   timestamp: Date.now(),
-        //   to,
-        //   token,
-        //   type:'claim'
-        // }
-        // console.log("finally",finallys)
-        // storage.addAccountPendingTx(account, env, {
-        //   amount,
-        //   claimTxHash: '0x0add29f6d6c5145e987643e99f26140cbfbc748686e0ec8e15a563d533b27f57',
-        //   depositTxHash,
-        //   destinationAddress,
-        //   from,
-        //   timestamp: Date.now(),
-        //   to,
-        //   token,
-        //   type:'claim'
-        // })
-        return contract.claimAsset(
-          merkleProof,
-          // rollupMerkleProof,
-          depositCount,
-          mainExitRoot,
-          rollupExitRoot,
-          tokenOriginNetwork,
-          token?.old_address ?? token.address,
-          to.networkId,
-          destinationAddress,
-          amount,
-          metadata,
-          isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
-        ).then((txData) => {
-          storage.addAccountPendingTx(account, env, {
-            amount,
-            claimTxHash: txData.hash,
-            depositTxHash,
+        contract.claimAsset(
+            merkleProof,
+            // rollupMerkleProof,
+            depositCount,
+            mainExitRoot,
+            rollupExitRoot,
+            tokenOriginNetwork,
+            token?.old_address ?? token.address,
+            to.networkId,
             destinationAddress,
-            from,
-            timestamp: Date.now(),
-            to,
-            token,
-            type: "claim",
+            amount,
+            metadata,
+            isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
+          ).then((txData) => {
+            storage.addAccountPendingTx(account, env, {
+              amount,
+              claimTxHash: txData.hash,
+              depositTxHash,
+              destinationAddress,
+              from,
+              timestamp: Date.now(),
+              to,
+              token,
+              type: "claim",
+            })
+            return txData;
           })
-          return txData;
-        })
-       } 
 
       if (to.chainId === chainId) {
         return executeClaim();
