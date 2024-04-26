@@ -1,5 +1,26 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { BigNumber, ethers, constants as ethersConstants } from "ethers";
+import * as ethereum from "src/adapters/ethereum"
+import { cleanupCustomTokens, getCustomTokens } from "src/adapters/storage"
+import { getEthereumErc20Tokens } from "src/adapters/tokens"
+import tokenIconDefaultUrl from "src/assets/icons/tokens/erc20-icon.svg"
+import { useEnvContext } from "src/contexts/env.context"
+import { useErrorContext } from "src/contexts/error.context"
+import { useProvidersContext } from "src/contexts/providers.context"
+import { Chain, ChainKey, Env, EthereumChainId, Token } from "src/domain"
+import { Bridge__factory } from "src/types/contracts/bridge"
+import { Erc20__factory } from "src/types/contracts/erc-20"
+import axios from "src/utils/axios"
+import { isTokenEther } from "src/utils/tokens"
+import { isAsyncTaskDataAvailable } from "src/utils/types"
+import {
+  ETH_TOKEN_LOGO_URI,
+  TSMAddressZero,
+  TSMToken,
+  getEtherToken,
+  getExchangeAddress,
+  getOrigExchangeAddress,
+} from "src/constants"
 import {
   FC,
   PropsWithChildren,
@@ -11,29 +32,6 @@ import {
   useRef,
   useState,
 } from "react"
-
-import * as ethereum from "src/adapters/ethereum"
-import { cleanupCustomTokens, getCustomTokens } from "src/adapters/storage"
-import { getEthereumErc20Tokens } from "src/adapters/tokens"
-import tokenIconDefaultUrl from "src/assets/icons/tokens/erc20-icon.svg"
-import {
-  ETH_TOKEN_LOGO_URI,
-  TSMAddressZero,
-  TSMToken,
-  getEtherToken,
-  getExchangeAddress,
-  getOrigExchangeAddress,
-} from "src/constants"
-import { useEnvContext } from "src/contexts/env.context"
-import { useErrorContext } from "src/contexts/error.context"
-import { useProvidersContext } from "src/contexts/providers.context"
-import { Chain, ChainKey, Env, EthereumChainId, Token } from "src/domain"
-import { Bridge__factory } from "src/types/contracts/bridge"
-import { Erc20__factory } from "src/types/contracts/erc-20"
-import axios from "src/utils/axios"
-import { isTokenEther } from "src/utils/tokens"
-import { isAsyncTaskDataAvailable } from "src/utils/types"
-
 interface ComputeWrappedTokenAddressParams {
   nativeChain: Chain
   otherChain: Chain
@@ -377,12 +375,12 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
                 TSMToken,
                 ...chainTokens,
               ];
-              cleanupCustomTokens(tokens);
-              setTokens(tokens);
+              cleanupCustomTokens(tokens)
+              setTokens(tokens)
             })
             .catch(notifyError)
         )
-        .catch(notifyError);
+        .catch(notifyError)
     }
   };
   const initEPTHToken = async () => {
@@ -393,10 +391,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         const contract = Bridge__factory.connect(
           polygonzkevm.bridgeContractAddress,
           polygonzkevm.provider
-        );
-        contract
-          .getTokenWrappedAddress("0", TSMAddressZero)
-          .then((address) => initTokens({
+        )
+        contract.getTokenWrappedAddress("0", TSMAddressZero).then((address) => initTokens({
               address,
               chainId: EthereumChainId.EAGLE,
               decimals: 18,
@@ -404,8 +400,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
               name: "TETH",
               symbol: "TETH",
             })
-          )
-          .catch(console.log);
+          ).catch(console.log)
       }
     }
   };
@@ -413,7 +408,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
   // initialize tokens
   useEffect(() => {
     initEPTHToken();
-  }, [env, addWrappedToken, notifyError]);
+  }, [env, addWrappedToken, notifyError])
 
   const value = useMemo(() => {
     return {

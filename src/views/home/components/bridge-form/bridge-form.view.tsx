@@ -217,7 +217,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
         return chain.provider.getBalance(account);
       } else {
         const tokenAddress = selectTokenAddress(token, chain)
-        console.log({tokenAddress,chain})
+        // console.log({tokenAddress,chain})
         return getErc20TokenBalance({
           accountAddress: account,
           chain: chain,
