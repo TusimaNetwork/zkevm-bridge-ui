@@ -174,7 +174,7 @@ export const TSMAddressZero = "0x0000000000000000000000000000000000000001";
 
 export const TSMNAVToken: Token = {
   address: ethers.constants.AddressZero,
-  old_address: TSMAddressZero,
+  old_address: ethers.constants.AddressZero,
   chainId: EthereumChainId.SEPOLIA,
   decimals: 18,
   logoURI: TSM_TOKEN_LOGO_URI,

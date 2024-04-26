@@ -646,6 +646,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             destNetId:tx.to.networkId,
             originNetwork: tx.from.networkId,
             tokenOriginAddress: tx.token.address,
+            cache:true
           })
           const tokenPrice =
             chain && env.fiatExchangeRates.areEnabled

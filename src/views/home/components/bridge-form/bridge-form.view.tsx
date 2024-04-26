@@ -216,10 +216,12 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       if (isTokenEther(token)) {
         return chain.provider.getBalance(account);
       } else {
+        const tokenAddress = selectTokenAddress(token, chain)
+        console.log({tokenAddress,chain})
         return getErc20TokenBalance({
           accountAddress: account,
           chain: chain,
-          tokenAddress: selectTokenAddress(token, chain),
+          tokenAddress
         });
       }
     },
@@ -297,6 +299,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
         } catch (error) {
           balanceOrError = error
         }
+        // console.log({balanceOrError},chain,token)
         callIfMounted(() => {
           if (balanceOrError instanceof Error) {
             setBalance({ error: balanceOrError.message || "Couldn't retrieve token balance", status: "failed" })

@@ -59,6 +59,7 @@ interface GetTokenParams {
   originNetwork: number
   destNetId: number
   tokenOriginAddress: string
+  cache?:boolean
 }
 
 interface GetErc20TokenBalanceParams {
@@ -282,6 +283,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       originNetwork,
       tokenOriginAddress: newAddress,
       destNetId,
+      cache
     }: GetTokenParams): Promise<{ token: Token; origtoken: Token }> => {
       const form_chain = env.chains.find((chain) => chain.networkId === originNetwork);
       if (!form_chain) {
@@ -296,15 +298,15 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         )
       }
      
-      const chain = form_chain.chainId ===EthereumChainId.EAGLE ? newAddress === ethers.constants.AddressZero ? to_chain: form_chain:to_chain;
-
-      const chain2 = form_chain.chainId ===EthereumChainId.SEPOLIA && newAddress === TSMAddressZero ? form_chain: to_chain;
+      //如果原链是二层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示tsm的地址
+      //如果原链是一层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示teth的地址
+      //如果原链是一层链，并且地址是0x0000000000000000000000000000000000000001，目标链显示teth的地址
       const tokenAddress = getExchangeAddress(newAddress)
       const originTokenAddress = getOrigExchangeAddress(newAddress, to_chain.chainId,form_chain.chainId)
-      // console.log({newAddress,tokenAddress,originTokenAddress,chain,chain2,form_chain,to_chain})
-      const token = fetchToken(tokenAddress, chain)
-      const origtoken = fetchToken(originTokenAddress,chain2)
-      // console.log(token?.address,origtoken?.address,tokenAddress,originTokenAddress,chain.chainId,to_chain.chainId,newAddress)
+      //token 用在了提币上
+      const token = fetchToken(tokenAddress, form_chain)
+      //origtoken 是用在了展示上
+      const origtoken = fetchToken(originTokenAddress,form_chain)
       if (token) {
         return { token, origtoken: origtoken || token }
       } else {
