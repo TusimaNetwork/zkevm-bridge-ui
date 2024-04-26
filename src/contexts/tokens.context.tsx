@@ -208,7 +208,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       }
     },
     [env, computeWrappedTokenAddress, notifyError]
-  );
+  )
 
   const getTokenFromAddress = useCallback(
     async ({ address, chain }: GetTokenFromAddressParams): Promise<Token> => {
@@ -257,7 +257,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         });
     },
     [addWrappedToken, env, getNativeTokenInfo]
-  );
+  )
 
   const fetchToken = (tokenAddress: string, chain: Chain | Token) => {
     const newtoken_list = [
@@ -273,7 +273,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           token.wrappedToken.chainId === chain.chainId)
     );
     return token;
-  };
+  }
+
   const getToken = useCallback(
     async ({
       env,
@@ -322,7 +323,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       }
     },
     [tokens, getTokenFromAddress]
-  );
+  )
 
   const getErc20TokenBalance = useCallback(
     async ({ accountAddress, chain, tokenAddress }: GetErc20TokenBalanceParams) => {
@@ -333,7 +334,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       return await erc20Contract.balanceOf(accountAddress);
     },
     []
-  );
+  )
 
   const approve = useCallback(
     ({ amount, from, owner, provider, spender, token }: ApproveParams) => {
@@ -354,7 +355,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       }
     },
     [connectedProvider, changeNetwork]
-  );
+  )
 
   const initTokens = (TETHToken: Token) => {
     if (env) {
@@ -381,7 +382,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         )
         .catch(notifyError)
     }
-  };
+  }
+
   const initEPTHToken = async () => {
     if (env) {
       const polygonzkevm = env.chains.find((itm) => itm.key === ChainKey.polygonzkevm);
@@ -402,7 +404,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           ).catch(console.log)
       }
     }
-  };
+  }
 
   // initialize tokens
   useEffect(() => {
@@ -419,13 +421,13 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       getTokenFromAddress,
       tokens,
     };
-  }, [tokens, getTokenFromAddress, getToken, getErc20TokenBalance, addWrappedToken, approve]);
+  }, [tokens, getTokenFromAddress, getToken, getErc20TokenBalance, addWrappedToken, approve])
 
-  return <tokensContext.Provider value={value} {...props} />;
-};
+  return <tokensContext.Provider value={value} {...props} />
+}
 
 const useTokensContext = (): TokensContext => {
-  return useContext(tokensContext);
-};
+  return useContext(tokensContext)
+}
 
-export { TokensProvider, useTokensContext };
+export { TokensProvider, useTokensContext }
