@@ -130,8 +130,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
   /**
    * Provided a token and a chain, when the token is wrapped, returns the native token's networkId and address and throws otherwise
    */
-  const getNativeTokenInfo = useCallback(
-    ({
+  const getNativeTokenInfo = useCallback(({
       address,
       chain,
     }: GetNativeTokenInfoParams): Promise<{
