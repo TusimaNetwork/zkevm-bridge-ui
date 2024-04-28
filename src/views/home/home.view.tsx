@@ -37,17 +37,17 @@ export const Home = (): JSX.Element => {
   };
 
   const onCheckShowDepositWarningAndSubmitForm = (formData: FormData) => {
-    const isDepositWarningDismissed = getIsDepositWarningDismissed()
+    // const isDepositWarningDismissed = getIsDepositWarningDismissed()
 
     // if ( env && env.isDepositWarningEnabled && !isDepositWarningDismissed && formData.from.key === ChainKey.ethereum ) {
-    if ( true) {
+    // if ( true) {
       setDepositWarningModal({
         data: formData,
         status: "open"
       })
-    } else {
-      onSubmitForm(formData)
-    }
+    // } else {
+    //   onSubmitForm(formData)
+    // }
   }
 
   const onResetForm = () => {

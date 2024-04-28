@@ -28,6 +28,7 @@ import {
   isMetaMaskUnknownChainError,
   isMetaMaskUserRejectedRequestError,
 } from "src/utils/types"
+import useSWR from "swr";
 
 interface ProvidersContext {
   addNetwork: (chain: Chain) => Promise<void>
@@ -53,6 +54,9 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
   const { notifyError } = useErrorContext();
   const [connectedProvider, setConnectedProvider] = useState<AsyncTask<ConnectedProvider, string>>({
     status: "pending",
+  })
+  const connectedProvider1 = useSWR([],()=>{
+    
   })
   // This is a hack to workaround this MetaMask issue:
   // https://github.com/MetaMask/metamask-extension/issues/13375
@@ -310,7 +314,7 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
   useEffect(() => {
     if (connectedProvider.status === "pending") {
       const web3Provider = getMetamaskProvider();
-
+// 你就说每年都会旅行几次吧，也看心情，最近去过那个城市，本人旅游擅长吃，拍照。
       if (!web3Provider) {
         setConnectedProvider({
           error: "",

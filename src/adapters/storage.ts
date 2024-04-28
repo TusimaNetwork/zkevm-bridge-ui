@@ -139,7 +139,7 @@ export function addAccountPendingTx(account: string, env: Env, pendingTx: Pendin
   const accountPendingTxs = getAccountPendingTxs(account, env);
   const newAccountPendingTxs = [...accountPendingTxs, pendingTx];
 
-  console.log({newAccountPendingTxs})
+  // console.log({newAccountPendingTxs})
   setPendingTxs({
     ...pendingTxs,
     [account]: newAccountPendingTxs,

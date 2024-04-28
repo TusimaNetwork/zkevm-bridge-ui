@@ -186,7 +186,7 @@ export const TokenList: FC<TokenListProps> = ({
 
   const error = customToken.status === "failed" ? customToken.error : searchInputValue.length > 0 && filteredTokens.length === 0 ? "No result found" : undefined
 
-  const tokensLists=useMemo(()=>filteredTokens.filter((itm)=>itm.chainId === chains.from.chainId),[filteredTokens,chains?.from,account])
+  const tokensLists=useMemo(()=>filteredTokens.filter(itm=>!itm.is01).filter((itm)=>itm.chainId === chains.from.chainId),[filteredTokens,chains?.from,account])
 
   if(!TETHToken){
     return <div></div>

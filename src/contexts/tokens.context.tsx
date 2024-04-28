@@ -14,12 +14,15 @@ import axios from "src/utils/axios"
 import { isTokenEther } from "src/utils/tokens"
 import { isAsyncTaskDataAvailable } from "src/utils/types"
 import {
+  ETHNavToken,
   ETH_TOKEN_LOGO_URI,
   TSMAddressZero,
+  TSMNAVToken,
+  TSMNAVToken01,
+  TSMNAVToken02,
   TSMToken,
   getEtherToken,
   getExchangeAddress,
-  getOrigExchangeAddress,
 } from "src/constants"
 import {
   FC,
@@ -237,7 +240,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
             wrappedToken: {
               address,
               chainId: chain.chainId,
-            },
+            }
           }
         }).catch((e) => {
           console.debug(e)
@@ -250,7 +253,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
               logoURI,
               name,
               symbol,
-            },
+            }
           })
         })
     },
@@ -260,11 +263,10 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
   const fetchToken = (tokenAddress: string, chain: Chain | Token) => {
     const newtoken_list = [
       ...getCustomTokens(),
-      ...(tokens || [getEtherToken(chain)]),
+      ...(tokens || []),
       ...fetchedTokens.current,
     ]
-    const token = newtoken_list.find(
-      (token) =>
+    const token = newtoken_list.find( (token) =>
         (token.address === tokenAddress && token.chainId === chain.chainId) ||
         (token.wrappedToken &&
           token.wrappedToken.address === tokenAddress &&
@@ -293,20 +295,23 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           `The chain with the originNetwork "${destNetId}" could not be found in the list of supported Chains`
         )
       }
-     
+
       //如果原链是二层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示tsm的地址
       //如果原链是一层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示teth的地址
       //如果原链是一层链，并且地址是0x0000000000000000000000000000000000000001，目标链显示teth的地址
-      const tokenAddress = getExchangeAddress(newAddress)
-      const originTokenAddress = getOrigExchangeAddress(newAddress, to_chain.chainId,form_chain.chainId)
+      // const tokenAddress = getExchangeAddress(newAddress)
+      // const originTokenAddress = getExchangeAddress(newAddress)
       //token 用在了提币上
-      const token = fetchToken(tokenAddress, form_chain)
+      const token = fetchToken(newAddress, form_chain)
       //origtoken 是用在了展示上
-      const origtoken = fetchToken(originTokenAddress,form_chain)
+      const origtoken = fetchToken(newAddress,form_chain)
+
+      // console.log({token,origtoken,newAddress,form_chain})
+
       if (token) {
         return { token, origtoken: origtoken || token }
       } else {
-        const chain = form_chain.chainId ===EthereumChainId.EAGLE ?  to_chain:form_chain;
+        const chain = to_chain;
         const token = await getTokenFromAddress({ address: newAddress, chain: chain })
           .then((token) => {
             fetchedTokens.current = [...fetchedTokens.current, token]
@@ -315,8 +320,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           .catch(() => {
             throw new Error(
               `The token with the address "${newAddress}" could not be found either in the list of supported Tokens or in the blockchain "${chain.name}" with chain id "${chain.chainId}"`
-            );
-          });
+            )
+          })
         return { token, origtoken: origtoken || token };
       }
     },
@@ -326,10 +331,10 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
   const getErc20TokenBalance = useCallback(
     async ({ accountAddress, chain, tokenAddress }: GetErc20TokenBalanceParams) => {
       if (isTokenEther(tokenAddress)) {
-        return Promise.reject(new Error("Ether is not supported as ERC20 token"));
+        return Promise.reject(new Error("Ether is not supported as ERC20 token"))
       }
-      const erc20Contract = Erc20__factory.connect(tokenAddress, chain.provider);
-      return await erc20Contract.balanceOf(accountAddress);
+      const erc20Contract = Erc20__factory.connect(tokenAddress, chain.provider)
+      return await erc20Contract.balanceOf(accountAddress)
     },
     []
   )
@@ -340,16 +345,16 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         throw new Error("Connected provider is not available");
       }
 
-      const executeApprove = async () => ethereum.approve({ amount, from, owner, provider, spender, token });
+      const executeApprove = async () => ethereum.approve({ amount, from, owner, provider, spender, token })
 
       if (from.chainId === connectedProvider.data.chainId) {
-        return executeApprove();
+        return executeApprove()
       } else {
         return changeNetwork(from)
           .catch(() => {
-            throw "wrong-network";
+            throw "wrong-network"
           })
-          .then(executeApprove);
+          .then(executeApprove)
       }
     },
     [connectedProvider, changeNetwork]
@@ -357,8 +362,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
 
   const initTokens = (TETHToken: Token) => {
     if (env) {
-      setTETHToken(TETHToken);
-      const ethereumChains = env.chains.map((chain) => chain.chainId);
+      setTETHToken(TETHToken)
+      const ethereumChains = env.chains.map((chain) => chain.chainId)
       getEthereumErc20Tokens()
         .then((ethereumErc20Tokens) =>
           Promise.all(
@@ -368,11 +373,14 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           )
             .then((chainTokens) => {
               const tokens = [
-                ...env.chains.map((itm) => getEtherToken(itm)),
-                TETHToken,
+                TSMNAVToken,
+                TSMNAVToken01,
+                TSMNAVToken02,
+                ETHNavToken, 
                 TSMToken,
+                TETHToken,
                 ...chainTokens,
-              ];
+              ]
               cleanupCustomTokens(tokens)
               setTokens(tokens)
             })
@@ -384,7 +392,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
 
   const initEPTHToken = async () => {
     if (env) {
-      const polygonzkevm = env.chains.find((itm) => itm.key === ChainKey.polygonzkevm);
+      const polygonzkevm = env.chains.find((itm) => itm.key === ChainKey.polygonzkevm)
       if (polygonzkevm) {
         // console.log({polygonzkevm},polygonzkevm.bridgeContractAddress, polygonzkevm.provider)
         const contract = Bridge__factory.connect(
