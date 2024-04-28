@@ -134,10 +134,10 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       address,
       chain,
     }: GetNativeTokenInfoParams): Promise<{
-      originNetwork: number;
-      originTokenAddress: string;
+      originNetwork: number
+      originTokenAddress: string
     }> => {
-      const bridgeContract = Bridge__factory.connect(chain.bridgeContractAddress, chain.provider);
+      const bridgeContract = Bridge__factory.connect(chain.bridgeContractAddress, chain.provider)
       if([
         TETHToken?.address.toLocaleLowerCase(),
         TSMToken?.address.toLocaleLowerCase()
@@ -152,7 +152,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       return bridgeContract.wrappedTokenToTokenInfo(address).then((tokenInfo) => {
         if (tokenInfo.originTokenAddress === ethersConstants.AddressZero) {
           // console.log(tokenInfo.originTokenAddress === ethersConstants.AddressZero,tokenInfo.originTokenAddress , ethersConstants.AddressZero,chain)
-          throw new Error(`Can not find a native token for the address "${address}"`);
+          throw new Error(`Can not find a native token for the address "${address}"`)
         }
         return tokenInfo
       }).catch((e)=>{
@@ -185,15 +185,14 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           nativeChain,
           otherChain: wrappedChain,
           token,
-        })
-          .then((wrappedAddress) => {
+        }).then((wrappedAddress) => {
             const newToken: Token = {
               ...token,
               wrappedToken: {
                 address: wrappedAddress,
                 chainId: wrappedChain.chainId,
               },
-            };
+            }
             return newToken
           })
           .catch((e) => {
@@ -218,15 +217,15 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       const erc20Contract = Erc20__factory.connect(address, chain.provider)
       const name = await erc20Contract.name()
       const decimals = await erc20Contract.decimals()
-      const symbol = await erc20Contract.symbol();
-      const trustWalletLogoUrl = `/icons/tokens/${address}/logo.png`;
-      const logoURI = await axios.head(trustWalletLogoUrl).then(() => trustWalletLogoUrl).catch(() => tokenIconDefaultUrl);
+      const symbol = await erc20Contract.symbol()
+      const trustWalletLogoUrl = `/icons/tokens/${address}/logo.png`
+      const logoURI = await axios.head(trustWalletLogoUrl).then(() => trustWalletLogoUrl).catch(() => tokenIconDefaultUrl)
 
       return getNativeTokenInfo({ address, chain }).then(({ originNetwork, originTokenAddress }) => {
           // the provided address belongs to a wrapped token
-          const originalTokenChain = env.chains.find((chain) => chain.networkId === originNetwork);
+          const originalTokenChain = env.chains.find((chain) => chain.networkId === originNetwork)
           if (!originalTokenChain) {
-            throw Error(`Could not find a chain that matched the originNetwork ${originNetwork}`);
+            throw Error(`Could not find a chain that matched the originNetwork ${originNetwork}`)
           }
           return {
             address: originTokenAddress,
@@ -239,9 +238,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
               address,
               chainId: chain.chainId,
             },
-          };
-        })
-        .catch((e) => {
+          }
+        }).catch((e) => {
           console.debug(e)
           // the provided address belongs to a native token
           return addWrappedToken({
@@ -253,8 +251,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
               name,
               symbol,
             },
-          });
-        });
+          })
+        })
     },
     [addWrappedToken, env, getNativeTokenInfo]
   )
@@ -264,15 +262,15 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       ...getCustomTokens(),
       ...(tokens || [getEtherToken(chain)]),
       ...fetchedTokens.current,
-    ];
+    ]
     const token = newtoken_list.find(
       (token) =>
         (token.address === tokenAddress && token.chainId === chain.chainId) ||
         (token.wrappedToken &&
           token.wrappedToken.address === tokenAddress &&
           token.wrappedToken.chainId === chain.chainId)
-    );
-    return token;
+    )
+    return token
   }
 
   const getToken = useCallback(

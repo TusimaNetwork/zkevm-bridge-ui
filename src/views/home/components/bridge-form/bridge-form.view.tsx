@@ -153,7 +153,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       amount: balanceFrom.data,
       from: selectedChains.from,
       to: selectedChains.to,
-      token: token,
+      token: token
     }
   },[selectedChains,balanceFrom?.status,token])
   // console.log({tokenBalance2:tokenBalance2?.toString(),token:token?.symbol})
@@ -164,7 +164,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
   const { maxAmountConsideringFee, estimatedGas } = useInputMaxAmount({
     formData:formData2,
     tokenBalance:tokenBalance2,
-    tokenSpendPermission,
+    tokenSpendPermission
   })
   
     // console.log({ tokenAmountString,maxAmountConsideringFee:maxAmountConsideringFee?.toString(), feeString, feeErrorString })
@@ -197,10 +197,10 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
     e.preventDefault()
     if (notLogin) {
       connectWallet()
-      return;
+      return
     } else if (!isPrivate) {
       selectedChains ? onAddNetwork(selectedChains.from) : ""
-      return;
+      return
     } else if (selectedChains && token && amount) {
       onSubmit({
         amount: amount,
