@@ -38,7 +38,7 @@ export const UNISWAP_V2_ROUTER_02_FACTORY_ADDRESS = "0x5C69bEe701ef814a2B6a3EDD4
 
 export const PREFERRED_CURRENCY_KEY = "currency";
 
-export const CUSTOM_TOKENS_KEY = "customTokens_list";
+export const CUSTOM_TOKENS_KEY = "customTokens_new_list";
 
 export const PENDING_TXS_KEY = "pendingTxs";
 
