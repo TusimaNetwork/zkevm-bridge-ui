@@ -284,23 +284,17 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       )
     }
   }
-  useEffect(() => {
-    // initBalances()
-  }, [callIfMounted, defaultTokens, getTokenBalance,isTokenListOpen, selectedChains, tokens,account])
 
   useEffect(() => {
-    // Load the balance of the selected token in both networks
     if (selectedChains && fromToken && toToken) {
       const loadBalance = async (chain:Chain,token:Token, setBalance:(v:AsyncTask<BigNumber, string>)=>void) => {
         setBalance({ status: "loading" })
         let balanceOrError:any
         try {
-          // console.log({token, chain})
           balanceOrError = await getTokenBalance(token, chain)
         } catch (error) {
           balanceOrError = error
         }
-        // console.log({balanceOrError},chain,token)
         callIfMounted(() => {
           if (balanceOrError instanceof Error) {
             setBalance({ error: balanceOrError.message || "Couldn't retrieve token balance", status: "failed" })
@@ -309,8 +303,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
           }
         })
       }
-  
-      // console.log({toToken},selectedChains.to)
       loadBalance(selectedChains.from,fromToken, setBalanceFrom)
       loadBalance(selectedChains.to,toToken, setBalanceTo)
     }
@@ -330,16 +322,6 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       setAmount(undefined)
   }, [connectedProvider, env, isPrivate])
 
-  // useEffect(() => {
-  //   // Load default form values
-  //   if (formData) {
-  //     setSelectToken(formData.token)
-  //     setAmount(formData.amount)
-  //     onResetForm()
-  //   }
-  // }, [formData, onResetForm])
-
-  // console.log({env , selectedChains , tokens , token , toToken,defaultTokens})
   if (!env || !selectedChains || !tokens || !token || !toToken) {
     return (
       <div className={classes.spinner}>
@@ -348,9 +330,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       </div>
     )
   }
-  // console.log({tokens})
-  // console.log({toToken})
-  // console.log(isPrivate , !notLogin , (!amount || amount.isZero() || inputError !== undefined))
+ 
   return (
     <form className={classes.form} onSubmit={onFormSubmit}>
       <NetworkSelectorTabs onClick={onChainButtonClick} chainId={token.chainId} chains={env.chains}/>
