@@ -1,5 +1,6 @@
-import { Web3Provider } from "@ethersproject/providers";
-import { BigNumber, ethers, constants as ethersConstants } from "ethers";
+import {FC, PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react"
+import { BigNumber, constants as ethersConstants } from "ethers"
+import { Web3Provider } from "@ethersproject/providers"
 import * as ethereum from "src/adapters/ethereum"
 import { cleanupCustomTokens, getCustomTokens } from "src/adapters/storage"
 import { getEthereumErc20Tokens } from "src/adapters/tokens"
@@ -17,24 +18,14 @@ import {
   ETHNavToken,
   ETH_TOKEN_LOGO_URI,
   TSMAddressZero,
-  TSMNAVToken,
+  TSMNAVToken00,
   TSMNAVToken01,
   TSMNAVToken02,
   TSMToken,
   getEtherToken,
-  getExchangeAddress,
+  getExchangeAddress
 } from "src/constants"
-import {
-  FC,
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
+
 interface ComputeWrappedTokenAddressParams {
   nativeChain: Chain
   otherChain: Chain
@@ -110,22 +101,25 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
    * Provided a token, its native chain and any other chain, computes the address of the wrapped token on the other chain
    */
   const computeWrappedTokenAddress = useCallback(
-    ({ nativeChain, otherChain, token }: ComputeWrappedTokenAddressParams): Promise<string> => {
+    async ({ nativeChain, otherChain, token }: ComputeWrappedTokenAddressParams): Promise<string> => {
       if (isTokenEther(token)) {
         throw Error("Can't precalculate the wrapper address of Ether")
       }
+      
       const bridgeContract = Bridge__factory.connect(
         otherChain.bridgeContractAddress,
         otherChain.provider
       )
 
-      return bridgeContract.precalculatedWrapperAddress(
+      const res = await bridgeContract.precalculatedWrapperAddress(
         nativeChain.networkId,
         token.address,
         token.name,
         token.symbol,
         token.decimals
       )
+     
+      return res
     },
     []
   )
@@ -163,16 +157,13 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           reject(e)
         })
       })
-    },
-    [TETHToken]
-  )
+    }, [TETHToken] )
 
   /**
    * Provided a token, if its property wrappedToken is missing, adds it and returns the new token
    * Important: It's assumed that the token is native to the chain declared in token.chainId
    */
-  const addWrappedToken = useCallback(
-    ({ token }: AddWrappedTokenParams): Promise<Token> => {
+  const addWrappedToken = useCallback( ({ token }: AddWrappedTokenParams): Promise<Token> => {
       if (token.wrappedToken || isTokenEther(token)) {
         return Promise.resolve(token)
       } else {
@@ -203,14 +194,12 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
               nativeChain,
               otherChain: wrappedChain,
               token,
-            });
+            })
             notifyError(e)
             return Promise.resolve(token)
-          });
+          })
       }
-    },
-    [env, computeWrappedTokenAddress, notifyError]
-  )
+    }, [env, computeWrappedTokenAddress, notifyError] )
 
   const getTokenFromAddress = useCallback(
     async ({ address, chain }: GetTokenFromAddressParams): Promise<Token> => {
@@ -239,10 +228,10 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
             symbol,
             wrappedToken: {
               address,
-              chainId: chain.chainId,
+              chainId: chain.chainId
             }
           }
-        }).catch((e) => {
+      }).catch((e) => {
           console.debug(e)
           // the provided address belongs to a native token
           return addWrappedToken({
@@ -252,25 +241,21 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
               decimals,
               logoURI,
               name,
-              symbol,
+              symbol
             }
           })
-        })
-    },
-    [addWrappedToken, env, getNativeTokenInfo]
-  )
+      })
+    }, [addWrappedToken, env, getNativeTokenInfo] )
 
   const fetchToken = (tokenAddress: string, chain: Chain | Token) => {
     const newtoken_list = [
       ...getCustomTokens(),
       ...(tokens || []),
-      ...fetchedTokens.current,
+      ...fetchedTokens.current
     ]
     const token = newtoken_list.find( (token) =>
         (token.address === tokenAddress && token.chainId === chain.chainId) ||
-        (token.wrappedToken &&
-          token.wrappedToken.address === tokenAddress &&
-          token.wrappedToken.chainId === chain.chainId)
+        (token.wrappedToken && token.wrappedToken.address === tokenAddress && token.wrappedToken.chainId === chain.chainId)
     )
     return token
   }
@@ -283,30 +268,24 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       destNetId,
       cache
     }: GetTokenParams): Promise<{ token: Token; origtoken: Token }> => {
-      const form_chain = env.chains.find((chain) => chain.networkId === originNetwork);
+      const form_chain = env.chains.find((chain) => chain.networkId === originNetwork)
       if (!form_chain) {
-        throw new Error(
-          `The chain with the originNetwork "${originNetwork}" could not be found in the list of supported Chains`
-        )
+        throw new Error(`The chain with the originNetwork "${originNetwork}" could not be found in the list of supported Chains`)
       }
       const to_chain = env.chains.find((chain) => chain.networkId === destNetId);
       if (!to_chain) {
-        throw new Error(
-          `The chain with the originNetwork "${destNetId}" could not be found in the list of supported Chains`
-        )
+        throw new Error(`The chain with the originNetwork "${destNetId}" could not be found in the list of supported Chains`)
       }
 
       //如果原链是二层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示tsm的地址
       //如果原链是一层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示teth的地址
       //如果原链是一层链，并且地址是0x0000000000000000000000000000000000000001，目标链显示teth的地址
-      // const tokenAddress = getExchangeAddress(newAddress)
-      // const originTokenAddress = getExchangeAddress(newAddress)
+      //const tokenAddress = getExchangeAddress(newAddress)
+      //const originTokenAddress = getExchangeAddress(newAddress)
       //token 用在了提币上
       const token = fetchToken(newAddress, form_chain)
       //origtoken 是用在了展示上
       const origtoken = fetchToken(newAddress,form_chain)
-
-      // console.log({token,origtoken,newAddress,form_chain})
 
       if (token) {
         return { token, origtoken: origtoken || token }
@@ -322,11 +301,9 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
               `The token with the address "${newAddress}" could not be found either in the list of supported Tokens or in the blockchain "${chain.name}" with chain id "${chain.chainId}"`
             )
           })
-        return { token, origtoken: origtoken || token };
+        return { token, origtoken: origtoken || token }
       }
-    },
-    [tokens, getTokenFromAddress]
-  )
+    }, [tokens, getTokenFromAddress] )
 
   const getErc20TokenBalance = useCallback(
     async ({ accountAddress, chain, tokenAddress }: GetErc20TokenBalanceParams) => {
@@ -335,14 +312,12 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       }
       const erc20Contract = Erc20__factory.connect(tokenAddress, chain.provider)
       return await erc20Contract.balanceOf(accountAddress)
-    },
-    []
-  )
+    }, [] )
 
   const approve = useCallback(
     ({ amount, from, owner, provider, spender, token }: ApproveParams) => {
       if (!isAsyncTaskDataAvailable(connectedProvider)) {
-        throw new Error("Connected provider is not available");
+        throw new Error("Connected provider is not available")
       }
 
       const executeApprove = async () => ethereum.approve({ amount, from, owner, provider, spender, token })
@@ -356,9 +331,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           })
           .then(executeApprove)
       }
-    },
-    [connectedProvider, changeNetwork]
-  )
+    }, [connectedProvider, changeNetwork])
 
   const initTokens = (TETHToken: Token) => {
     if (env) {
@@ -369,17 +342,38 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           Promise.all(
             ethereumErc20Tokens
               .filter((token) => ethereumChains.includes(token.chainId))
-              .map((token) => addWrappedToken({ token }))
-          )
-            .then((chainTokens) => {
+              .map(async (token) => {
+                if(token.chainId === EthereumChainId.EAGLE){
+                  // console.log({token})
+                  const {originTokenAddress} = await getNativeTokenInfo({
+                    address: token.address,
+                    chain:env.chains[1]
+                  })
+                  return {
+                    ...token,
+                    wrappedToken:{
+                      address:originTokenAddress,
+                      chainId: env.chains[0].chainId
+                    }
+                  }
+                  // console.log({sss})
+                  // return token
+                }else{
+                  const resToken =  await addWrappedToken({ token })
+                  // console.log({resToken,token})
+                  return resToken
+                }
+                
+              })
+          ).then((chainTokens) => {
               const tokens = [
-                TSMNAVToken,
+                TSMNAVToken00,
                 TSMNAVToken01,
                 TSMNAVToken02,
                 ETHNavToken, 
                 TSMToken,
                 TETHToken,
-                ...chainTokens,
+                ...chainTokens
               ]
               cleanupCustomTokens(tokens)
               setTokens(tokens)
@@ -414,7 +408,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
 
   // initialize tokens
   useEffect(() => {
-    initEPTHToken();
+    initEPTHToken()
   }, [env, addWrappedToken, notifyError])
 
   const value = useMemo(() => {

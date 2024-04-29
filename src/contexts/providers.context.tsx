@@ -271,7 +271,6 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
         .then(async () => {
           if (isAsyncTaskDataAvailable(connectedProvider)) {
             const { chainId } = await connectedProvider.data.provider.getNetwork();
-
             if (chainId !== chain.chainId) {
               throw "wrong-network"
             }
@@ -314,7 +313,6 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
   useEffect(() => {
     if (connectedProvider.status === "pending") {
       const web3Provider = getMetamaskProvider();
-// 你就说每年都会旅行几次吧，也看心情，最近去过那个城市，本人旅游擅长吃，拍照。
       if (!web3Provider) {
         setConnectedProvider({
           error: "",

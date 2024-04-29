@@ -158,6 +158,9 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
       if(token.address === TETHToken?.address){
         return ethersConstants.AddressZero
       }
+      if(token.chainId === EthereumChainId.EAGLE){
+        return token.wrappedToken?.address
+      }
       return token.address
     },[token,TETHToken])
 
@@ -168,6 +171,9 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
       }
       if(token.address === TSMToken?.address){
         return ethersConstants.AddressZero
+      }
+      if(token.chainId === EthereumChainId.EAGLE){
+        return token.address
       }
       return token.wrappedToken?.address
     },[token,TETHToken])

@@ -172,7 +172,7 @@ export const ETHNavToken: Token = {
 
 export const TSMAddressZero = "0x0000000000000000000000000000000000000001";
 
-export const TSMNAVToken: Token = {
+export const TSMNAVToken00: Token = {
   address: ethers.constants.AddressZero,
   chainId: EthereumChainId.EAGLE,
   decimals: 18,
@@ -234,7 +234,7 @@ export const getToToken = (token: Token, TETHToken: any): Token => {
   } else if ( isSpoliaEthToken(token) ) {
     return TETHToken
   }else if(isSepoliaTSMToken(token)){
-    return TSMNAVToken 
+    return TSMNAVToken00 
   }else if(isEagleTETHToken(token,TETHToken)){
     return ETHNavToken 
   }
@@ -242,7 +242,7 @@ export const getToToken = (token: Token, TETHToken: any): Token => {
 }
 
 export const getEtherToken = (chain: Chain|Token): Token => {
-  if (isEagleChain(chain)) return TSMNAVToken
+  if (isEagleChain(chain)) return TSMNAVToken00
   return ETHNavToken
 }
 

@@ -295,6 +295,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
         setBalance({ status: "loading" })
         let balanceOrError:any
         try {
+          // console.log({token, chain})
           balanceOrError = await getTokenBalance(token, chain)
         } catch (error) {
           balanceOrError = error
@@ -309,6 +310,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
         })
       }
   
+      // console.log({toToken},selectedChains.to)
       loadBalance(selectedChains.from,fromToken, setBalanceFrom)
       loadBalance(selectedChains.to,toToken, setBalanceTo)
     }
@@ -346,6 +348,8 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       </div>
     )
   }
+  // console.log({tokens})
+  // console.log({toToken})
   // console.log(isPrivate , !notLogin , (!amount || amount.isZero() || inputError !== undefined))
   return (
     <form className={classes.form} onSubmit={onFormSubmit}>
