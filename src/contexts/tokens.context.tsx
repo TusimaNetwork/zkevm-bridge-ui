@@ -397,7 +397,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           polygonzkevm.bridgeContractAddress,
           polygonzkevm.provider
         )
-        console.log({contract})
+        // console.log({contract})
         contract.getTokenWrappedAddress("0", TSMAddressZero).then((address) => initTokens({
               address,
               chainId: EthereumChainId.EAGLE,
