@@ -12,9 +12,10 @@ interface HeaderProps {
   Subtitle?: ReactElement;
   backTo: { routeKey: keyof typeof routes; state?: RouterState };
   title: string;
+  noShow?:boolean;
 }
 
-export const Header: FC<HeaderProps> = ({ backTo, Subtitle, title }) => {
+export const Header: FC<HeaderProps> = ({ backTo, Subtitle, title,noShow }) => {
   const classes = useHeaderStyles();
   const route = routes[backTo.routeKey].path;
 
@@ -23,7 +24,7 @@ export const Header: FC<HeaderProps> = ({ backTo, Subtitle, title }) => {
       <div className={classes.topRow}>
       {/* <ArrowLeftIcon width={100} fill="#000"/> */}
         <div className={`${classes.block} ${classes.leftBlock}`}>
-          <Link className={classes.sideButton} state={backTo.state} to={route}>
+          <Link style={{display:noShow?'none':''}} className={classes.sideButton} state={backTo.state} to={route}>
             <ArrowLeftIcon className={classes.icon} />
           </Link>
         </div>

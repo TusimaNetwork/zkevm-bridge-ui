@@ -22,7 +22,6 @@ export const useHeaderStyles = createUseStyles((theme: Theme) => ({
     margin: [theme.spacing(1.5), "auto", 0],
     position: "relative",
     width: "100%",
-   
     [theme.breakpoints.upSm]: {
       margin: [theme.spacing(3), "auto", 0],
     },
@@ -36,7 +35,7 @@ export const useHeaderStyles = createUseStyles((theme: Theme) => ({
     },
   },
   leftBlock: {
-    justifyContent: "right",
+    justifyContent: "left",
   },
   rightBlock: {
     justifyContent: "end",
@@ -62,6 +61,5 @@ export const useHeaderStyles = createUseStyles((theme: Theme) => ({
     display: "flex",
     justifyContent: "center",
     width: "100%",
-    gap:50,
   },
 }));
