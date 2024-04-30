@@ -3,6 +3,7 @@ import { FC, useCallback, useEffect, useRef, useState } from "react";
 
 import { isCancelRequestError } from "src/adapters/bridge-api";
 import { parseError } from "src/adapters/error";
+import ArrowLeftIcon from "src/components/Svg/ArrowLeftIcon";
 import { AUTO_REFRESH_RATE, PAGE_SIZE } from "src/constants";
 import { useBridgeContext } from "src/contexts/bridge.context";
 import { useEnvContext } from "src/contexts/env.context";
@@ -385,6 +386,7 @@ export const Activity: FC = () => {
             </div>
           </div>
           <div className={classes.contentWrapper}>
+            <ArrowLeftIcon width={100} fill="#000"/>
             {filteredList.length ? (
               <InfiniteScroll
                 isLoading={apiBridges.status === "loading-more-items"}

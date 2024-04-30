@@ -259,7 +259,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
         (token.address === tokenAddress && token.chainId === chain.chainId) ||
         (token.wrappedToken && token.wrappedToken.address === tokenAddress && token.wrappedToken.chainId === chain.chainId)
     )
-    console.log({newtoken_list})
+    // console.log({newtoken_list})
     return token
   }
 
@@ -290,7 +290,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       //origtoken 是用在了展示上
       const origtoken = fetchToken(newAddress,form_chain)
 
-      console.log({newAddress,form_chain})
+      // console.log({newAddress,form_chain})
       if (token) {
         return { token, origtoken: origtoken || token }
       } else {

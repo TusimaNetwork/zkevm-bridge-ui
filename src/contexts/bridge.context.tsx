@@ -16,6 +16,8 @@ import {
   FIAT_DISPLAY_PRECISION,
   GAS_PRICE_INCREASE_PERCENTAGE,
   PENDING_TX_TIMEOUT,
+  TSMAddressZero,
+  isSpoliaEthToken,
 } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
 import { usePriceOracleContext } from "src/contexts/price-oracle.context";
@@ -811,7 +813,10 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
               from,
               timestamp: Date.now(),
               to,
-              token,
+              token:{
+                ...token,
+                address:isSpoliaEthToken(token) ? TSMAddressZero : token.address,
+              },
               type: "deposit",
             });
 

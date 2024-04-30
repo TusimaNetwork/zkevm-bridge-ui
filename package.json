@@ -15,6 +15,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/styled": "^11.11.5",
     "@walletconnect/ethereum-provider": "^1.7.8",
     "axios": "^0.27.2",
     "ethers": "^5.7.2",
@@ -26,8 +27,8 @@
     "react-jss": "^10.9.1",
     "react-router-dom": "^6.3.0",
     "stacktrace-js": "^2.0.2",
-    "typechain": "^8.3.2",
     "swr": "^2.0.3",
+    "typechain": "^8.3.2",
     "viem": "~1.0.6",
     "zod": "^3.20.2"
   },
