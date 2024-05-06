@@ -7,22 +7,16 @@ import { ReactComponent as ArrowDown } from "src/assets/icons/arrow-down.svg";
 import { ReactComponent as CaretDown } from "src/assets/icons/caret-down.svg";
 import {  getEtherToken, getToToken,  } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
-import { usePriceOracleContext } from "src/contexts/price-oracle.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
 import { AsyncTask, Chain, ChainKey, FormData, Token } from "src/domain";
 import { useAddnetwork } from "src/hooks/use-addnetwork";
 import { useApprove } from "src/hooks/use-approve";
-import { useBridge } from "src/hooks/use-bridge";
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
-import { useFee } from "src/hooks/use-fee";
 import { useInputMaxAmount } from "src/hooks/use-input-max-amount";
-import { formatTokenAmount } from "src/utils/amounts";
 import { FromLabel } from "src/utils/labels";
 import { isTokenEther, selectTokenAddress } from "src/utils/tokens";
 import { isAsyncTaskDataAvailable } from "src/utils/types";
-import { ApprovalInfo } from "src/views/bridge-confirmation/components/approval-info/approval-info.view";
-import { BridgeButton } from "src/views/bridge-confirmation/components/bridge-button/bridge-button.view";
 import { AmountInput } from "src/views/home/components/amount-input/amount-input.view";
 import { useBridgeFormStyles } from "src/views/home/components/bridge-form/bridge-form.styles";
 import { TokenSelector } from "src/views/home/components/token-selector/token-selector.view";
@@ -35,7 +29,6 @@ import { NetworkSelectorTabs } from "src/views/shared/network-selector-tabs/netw
 import { Spinner } from "src/views/shared/spinner/spinner.view";
 import { TokenBalance } from "src/views/shared/token-balance/token-balance.view";
 import { Typography } from "src/views/shared/typography/typography.view";
-import useSWR from "swr";
 
 interface BridgeFormProps {
   account: string;
@@ -167,7 +160,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
     tokenSpendPermission
   })
   
-    // console.log({ tokenAmountString,maxAmountConsideringFee:maxAmountConsideringFee?.toString(), feeString, feeErrorString })
+  // console.log({ tokenAmountString,maxAmountConsideringFee:maxAmountConsideringFee?.toString(), feeString, feeErrorString })
 
   const onAddToken = (token: Token) => {
     if (tokens) {
@@ -181,12 +174,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
   const onRemoveToken = (tokenToRemove: Token) => {
     if (tokens) {
       removeCustomToken(tokenToRemove)
-      setTokens(
-        tokens.filter(
-          (token) =>
-            !(token.address === tokenToRemove.address && token.chainId === tokenToRemove.chainId)
-        )
-      )
+      setTokens(tokens.filter((token) => !(token.address === tokenToRemove.address && token.chainId === tokenToRemove.chainId)))
       if (selectedChains && tokenToRemove.address === token?.address) {
         setSelectToken(undefined)
       }
