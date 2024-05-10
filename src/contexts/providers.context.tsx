@@ -246,28 +246,46 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
   const addNetwork = useCallback(
     (chain: Chain): Promise<void> => {
       setIsSwitchingNetwork(true)
-      const provider = getMetamaskProvider()
-      if (!provider) {
-        return Promise.reject(new Error("No provider is available"));
-      }
-      if (!provider.provider.request) {
-        return Promise.reject(
-          new Error("No request method is available from the provider to add an Ethereum chain")
-        );
-      }
-      return provider.provider
+
+      const switchChain = ()=>{
+        const provider = getMetamaskProvider()
+        if (!provider) {
+          return Promise.reject(new Error("No provider is available"));
+        }
+        if (!provider.provider.request) {
+          return Promise.reject(
+            new Error("No request method is available from the provider to add an Ethereum chain")
+          );
+        }
+        return provider.provider
         .request({
-          method: "wallet_addEthereumChain",
-          params: [
-            {
-              blockExplorerUrls: [chain.explorerUrl],
-              chainId: hexValue(chain.chainId),
-              chainName: chain.name,
-              nativeCurrency: chain.nativeCurrency,
-              rpcUrls: [chain.provider.connection.url],
-            },
-          ],
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: hexValue(chain.chainId) }]
+        }).catch(()=>{
+          if (!provider) {
+            return Promise.reject(new Error("No provider is available"));
+          }
+          if (!provider.provider.request) {
+            return Promise.reject(
+              new Error("No request method is available from the provider to add an Ethereum chain")
+            );
+          }
+          provider.provider.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                blockExplorerUrls: [chain.explorerUrl],
+                chainId: hexValue(chain.chainId),
+                chainName: chain.name,
+                nativeCurrency: chain.nativeCurrency,
+                rpcUrls: [chain.provider.connection.url],
+              },
+            ],
+          })
         })
+
+      }
+      return switchChain() 
         .then(async () => {
           if (isAsyncTaskDataAvailable(connectedProvider)) {
             const { chainId } = await connectedProvider.data.provider.getNetwork();

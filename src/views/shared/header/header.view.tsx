@@ -28,7 +28,7 @@ export const Header: FC<HeaderProps> = ({ backTo, Subtitle, title,noShow }) => {
             <ArrowLeftIcon className={classes.icon} />
           </Link>
         </div>
-        <div className={`${classes.block} ${classes.centerBlock}`}>
+        <div style={{minWidth:300}} className={`${classes.block} ${classes.centerBlock}`}>
           <Typography type="h1">{title}</Typography>
         </div>
         <div className={`${classes.block} ${classes.rightBlock}`}>
