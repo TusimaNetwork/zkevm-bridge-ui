@@ -154,7 +154,7 @@ const getReportFormEnv = ({
 };
 
 const envToDomain = ({
-  VITE_BRIDGE_API_URL,
+  // VITE_BRIDGE_API_URL,
   VITE_ENABLE_DEPOSIT_WARNING,
   VITE_ENABLE_FIAT_EXCHANGE_RATES,
   VITE_ENABLE_OUTDATED_NETWORK_MODAL,
@@ -182,13 +182,15 @@ const envToDomain = ({
   VITE_REPORT_FORM_URL_ENTRY,
 }: Env): Promise<domain.Env> => {
   const polygonZkEVMNetworkId = z.coerce.number().positive().parse(VITE_POLYGON_ZK_EVM_NETWORK_ID);
+
   const isOutdatedNetworkModalEnabled = stringBooleanParser.parse(
     VITE_ENABLE_OUTDATED_NETWORK_MODAL
   );
   const forceUpdateGlobalExitRootForL1 = stringBooleanParser.parse(
     VITE_ETHEREUM_FORCE_UPDATE_GLOBAL_EXIT_ROOT
   );
-  const bridgeApiUrl = VITE_BRIDGE_API_URL;
+  
+  const bridgeApiUrl = '/api/';
   const outdatedNetworkModal: domain.Env["outdatedNetworkModal"] = isOutdatedNetworkModalEnabled
     ? {
         isEnabled: true,
@@ -200,8 +202,8 @@ const envToDomain = ({
     : {
         isEnabled: false,
       };
+      
   const isDepositWarningEnabled = stringBooleanParser.parse(VITE_ENABLE_DEPOSIT_WARNING);
-
   return getChains({
     ethereum: {
       bridgeContractAddress: VITE_ETHEREUM_BRIDGE_CONTRACT_ADDRESS,
@@ -217,6 +219,7 @@ const envToDomain = ({
       rpcUrl: VITE_POLYGON_ZK_EVM_RPC_URL,
     },
   }).then((chains) => {
+    // console.log({chains})
     const ethereumChain = chains.find((chain) => chain.key === "ethereum");
 
     if (!ethereumChain) {
@@ -248,8 +251,7 @@ const envToDomain = ({
 };
 
 const envParser = StrictSchema<Env, domain.Env>()(
-  z
-    .object({
+  z.object({
       VITE_BRIDGE_API_URL: z.string().url(),
       VITE_ENABLE_DEPOSIT_WARNING: z.string(),
       VITE_ENABLE_FIAT_EXCHANGE_RATES: z.string(),
@@ -276,8 +278,7 @@ const envParser = StrictSchema<Env, domain.Env>()(
       VITE_REPORT_FORM_PLATFORM_ENTRY: z.string().optional(),
       VITE_REPORT_FORM_URL: z.string().optional(),
       VITE_REPORT_FORM_URL_ENTRY: z.string().optional(),
-    })
-    .transform(envToDomain)
+  }).transform(envToDomain)
 );
 
 const loadEnv = (): Promise<domain.Env> => {

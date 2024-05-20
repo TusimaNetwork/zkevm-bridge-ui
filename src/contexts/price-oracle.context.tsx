@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 
-import { getFiatExchangeRates } from "src/adapters/fiat-exchange-rates-api";
+// import { getFiatExchangeRates } from "src/adapters/fiat-exchange-rates-api";
 import { getCurrency } from "src/adapters/storage";
 import {
   FIAT_DISPLAY_PRECISION,
@@ -156,12 +156,13 @@ const PriceOracleProvider: FC<PropsWithChildren> = (props) => {
 
   useEffect(() => {
     if (env && env.fiatExchangeRates.areEnabled) {
-      getFiatExchangeRates({
-        apiKey: env.fiatExchangeRates.apiKey,
-        apiUrl: env.fiatExchangeRates.apiUrl,
-      })
-        .then(setFiatExchangeRates)
-        .catch(notifyError);
+      setFiatExchangeRates({})
+      // getFiatExchangeRates({
+      //   apiKey: env.fiatExchangeRates.apiKey,
+      //   apiUrl: env.fiatExchangeRates.apiUrl,
+      // })
+      //   .then(setFiatExchangeRates)
+      //   .catch(notifyError);
     }
   }, [env, notifyError]);
 

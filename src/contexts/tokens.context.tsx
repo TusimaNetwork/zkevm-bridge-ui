@@ -94,6 +94,29 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
   const [tokens, setTokens] = useState<Token[]>();
   const fetchedTokens = useRef<Token[]>([]);
 
+  // const TETHToken = useSWR([env],()=>{
+  //   if (env) {
+  //     const polygonzkevm = env.chains[1]
+  //     if (polygonzkevm) {
+  //       console.log({polygonzkevm})
+  //       // console.log({polygonzkevm},polygonzkevm.bridgeContractAddress, polygonzkevm.provider)
+  //       // const contract = Bridge__factory.connect(
+  //       //   polygonzkevm.bridgeContractAddress,
+  //       //   polygonzkevm.provider
+  //       // )
+  //       // console.log({contract})
+  //       // contract.getTokenWrappedAddress("0", TSMAddressZero).then((address) => initTokens({
+  //       //       address,
+  //       //       chainId: EthereumChainId.EAGLE,
+  //       //       decimals: 18,
+  //       //       logoURI: ETH_TOKEN_LOGO_URI,
+  //       //       name: "TETH",
+  //       //       symbol: "TETH",
+  //       //     })
+  //       //   ).catch(console.log)
+  //     }
+  //   }
+  // }) 
   /**
    * Provided a token, its native chain and any other chain, computes the address of the wrapped token on the other chain
    */

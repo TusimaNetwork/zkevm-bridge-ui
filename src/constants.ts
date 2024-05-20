@@ -76,7 +76,7 @@ export const TOKEN_BLACKLIST = [
   "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
   "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
 ];
-
+export const TSMAddressZero = "0x0000000000000000000000000000000000000001";
 export const getChains = ({
   ethereum,
   polygonZkEVM,
@@ -101,45 +101,47 @@ export const getChains = ({
     ethereum.poeContractAddress,
     ethereumProvider
   );
-
+  // poeContract.networkName().then(console.log).catch(console.error)
   return Promise.all([
     ethereumProvider.getNetwork().catch(() => Promise.reject(ProviderError.Ethereum)),
     polygonZkEVMProvider.getNetwork().catch(() => Promise.reject(ProviderError.PolygonZkEVM)),
     poeContract.networkName().catch(() => Promise.reject(ProviderError.Ethereum)),
-  ]).then(([ethereumNetwork, polygonZkEVMNetwork, polygonZkEVMNetworkName]) => [
-    {
-      bridgeContractAddress: ethereum.bridgeContractAddress,
-      chainId: ethereumNetwork.chainId,
-      explorerUrl: ethereum.explorerUrl,
-      Icon: EthChainIcon,
-      key: "ethereum",
-      name: getEthereumNetworkName(ethereumNetwork.chainId),
-      nativeCurrency: {
-        decimals: 18,
-        name: "Ether",
-        symbol: "ETH",
+  ]).then(([ethereumNetwork, polygonZkEVMNetwork, polygonZkEVMNetworkName]) => {
+    return [
+      {
+        bridgeContractAddress: ethereum.bridgeContractAddress,
+        chainId: ethereumNetwork.chainId,
+        explorerUrl: ethereum.explorerUrl,
+        Icon: EthChainIcon,
+        key: "ethereum",
+        name: getEthereumNetworkName(ethereumNetwork.chainId),
+        nativeCurrency: {
+          decimals: 18,
+          name: "Ether",
+          symbol: "ETH",
+        },
+        networkId: 0,
+        poeContractAddress: ethereum.poeContractAddress,
+        provider: ethereumProvider,
+        rollupManagerAddress: ethereum.rollupManagerAddress,
       },
-      networkId: 0,
-      poeContractAddress: ethereum.poeContractAddress,
-      provider: ethereumProvider,
-      rollupManagerAddress: ethereum.rollupManagerAddress,
-    },
-    {
-      bridgeContractAddress: polygonZkEVM.bridgeContractAddress,
-      chainId: polygonZkEVMNetwork.chainId,
-      explorerUrl: polygonZkEVM.explorerUrl,
-      Icon: PolygonZkEVMChainIcon,
-      key: "polygon-zkevm",
-      name: polygonZkEVMNetworkName,
-      nativeCurrency: {
-        decimals: 18,
-        name: "Ether",
-        symbol: "ETH",
+      {
+        bridgeContractAddress: polygonZkEVM.bridgeContractAddress,
+        chainId: polygonZkEVMNetwork.chainId,
+        explorerUrl: polygonZkEVM.explorerUrl,
+        Icon: PolygonZkEVMChainIcon,
+        key: "polygon-zkevm",
+        name: polygonZkEVMNetworkName,
+        nativeCurrency: {
+          decimals: 18,
+          name: "Ether",
+          symbol: "ETH",
+        },
+        networkId: polygonZkEVM.networkId,
+        provider: polygonZkEVMProvider,
       },
-      networkId: polygonZkEVM.networkId,
-      provider: polygonZkEVMProvider,
-    },
-  ]);
+    ]
+  });
 };
 
 export const getEtherToken = (chain: Chain): Token => {

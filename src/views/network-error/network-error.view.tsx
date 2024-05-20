@@ -23,6 +23,7 @@ export const NetworkError: FC = () => {
 
   const parsedProviderError = providerError.safeParse(state);
 
+  
   return parsedProviderError.success ? (
     <div className={classes.wrapper}>
       <PolygonZkEVMLogo className={classes.logo} />
