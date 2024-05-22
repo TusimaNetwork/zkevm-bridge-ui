@@ -11,7 +11,7 @@ vite.config.ts.timestamp*
 node_modules
 
 # Environment
-.env
+# .env
 
 # Artifacts
 dist*
