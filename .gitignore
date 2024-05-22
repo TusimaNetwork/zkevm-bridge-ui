@@ -14,7 +14,7 @@ node_modules
 .env
 
 # Artifacts
-dist
+dist*
 
 # System files
 **/.DS_Store
