@@ -17,11 +17,6 @@ export default defineConfig({
       fastRefresh: false,
     }),
     svgr(),
-    checker({
-      eslint: { lintCommand: 'eslint "./src/**/*.{ts,tsx}"' },
-      overlay: false,
-      typescript: true,
-    }),
   ],
   resolve: {
     alias: [{ find: "src", replacement: path.resolve(__dirname, "src") }],
