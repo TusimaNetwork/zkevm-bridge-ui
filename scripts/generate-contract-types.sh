@@ -1,6 +1,8 @@
 #/bin/bash
 
 BASE_PATH="src/types/contracts"
+# cp .env
+cp .env.example .env
 
 # Clean up
 rm -rf $BASE_PATH
