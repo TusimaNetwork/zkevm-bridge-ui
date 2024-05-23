@@ -18,6 +18,7 @@ interface DepositInput {
   orig_net: number;
   ready_for_claim: boolean;
   tx_hash: string;
+  metadata:string;
 }
 
 interface DepositOutput {
@@ -33,6 +34,7 @@ interface DepositOutput {
   orig_net: number;
   ready_for_claim: boolean;
   tx_hash: string;
+  metadata:string;
 }
 
 interface MerkleProof {
@@ -61,6 +63,7 @@ const depositParser = StrictSchema<DepositInput, DepositOutput>()(
     orig_net: z.number(),
     ready_for_claim: z.boolean(),
     tx_hash: z.string(),
+    metadata:z.string()
   })
 );
 
@@ -199,6 +202,7 @@ export const getDeposit = ({
     .then((res) => {
       const parsedData = getDepositResponseParser.safeParse(res.data);
 
+      console.log({parsedData});
       if (parsedData.success) {
         return parsedData.data.deposit;
       } else {

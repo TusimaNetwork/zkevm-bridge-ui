@@ -152,7 +152,7 @@ interface BridgeCommonFields {
   destinationAddress: string;
   fiatAmount: BigNumber | undefined;
   from: Chain;
-  globalIndex: string;
+  globalIndex: any;
   id: string;
   to: Chain;
   token: Token;
@@ -172,6 +172,7 @@ export type InitiatedBridge = BridgeCommonFields & {
 };
 
 export type OnHoldBridge = BridgeCommonFields & {
+  metadata:string,
   status: "on-hold";
 };
 
@@ -205,6 +206,7 @@ export interface Deposit {
   to: Chain;
   token: Token;
   tokenOriginNetwork: number;
+  metadata:string;
 }
 
 export interface MerkleProof {

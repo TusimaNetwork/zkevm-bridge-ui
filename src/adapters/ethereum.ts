@@ -319,6 +319,7 @@ const getErc20TokenEncodedMetadata = async ({
   chain,
   token,
 }: GetErc20TokenEncodedMetadataParams): Promise<string> => {
+  // console.log({chain,token})
   const { decimals, name, symbol } = await getErc20TokenMetadata({
     chain,
     token,

@@ -179,7 +179,7 @@ export const BridgeConfirmation: FC = () => {
   useEffect(() => {
     if (connectedProvider.status === "successful" && formData) {
       const { amount, from, token } = formData;
-
+      console.log('isTokenEther(token)',isTokenEther(token))
       if (isTokenEther(token)) {
         setTokenSpendPermission({ type: "none" });
       } else {
@@ -192,6 +192,7 @@ export const BridgeConfirmation: FC = () => {
           token: token,
         })
           .then((isAllowed) => {
+            console.log('isAllowed',isAllowed)
             callIfMounted(() => {
               if (isAllowed) {
                 setTokenSpendPermission({ type: "none" });

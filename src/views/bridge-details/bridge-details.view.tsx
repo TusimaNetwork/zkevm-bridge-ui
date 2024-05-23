@@ -80,6 +80,7 @@ export const BridgeDetails: FC = () => {
           navigate(routes.activity.path);
         })
         .catch((error) => {
+          console.log(error)
           callIfMounted(() => {
             setIsFinaliseButtonDisabled(false);
             if (isMetaMaskUserRejectedRequestError(error) === false) {

@@ -1,4 +1,4 @@
-import { BigNumber, CallOverrides, ContractTransaction } from "ethers";
+import { BigNumber, CallOverrides, ContractTransaction, ethers } from "ethers";
 import { FC, PropsWithChildren, createContext, useCallback, useContext, useMemo } from "react";
 
 import { getDeposit, getDeposits, getMerkleProof } from "src/adapters/bridge-api";
@@ -152,6 +152,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         networkId,
       });
 
+
       const {
         amount,
         block_num,
@@ -165,6 +166,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         orig_net,
         ready_for_claim,
         tx_hash,
+        metadata,
       } = apiDeposit;
 
       const from = env.chains.find((chain) => chain.networkId === network_id);
@@ -253,6 +255,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             to,
             token,
             tokenOriginNetwork: orig_net,
+            metadata,
           };
         }
         case "claimed": {
@@ -315,16 +318,17 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             orig_net,
             ready_for_claim,
             tx_hash,
+            metadata,
           } = apiDeposit;
 
           const from = env.chains.find((chain) => chain.networkId === network_id);
           if (from === undefined) {
-            return acc.then((accDeposits) => {return accDeposits})
+            return acc.then((accDeposits) => { return accDeposits })
           }
 
           const to = env.chains.find((chain) => chain.networkId === dest_net);
           if (to === undefined) {
-            return acc.then((accDeposits) => {return accDeposits})
+            return acc.then((accDeposits) => { return accDeposits })
           }
 
           return acc.then((accDeposits) =>
@@ -352,6 +356,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
                 globalIndex: global_index,
                 to,
                 token,
+                metadata,
                 tokenOriginNetwork: orig_net,
               },
             ])
@@ -399,6 +404,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
           to,
           token,
           tokenOriginNetwork,
+          metadata,
         } = partialDeposit;
 
         const tokenPrice = tokenPrices[token.address];
@@ -443,6 +449,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
           }
           case "ready": {
             return {
+              metadata,
               amount,
               blockNumber,
               depositCount,
@@ -771,7 +778,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
           ? gas.data
           : (await estimateBridgeGas({ destinationAddress, from, to, token, tokenSpendPermission }))
             .data),
-      };
+      }
 
       const executeBridge = async () => {
         const permitData =
@@ -790,6 +797,16 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         const forceUpdateGlobalExitRoot =
           from.key === "polygon-zkevm" ? true : env.forceUpdateGlobalExitRootForL1;
 
+        console.log({
+          tokenSpendPermission,
+          networkId: to.networkId,
+          destinationAddress,
+          amount,
+          token: selectTokenAddress(token, from),
+          forceUpdateGlobalExitRoot,
+          permitData,
+          overrides
+        })
         return contract
           .bridgeAsset(
             to.networkId,
@@ -841,6 +858,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         to,
         token,
         tokenOriginNetwork,
+        metadata: tokenMetadata,
       },
     }: ClaimParams): Promise<ContractTransaction> => {
       if (!isAsyncTaskDataAvailable(connectedProvider)) {
@@ -849,6 +867,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
       if (env === undefined) {
         throw new Error("Env is not available");
       }
+
 
       const { account, chainId, provider } = connectedProvider.data;
       const contract = Bridge__factory.connect(to.bridgeContractAddress, provider.getSigner());
@@ -862,20 +881,32 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
           depositCount,
           networkId,
         }
-      );
+      )
 
+      // token.address = ethers.constants.AddressZero
+      // console.log({token})
       const isTokenNativeOfToChain = token.chainId === to.chainId;
       const isMetadataRequired = !isTokenEther(token) && !isTokenNativeOfToChain;
-      const metadata = isMetadataRequired
-        ? await getErc20TokenEncodedMetadata({ chain: from, token })
-        : "0x";
-
-      const executeClaim = () =>
-        contract
-          .claimAsset(
+      const metadata = isMetadataRequired ? await getErc20TokenEncodedMetadata({ chain: from, token }) : tokenMetadata;
+      console.log({
+        isTokenNativeOfToChain,
+        merkleProof,
+        rollupMerkleProof,
+        globalIndex:globalIndex || depositCount,
+        mainExitRoot,
+        rollupExitRoot,
+        tokenOriginNetwork,
+        token:token.address,
+        networkId:to.networkId,
+        destinationAddress,
+        amount,
+        metadata,
+        isL2Claim:isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
+      })
+      const executeClaim = () =>contract.claimAsset(
             merkleProof,
             rollupMerkleProof,
-            globalIndex,
+            globalIndex || depositCount,
             mainExitRoot,
             rollupExitRoot,
             tokenOriginNetwork,
@@ -885,8 +916,7 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             amount,
             metadata,
             isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
-          )
-          .then((txData) => {
+        ).then((txData) => {
             storage.addAccountPendingTx(account, env, {
               amount,
               claimTxHash: txData.hash,
@@ -897,10 +927,9 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
               to,
               token,
               type: "claim",
-            });
-
+            })
             return txData;
-          });
+        })
 
       if (to.chainId === chainId) {
         return executeClaim();
