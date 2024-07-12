@@ -23,9 +23,7 @@ import {
   TSMNAVToken02,
   TSMNAVToken03,
   TSMToken,
-  getEtherToken,
-  getExchangeAddress
-} from "src/constants"
+  WETHToken} from "src/constants"
 
 interface ComputeWrappedTokenAddressParams {
   nativeChain: Chain
@@ -77,7 +75,6 @@ interface TokensContext {
   getToken: (params: GetTokenParams) => Promise<{ token: Token; origtoken: Token }>
   getTokenFromAddress: (params: GetTokenFromAddressParams) => Promise<Token>
   tokens?: Token[]
-  TETHToken?: Token
 }
 
 const tokensContextNotReadyMsg = "The tokens context is not yet ready"
@@ -96,7 +93,6 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
   const { changeNetwork, connectedProvider } = useProvidersContext()
   const [tokens, setTokens] = useState<Token[]>()
   const fetchedTokens = useRef<Token[]>([])
-  const [TETHToken, setTETHToken] = useState<Token>()
 
   /**
    * Provided a token, its native chain and any other chain, computes the address of the wrapped token on the other chain
@@ -137,7 +133,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
     }> => {
       const bridgeContract = Bridge__factory.connect(chain.bridgeContractAddress, chain.provider)
       if([
-        TETHToken?.address.toLocaleLowerCase(),
+        WETHToken?.address.toLocaleLowerCase(),
         TSMToken?.address.toLocaleLowerCase()
       ].includes(address.toLocaleLowerCase())){
         return new Promise((resolve, _reject)=>{
@@ -158,7 +154,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           reject(e)
         })
       })
-    }, [TETHToken] )
+    }, [] )
 
   /**
    * Provided a token, if its property wrappedToken is missing, adds it and returns the new token
@@ -337,9 +333,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       }
     }, [connectedProvider, changeNetwork])
 
-  const initTokens = (TETHToken: Token) => {
+  const initTokens = () => {
     if (env) {
-      setTETHToken(TETHToken)
       const ethereumChains = env.chains.map((chain) => chain.chainId)
       getEthereumErc20Tokens()
         .then((ethereumErc20Tokens) =>
@@ -376,7 +371,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
                 TSMNAVToken02,
                 ETHNavToken, 
                 TSMToken,
-                TETHToken,
+                WETHToken,
                 ...chainTokens
               ]
               cleanupCustomTokens(tokens)
@@ -393,20 +388,16 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       const polygonzkevm = env.chains.find((itm) => itm.key === ChainKey.polygonzkevm)
       if (polygonzkevm) {
         // console.log({polygonzkevm},polygonzkevm.bridgeContractAddress, polygonzkevm.provider)
-        const contract = Bridge__factory.connect(
-          polygonzkevm.bridgeContractAddress,
-          polygonzkevm.provider
-        )
-        // console.log({contract})
-        contract.getTokenWrappedAddress("0", TSMAddressZero).then((address) => initTokens({
-              address,
-              chainId: EthereumChainId.EAGLE,
-              decimals: 18,
-              logoURI: ETH_TOKEN_LOGO_URI,
-              name: "TETH",
-              symbol: "TETH",
-            })
-          ).catch(console.log)
+        // const contract = Bridge__factory.connect(
+        //   polygonzkevm.bridgeContractAddress,
+        //   polygonzkevm.provider
+        // )
+          // console.log({contract})
+          // contract.getTokenWrappedAddress("0", TSMAddressZero).then((address) =>{
+          // console.log({address})
+          initTokens()
+        // } 
+          // ).catch(console.log)
       }
     }
   }
@@ -418,7 +409,6 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
 
   const value = useMemo(() => {
     return {
-      TETHToken,
       addWrappedToken,
       approve,
       getErc20TokenBalance,

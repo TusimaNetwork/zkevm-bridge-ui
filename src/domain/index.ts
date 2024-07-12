@@ -1,6 +1,7 @@
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { BigNumber } from "ethers";
 import { ComponentType } from "react";
+import { DepositOutput } from "src/adapters/bridge-api";
 import { PublicClient } from "viem";
 
 export enum ChainKey {
@@ -363,3 +364,9 @@ export type ModalState<D> = OpenModal<D> | ClosedModal;
 // Utility
 
 export type Exact<T, U> = [T, U] extends [U, T] ? true : false;
+
+
+export interface DepositResult extends DepositOutput {
+  from:EthereumChain | ZkEVMChain
+  to:EthereumChain | ZkEVMChain
+}

@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { addCustomToken, getChainCustomTokens, removeCustomToken } from "src/adapters/storage";
 import { ReactComponent as ArrowDown } from "src/assets/icons/arrow-down.svg";
 import { ReactComponent as CaretDown } from "src/assets/icons/caret-down.svg";
-import {  getEtherToken, getToToken,  } from "src/constants";
+import {  WETHToken, getEtherToken, getToToken,  } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
@@ -46,7 +46,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
   const classes = useBridgeFormStyles()
   const callIfMounted = useCallIfMounted()
   const env = useEnvContext()
-  const { getErc20TokenBalance, tokens: defaultTokens,TETHToken } = useTokensContext()
+  const { getErc20TokenBalance, tokens: defaultTokens } = useTokensContext()
   const { connectedProvider, connectWallet } = useProvidersContext()
   const [balanceFrom, setBalanceFrom] = useState<AsyncTask<BigNumber, string>>({
     status: "pending",
@@ -125,10 +125,10 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
 
   const toToken=useMemo(()=>{
     // console.log({fromToken})
-    if(selectedChains && fromToken && TETHToken){
-      return getToToken(fromToken,TETHToken)
+    if(selectedChains && fromToken && WETHToken){
+      return getToToken(fromToken,WETHToken)
     }
-  },[token,selectedChains,TETHToken])
+  },[token,selectedChains,WETHToken])
 
   const onCloseTokenSelector = () => {
     setIsTokenListOpen(false)

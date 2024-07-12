@@ -20,7 +20,7 @@ interface DepositInput {
   tx_hash: string;
 }
 
-interface DepositOutput {
+export interface DepositOutput {
   amount: string;
   block_num: number;
   claim_tx_hash: any;
@@ -162,10 +162,10 @@ export const getDeposits = ({
       // const parsedData = getDepositsResponseParser.safeParse(res.data);
       const parsedData = res
       // if (parsedData.success) {
-        return {
-          deposits: parsedData.data.deposits !== undefined ? parsedData.data.deposits : [],
-          total: parsedData.data.total_cnt !== undefined ? parsedData.data.total_cnt : 0,
-        };
+      return {
+        deposits: parsedData.data.deposits !== undefined ? parsedData.data.deposits : [],
+        total: parsedData.data.total_cnt !== undefined ? parsedData.data.total_cnt : 0,
+      };
       // } else {
       //   throw parsedData.error;
       // }

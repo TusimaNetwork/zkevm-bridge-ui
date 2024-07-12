@@ -3,7 +3,7 @@ import { FC, useMemo } from "react";
 
 import { ReactComponent as CopyIcon } from "src/assets/icons/copy.svg";
 import { ReactComponent as NewWindowIcon } from "src/assets/icons/new-window.svg";
-import { TSMToken, getToToken } from "src/constants";
+import { TSMToken, WETHToken, getToToken } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
 import { useTokensContext } from "src/contexts/tokens.context";
 import { ChainKey, EthereumChainId, Token } from "src/domain";
@@ -21,7 +21,6 @@ interface TokenInfoTableProps {
 export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) => {
   const classes = useTokenInfoTableStyles()
   const env = useEnvContext()
-  const { TETHToken } = useTokensContext()
   
   if (!env) {
     return null;
@@ -65,14 +64,14 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
     return token.chainId === EthereumChainId.EAGLE && isTokenEther(token)
       ? TSMToken.address || ''
       : ethersConstants.AddressZero
-  }, [token, TETHToken])
+  }, [token, WETHToken])
 
   const l2TokenAddress = useMemo(() => {
 
     return token.chainId === EthereumChainId.SEPOLIA && isTokenEther(token)
-      ? TETHToken?.address || ''
+      ? WETHToken?.address || ''
       : ethersConstants.AddressZero
-  }, [token, TETHToken])
+  }, [token, WETHToken])
 
   if (isTokenEther(token)) {
     const ethereumRow = (
@@ -155,19 +154,19 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
   } else {
 
     const nativeTokenAddress = useMemo(()=>{
-      if(token.address === TETHToken?.address){
+      if(token.address === WETHToken?.address){
         return ethersConstants.AddressZero
       }
       if(token.chainId === EthereumChainId.EAGLE){
         return token.wrappedToken?.address
       }
       return token.address
-    },[token,TETHToken])
+    },[token,WETHToken])
 
     
     const wrappedTokenAddress = useMemo(()=>{
-      if(token.address === TETHToken?.address){
-        return TETHToken.address 
+      if(token.address === WETHToken?.address){
+        return WETHToken.address 
       }
       if(token.address === TSMToken?.address){
         return ethersConstants.AddressZero
@@ -176,7 +175,7 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
         return token.address
       }
       return token.wrappedToken?.address
-    },[token,TETHToken])
+    },[token,WETHToken])
     
     const nativeAddressRow = ethereum ? (
       <div className={classes.row}>
@@ -186,12 +185,12 @@ export const TokenInfoTable: FC<TokenInfoTableProps> = ({ className, token }) =>
         </Typography>
         <div className={classes.rowRightBlock}>
           <Typography className={classes.tokenAddress} type="body1">
-            {getShortenedEthereumAddress(nativeTokenAddress)}
+            {getShortenedEthereumAddress(nativeTokenAddress || '')}
           </Typography>
-          {!isTokenEther(nativeTokenAddress) && <><button
+          {!isTokenEther(nativeTokenAddress || '') && <><button
             className={classes.button}
             onClick={() => {
-              copyToClipboard(nativeTokenAddress);
+              copyToClipboard(nativeTokenAddress || '');
             }}
           >
             <CopyIcon className={classes.copyIcon} />

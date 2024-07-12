@@ -31,12 +31,12 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'https://bridge.eagle.tusima.network',
+        target: 'https://bridge.galacticdev000.tusima.network',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
       '/explore_api': {
-        target: 'https://explore.eagle.tusima.network',
+        target: 'https://explore.galacticdev000.tusima.network',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/explore_api/, '/api'),
       }

@@ -15,7 +15,6 @@ import {
 } from "src/domain";
 import { ProofOfEfficiency__factory } from "src/types/contracts/proof-of-efficiency";
 import { getEthereumNetworkName } from "src/utils/labels";
-import { isTokenEther } from "./utils/tokens";
 
 export const DAI_PERMIT_TYPEHASH =
   "0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb";
@@ -108,7 +107,7 @@ export const getChains = ({
   const poeContract = ProofOfEfficiency__factory.connect(
     ethereum.poeContractAddress,
     ethereumProvider
-  )
+  );
 
   return Promise.all([
     ethereumProvider.getNetwork().catch(() => Promise.reject(ProviderError.Ethereum)),
@@ -149,18 +148,26 @@ export const getChains = ({
         networkId: polygonZkEVM.networkId,
         provider: polygonZkEVMProvider,
       },
-    ]
-  })
-}
+    ];
+  });
+};
 
+export const WETHToken: Token = {
+  address: "0xb283D02CcD80801f139058aDD492cA12984F1242",
+  chainId: EthereumChainId.EAGLE,
+  decimals: 18,
+  logoURI: ETH_TOKEN_LOGO_URI,
+  name: "WETH",
+  symbol: "WETH",
+};
 export const TSMToken: Token = {
-  address: "0x539a827822b2a532092b8A08919DCAC4B00bead1",
+  address: "0xada988a28fF26F0b02a338BF4A43a9A7776C163f",
   chainId: EthereumChainId.SEPOLIA,
   decimals: 18,
   logoURI: TSM_TOKEN_LOGO_URI,
   name: "TSM",
   symbol: "TSM",
-}
+};
 export const ETHNavToken: Token = {
   address: ethers.constants.AddressZero,
   chainId: EthereumChainId.SEPOLIA,
@@ -168,7 +175,7 @@ export const ETHNavToken: Token = {
   logoURI: ETH_TOKEN_LOGO_URI,
   name: "Ether",
   symbol: "ETH",
-}
+};
 
 export const TSMAddressZero = "0x0000000000000000000000000000000000000001";
 
@@ -179,7 +186,7 @@ export const TSMNAVToken00: Token = {
   logoURI: TSM_TOKEN_LOGO_URI,
   name: "TSM",
   symbol: "TSM",
-}
+};
 export const TSMNAVToken01: Token = {
   address: TSMAddressZero,
   is01: true,
@@ -188,7 +195,7 @@ export const TSMNAVToken01: Token = {
   logoURI: ETH_TOKEN_LOGO_URI,
   name: "ETH",
   symbol: "ETH",
-}
+};
 export const TSMNAVToken02: Token = {
   address: TSMAddressZero,
   is01: true,
@@ -197,7 +204,7 @@ export const TSMNAVToken02: Token = {
   logoURI: ETH_TOKEN_LOGO_URI,
   name: "ETH",
   symbol: "ETH",
-}
+};
 export const TSMNAVToken03: Token = {
   address: ethers.constants.AddressZero,
   is01: true,
@@ -206,61 +213,61 @@ export const TSMNAVToken03: Token = {
   logoURI: TSM_TOKEN_LOGO_URI,
   name: "TSM",
   symbol: "TSM",
-}
+};
 export const getExchangeAddress = (address: string) => {
   // if (address === TSMAddressZero) {
   //   return ethers.constants.AddressZero
   // }
-  return address
-}
+  return address;
+};
 //验证是否是eagle链
 export const isEagleChain = (chain: Chain | Token) => {
-  return chain.chainId === EthereumChainId.EAGLE
-}
+  return chain.chainId === EthereumChainId.EAGLE;
+};
 //验证是否是sepolia链
 export const isSepoliaChain = (chain: Chain | Token) => {
-  return chain.chainId === EthereumChainId.SEPOLIA
-}
+  return chain.chainId === EthereumChainId.SEPOLIA;
+};
 //验证是否是eagle链的tsm token
 export const isEagleEthToken = (token: Token) => {
-  return isEagleChain(token) && token.address === ethers.constants.AddressZero
-}
+  return isEagleChain(token) && token.address === ethers.constants.AddressZero;
+};
 //验证是否是eagle链的eth token
 export const isSpoliaEthToken = (token: Token) => {
-  return isSepoliaChain(token) && token.address === ethers.constants.AddressZero
-}
+  return isSepoliaChain(token) && token.address === ethers.constants.AddressZero;
+};
 //验证是否是sepolia的tsm token
-export const isSepoliaTSMToken = (token: Token,) => {
-  return isSepoliaChain(token) && token.address === TSMToken.address
-}
+export const isSepoliaTSMToken = (token: Token) => {
+  return isSepoliaChain(token) && token.address === TSMToken.address;
+};
 //验证是否是sepolia的tsm token
-export const isEagleTETHToken = (token: Token,TETHToken:Token) => {
-  return isEagleChain(token) && token.address === TETHToken.address
-}
-export const getToToken = (token: Token, TETHToken: any): Token => {
-  if ( isEagleEthToken(token) ) {
-    return TSMToken
-  } else if ( isSpoliaEthToken(token) ) {
-    return TETHToken
-  }else if(isSepoliaTSMToken(token)){
-    return TSMNAVToken00 
-  }else if(isEagleTETHToken(token,TETHToken)){
-    return ETHNavToken 
+export const isEagleWETHToken = (token: Token, WETHToken: Token) => {
+  return isEagleChain(token) && token.address === WETHToken.address;
+};
+export const getToToken = (token: Token, WETHToken: any): Token => {
+  if (isEagleEthToken(token)) {
+    return TSMToken;
+  } else if (isSpoliaEthToken(token)) {
+    return WETHToken;
+  } else if (isSepoliaTSMToken(token)) {
+    return TSMNAVToken00;
+  } else if (isEagleWETHToken(token, WETHToken)) {
+    return ETHNavToken;
   }
-  return token
-}
+  return token;
+};
 
-export const getEtherToken = (chain: Chain|Token): Token => {
-  if (isEagleChain(chain)) return TSMNAVToken00
-  return ETHNavToken
-}
+export const getEtherToken = (chain: Chain | Token): Token => {
+  if (isEagleChain(chain)) return TSMNAVToken00;
+  return ETHNavToken;
+};
 
 export const getUsdcToken = ({
   address,
-  chainId
+  chainId,
 }: {
-  address: string
-  chainId: number
+  address: string;
+  chainId: number;
 }): Token => ({
   address,
   chainId,

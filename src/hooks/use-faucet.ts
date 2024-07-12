@@ -55,7 +55,7 @@ export function useFaucet(
     if (connectedProvider.status === "successful") {
       const tokens = {
         TSM: {
-          address: "0x539a827822b2a532092b8A08919DCAC4B00bead1",
+          address: "0xada988a28fF26F0b02a338BF4A43a9A7776C163f",
           decimals: 18,
         },
         USDT: {
