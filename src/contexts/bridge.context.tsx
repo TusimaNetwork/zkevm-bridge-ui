@@ -879,33 +879,33 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
         // console.log({isMetadataRequired,isTokenNativeOfToChain,token,to,metadata})
         console.log({
           merkleProof,
-            // rollupMerkleProof,
-            depositCount,
-            mainExitRoot,
-            rollupExitRoot,
-            tokenOriginNetwork,
-            token: token.address,
-            to:to.networkId,
-            destinationAddress,
-            amount,
-            metadata,
-            isL2Claim:isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
+          rollupMerkleProof,
+          globalIndex:globalIndex || depositCount,
+          mainExitRoot,
+          rollupExitRoot,
+          tokenOriginNetwork,
+          address:token.address,
+          networkId:to.networkId,
+          destinationAddress,
+          amount,
+          metadata,
+          isL2Claim:isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
         })
 
       const executeClaim = () =>
         contract.claimAsset(
-            merkleProof,
-            // rollupMerkleProof,
-            depositCount,
-            mainExitRoot,
-            rollupExitRoot,
-            tokenOriginNetwork,
-            token.address,
-            to.networkId,
-            destinationAddress,
-            amount,
-            metadata,
-            isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
+          merkleProof,
+          rollupMerkleProof,
+          globalIndex || depositCount,
+          mainExitRoot,
+          rollupExitRoot,
+          tokenOriginNetwork,
+          token.address,
+          to.networkId,
+          destinationAddress,
+          amount,
+          metadata,
+          isL2Claim ? { gasLimit: 1500000, gasPrice: 0 } : {}
           ).then((txData) => {
             storage.addAccountPendingTx(account, env, {
               amount,
