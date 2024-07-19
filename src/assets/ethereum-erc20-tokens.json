@@ -17,19 +17,19 @@
   },
   {
     "name": "USDT",
-    "address": "0xaa3540dfDF1DD14Bf5E129E410a03754Af13dFdA",
-    "chainId": 1001,
+    "address": "0xbB5240Aab006e8e671B4BA8530C2bba476c4915e",
+    "chainId": 10101,
     "symbol": "USDT",
     "decimals": 18,
-    "logoURI": "/icons/tokens/0xaa3540dfDF1DD14Bf5E129E410a03754Af13dFdA/logo.png"
+    "logoURI": "/icons/tokens/0xbB5240Aab006e8e671B4BA8530C2bba476c4915e/logo.png"
   },
   {
     "name": "USDC",
-    "address": "0xCb749E09b471Ad7d53091970D99B8182a21A444D",
-    "chainId": 1001,
+    "address": "0x7D6b55e9bc1B54F6dc37DB280dD23025F4aAE17b",
+    "chainId": 10101,
     "symbol": "USDC",
     "decimals": 18,
-    "logoURI": "/icons/tokens/0xCb749E09b471Ad7d53091970D99B8182a21A444D/logo.png"
+    "logoURI": "/icons/tokens/0x7D6b55e9bc1B54F6dc37DB280dD23025F4aAE17b/logo.png"
   }, 
   {
     "name": "Dai Stablecoin",

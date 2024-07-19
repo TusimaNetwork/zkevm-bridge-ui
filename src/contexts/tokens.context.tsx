@@ -72,8 +72,6 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
 
   const {getNativeTokenInfo,addWrappedToken,tokens} = useTokens(env)
 
-
-
   const getTokenFromAddress = useCallback(
     async ({ address, chain }: GetTokenFromAddressParams): Promise<Token> => {
       if (!env) {
