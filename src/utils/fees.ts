@@ -37,6 +37,7 @@ export const calculateTransactionReceiptFee = (
       return undefined;
     }
 
+    // console.log('gasUsed:',gasUsed.toString(),effectiveGasPrice.toString(),cumulativeGasUsed?.toString());
     return gasUsed.mul(effectiveGasPrice);
   } else {
     const { gasUsed } = params.txReceipt;

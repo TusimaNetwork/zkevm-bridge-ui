@@ -1,12 +1,12 @@
 import { BigNumber } from "ethers";
 import { FC, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { getBatchNumberOfL2Block } from "src/adapters/ethereum";
 import { getCurrency } from "src/adapters/storage";
 import { ReactComponent as BridgeL1Icon } from "src/assets/icons/l1-bridge.svg";
 import { ReactComponent as BridgeL2Icon } from "src/assets/icons/l2-bridge.svg";
-import { AsyncTask, Bridge, Env, PendingBridge } from "src/domain";
+import { AsyncTask, Bridge, ChainKey, Env, PendingBridge } from "src/domain";
 import { routes } from "src/routes";
 import { formatFiatAmount, formatTokenAmount } from "src/utils/amounts";
 import { getBridgeStatus, getCurrencySymbol } from "src/utils/labels";
@@ -36,18 +36,17 @@ export const BridgeCard: FC<BridgeCardProps> = ({
   onClaim,
   showFiatAmount,
 }) => {
-  const { amount, fiatAmount, from, status, to, token } = bridge;
+  const { amount, fiatAmount, from, status, to, token,origtoken } = bridge;
   const classes = useBridgeCardStyles();
   const navigate = useNavigate();
   const [batchNumberOfL2Block, setBatchNumberOfL2Block] = useState<AsyncTask<BigNumber, string>>({
     status: "pending",
   });
 
-  const [blockNumber, fromKey] =
-    bridge.status !== "pending" ? [bridge.blockNumber, bridge.from.key] : [undefined, undefined];
+  const [blockNumber, fromKey] = bridge.status !== "pending" ? [bridge.blockNumber, bridge.from.key] : [undefined, undefined];
 
   useEffect(() => {
-    if (status === "initiated" && fromKey === "polygon-zkevm") {
+    if (status === "initiated" && fromKey === ChainKey.polygonzkevm) {
       setBatchNumberOfL2Block((currentBatchNumberOfL2Block) =>
         isAsyncTaskDataAvailable(currentBatchNumberOfL2Block)
           ? { data: currentBatchNumberOfL2Block.data, status: "reloading" }
@@ -77,12 +76,14 @@ export const BridgeCard: FC<BridgeCardProps> = ({
   };
 
   const onCardClick = (bridge: Exclude<Bridge, PendingBridge>) => {
-    navigate(`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`);
+    //给这个参数禁用了。下面使用了link标签跳转
+    // return
+    navigate(`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`)
   };
 
-  const preferredCurrencySymbol = getCurrencySymbol(getCurrency());
+  const preferredCurrencySymbol = getCurrencySymbol(getCurrency())
 
-  const tokenAmountString = `${formatTokenAmount(amount, token)} ${token.symbol}`;
+  const tokenAmountString = `${formatTokenAmount(amount, token)} ${origtoken.symbol}`
 
   const fiatAmountString = showFiatAmount
     ? `${preferredCurrencySymbol}${fiatAmount ? formatFiatAmount(fiatAmount) : "--"}`
@@ -106,16 +107,16 @@ export const BridgeCard: FC<BridgeCardProps> = ({
 
   const BridgeAmount = (
     <div className={classes.token}>
-      <Icon className={classes.tokenIcon} isRounded size={20} url={token.logoURI} />
+      <Icon className={classes.tokenIcon} isRounded size={20} url={origtoken.logoURI} />
       <Typography type="body1">{tokenAmountString}</Typography>
     </div>
   );
 
-  const BridgeIcon = to.key === "ethereum" ? <BridgeL1Icon /> : <BridgeL2Icon />;
+  const BridgeIcon = to.key === ChainKey.ethereum ? <BridgeL1Icon /> : <BridgeL2Icon />;
 
   const BridgeLabel = (
     <Typography className={classes.label} type="body1">
-      {to.key === "ethereum" ? "Bridge to L1" : "Bridge to L2"}
+      {to.key === ChainKey.ethereum ? "Bridge to L1" : "Bridge to L2"}
     </Typography>
   );
 
@@ -159,9 +160,10 @@ export const BridgeCard: FC<BridgeCardProps> = ({
       );
     }
     case "initiated": {
-      if (bridge.from.key === "ethereum") {
+      if (bridge.from.key === ChainKey.ethereum) {
         return (
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+            {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
             <div className={classes.top}>
               <div className={classes.infoContainer}>
                 <div className={classes.circle}>{BridgeIcon}</div>
@@ -178,11 +180,13 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 {!fiatAmountString && <div className={classes.amount}>{BridgeAmount}</div>}
               </div>
             </div>
+            {/* </Link> */}
           </Card>
         );
       } else {
         return (
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+            {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
             <div className={classes.top}>
               <div className={classes.row}>
                 <p className={classes.steps}>STEP 1/2</p>
@@ -205,17 +209,19 @@ export const BridgeCard: FC<BridgeCardProps> = ({
             <div className={classes.bottom}>
               <Typography type="body2">{remainingBatchesMsg}</Typography>
               <button className={classes.finaliseButton} disabled>
-                Finalise
+                Claim 
               </button>
             </div>
+            {/* </Link> */}
           </Card>
         );
       }
     }
     case "on-hold": {
-      if (bridge.from.key === "ethereum") {
+      if (bridge.from.key === ChainKey.ethereum) {
         return (
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+            {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
             <div className={classes.top}>
               <div className={classes.infoContainer}>
                 <div className={classes.circle}>{BridgeIcon}</div>
@@ -232,11 +238,13 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 {!fiatAmountString && <div className={classes.amount}>{BridgeAmount}</div>}
               </div>
             </div>
+            {/* </Link> */}
           </Card>
         );
       } else {
         return (
           <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+            {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
             <div className={classes.top}>
               <div className={classes.row}>
                 <p className={classes.steps}>STEP 2/2</p>
@@ -267,9 +275,10 @@ export const BridgeCard: FC<BridgeCardProps> = ({
                 disabled={isFinaliseDisabled}
                 onClick={onClaimButtonClick}
               >
-                Finalise
+                Claim
               </button>
             </div>
+            {/* </Link> */}
           </Card>
         );
       }
@@ -277,6 +286,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
     case "completed": {
       return (
         <Card className={classes.card} onClick={() => onCardClick(bridge)}>
+          {/* <Link to={`${routes.bridgeDetails.path.split(":")[0]}${bridge.id}`}> */}
           <div className={classes.top}>
             <div className={classes.infoContainer}>
               <div className={classes.circle}>{BridgeIcon}</div>
@@ -293,6 +303,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({
               {!fiatAmountString && <div className={classes.amount}>{BridgeAmount}</div>}
             </div>
           </div>
+          {/* </Link> */}
         </Card>
       );
     }

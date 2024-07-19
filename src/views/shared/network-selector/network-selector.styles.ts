@@ -3,6 +3,14 @@ import { createUseStyles } from "react-jss";
 import { Theme } from "src/styles/theme";
 
 export const useNetworkSelectorStyles = createUseStyles((theme: Theme) => ({
+  icons: {
+    height: 24,
+    width: 24,
+    [theme.breakpoints.upSm]: {
+      height: 24,
+      width: 24,
+    },
+  },
   networkButton: {
     "&:hover": {
       backgroundColor: theme.palette.grey.main,

@@ -1,314 +1,80 @@
-import { BigNumber } from "ethers";
-import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { FC, useMemo, useRef, useState } from "react";
 
-import { isCancelRequestError } from "src/adapters/bridge-api";
-import { parseError } from "src/adapters/error";
-import { AUTO_REFRESH_RATE, PAGE_SIZE } from "src/constants";
-import { useBridgeContext } from "src/contexts/bridge.context";
 import { useEnvContext } from "src/contexts/env.context";
-import { useErrorContext } from "src/contexts/error.context";
-import { useProvidersContext } from "src/contexts/providers.context";
 import { useTokensContext } from "src/contexts/tokens.context";
-import { useUIContext } from "src/contexts/ui.context";
-import { AsyncTask, Bridge, PendingBridge } from "src/domain";
-import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
+import { DepositResult } from "src/domain";
+import { useBridges } from "src/hooks/use-bridges";
 import { useIntersection } from "src/hooks/use-intersection";
-import { RollupManager__factory } from "src/types/contracts/rollup-manager";
-import { isAsyncTaskDataAvailable, isMetaMaskUserRejectedRequestError } from "src/utils/types";
 import { useActivityStyles } from "src/views/activity/activity.styles";
-import { BridgeCard } from "src/views/activity/components/bridge-card/bridge-card.view";
 import { InfiniteScroll } from "src/views/activity/components/infinite-scroll/infinite-scroll.view";
 import { Card } from "src/views/shared/card/card.view";
 import { Header } from "src/views/shared/header/header.view";
 import { PageLoader } from "src/views/shared/page-loader/page-loader.view";
 import { Typography } from "src/views/shared/typography/typography.view";
+import { ReadBridgeCard } from "./components/bridge-card/read-bridge-card.view";
+import { useLastVerifiedBatch } from "src/hooks/use-last-verified-batch";
+import { usePendingBridges } from "src/hooks/use-pending-bridges";
+import { useActiveChainId } from "src/hooks/use-active-chainId";
+import { PendingTx } from "src/utils/serializers";
+import { LoadBridgeCard } from "./components/bridge-card/load-bridge-card.view";
+import { PAGE_SIZE } from "src/constants";
 
 export const Activity: FC = () => {
-  const callIfMounted = useCallIfMounted();
   const env = useEnvContext();
-  const { claim, fetchBridges, getPendingBridges } = useBridgeContext();
-  const { connectedProvider } = useProvidersContext();
-  const { notifyError } = useErrorContext();
-  const { openSnackbar } = useUIContext();
   const { tokens } = useTokensContext();
-  const [lastVerifiedBatch, setLastVerifiedBatch] = useState<AsyncTask<BigNumber, string>>({
-    status: "pending",
-  });
-  const [apiBridges, setApiBridges] = useState<AsyncTask<Bridge[], undefined, true>>({
-    status: "pending",
-  });
-  const [pendingBridges, setPendingBridges] = useState<AsyncTask<PendingBridge[], undefined>>({
-    status: "pending",
-  });
+  const {account,chainId} = useActiveChainId()
   const [displayAll, setDisplayAll] = useState(true);
-  const [lastLoadedItem, setLastLoadedItem] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [wrongNetworkBridges, setWrongNetworkBridges] = useState<string[]>([]);
-  const [areBridgesDisabled, setAreBridgesDisabled] = useState<boolean>(false);
   const classes = useActivityStyles();
+  const [page,setPage] = useState(1)
 
-  const fetchBridgesAbortController = useRef<AbortController>(new AbortController());
-
-  const headerBorderObserved = useRef<HTMLDivElement>(null);
-  const headerBorderTarget = useRef<HTMLDivElement>(null);
+  const headerBorderObserved = useRef<HTMLDivElement>(null)
+  const headerBorderTarget = useRef<HTMLDivElement>(null)
 
   useIntersection({
     className: classes.stickyContentBorder,
     observed: headerBorderObserved,
     target: headerBorderTarget,
-  });
+  })
 
-  const onDisplayAll = () => setDisplayAll(true);
-  const onDisplayPending = () => setDisplayAll(false);
+  const {deposits,total:total_cnt} = useBridges({account,page})
+  // console.log({total})
+  const {pendings,allPendings} = usePendingBridges({account})
+  const onDisplayAll = () => setDisplayAll(true)
+  const onDisplayPending = () => setDisplayAll(false)
 
-  const onClaim = (bridge: Bridge) => {
-    if (bridge.status === "on-hold") {
-      setAreBridgesDisabled(true);
-      claim({
-        bridge,
-      })
-        .then(() => {
-          openSnackbar({
-            text: "Transaction successfully submitted.",
-            type: "success-msg",
-          });
-        })
-        .catch((error) => {
-          callIfMounted(() => {
-            if (isMetaMaskUserRejectedRequestError(error) === false) {
-              void parseError(error).then((parsed) => {
-                if (parsed === "wrong-network") {
-                  setWrongNetworkBridges([...wrongNetworkBridges, bridge.id]);
-                } else {
-                  notifyError(error);
-                }
-              });
-            }
-          });
-        })
-        .finally(() => {
-          if (isAsyncTaskDataAvailable<Bridge[], undefined, true>(apiBridges)) {
-            getPendingBridges(apiBridges.data)
-              .then((data) => {
-                callIfMounted(() => {
-                  setPendingBridges({ data, status: "successful" });
-                });
-              })
-              .catch((error) => {
-                callIfMounted(() => {
-                  notifyError(error);
-                });
-              })
-              .finally(() => setAreBridgesDisabled(false));
-          }
-        });
+  const pendingsBridges = useMemo(()=>{
+    if(!deposits){
+      return []
     }
-  };
-
-  const processFetchBridgesSuccess = useCallback(
-    (bridges: Bridge[]) => {
-      setLastLoadedItem(bridges.length);
-      setApiBridges({ data: bridges, status: "successful" });
-      getPendingBridges(bridges)
-        .then((data) => {
-          callIfMounted(() => {
-            setPendingBridges({ data, status: "successful" });
-          });
-        })
-        .catch((error) => {
-          callIfMounted(() => {
-            notifyError(error);
-          });
-        });
-    },
-    [callIfMounted, getPendingBridges, notifyError]
-  );
-
-  const processFetchBridgesError = useCallback(
-    (error: unknown) => {
-      callIfMounted(() => {
-        if (!isCancelRequestError(error)) {
-          setApiBridges({
-            error: undefined,
-            status: "failed",
-          });
-          notifyError(error);
-        }
-      });
-    },
-    [callIfMounted, notifyError]
-  );
+    return pendings.filter(
+      (pendingBridge) => deposits.find(
+          (apiBridge) => pendingBridge.depositTxHash === apiBridge.tx_hash
+        ) === undefined
+    )
+  },[deposits,pendings])
+  const offset = useMemo(()=>  total_cnt === null ? 0 : page * PAGE_SIZE,[total_cnt,page,PAGE_SIZE])
+  const total=useMemo(()=>Number(pendings.length || 0 ) + Number(total_cnt || 0),[total_cnt,pendings])
+  const mergeBridges = (pendingBridges: PendingTx[],apiBridges?: DepositResult[]) => {
+    if(!apiBridges){
+      return []
+    }
+    return [
+     ...pendingBridges, 
+      ...apiBridges
+    ]
+  }
+  const allBridges = useMemo(()=>{
+    return mergeBridges(pendings,deposits)
+  },[mergeBridges,pendingsBridges,deposits])
 
   const onLoadNextPage = () => {
-    if (
-      env &&
-      isAsyncTaskDataAvailable(connectedProvider) &&
-      apiBridges.status === "successful" &&
-      apiBridges.data.length < total
-    ) {
-      setApiBridges({ data: apiBridges.data, status: "loading-more-items" });
-
-      // A new page requested by the user cancels any other fetch in progress
-      fetchBridgesAbortController.current.abort();
-
-      fetchBridges({
-        env,
-        ethereumAddress: connectedProvider.data.account,
-        quantity: lastLoadedItem + PAGE_SIZE,
-        type: "reload",
-      })
-        .then(({ bridges, total }) => {
-          callIfMounted(() => {
-            processFetchBridgesSuccess(bridges);
-            setTotal(total);
-          });
-        })
-        .catch(processFetchBridgesError);
+    if(total === null || total > offset){
+      console.log("onLoadNextPage")
+      setPage(page+1)
     }
   };
 
-  useEffect(() => {
-    // Initial API load
-    if (env && connectedProvider.status === "successful" && tokens) {
-      fetchBridgesAbortController.current = new AbortController();
-      fetchBridges({
-        abortSignal: fetchBridgesAbortController.current.signal,
-        env,
-        ethereumAddress: connectedProvider.data.account,
-        limit: PAGE_SIZE,
-        offset: 0,
-        type: "load",
-      })
-        .then(({ bridges, total }) => {
-          callIfMounted(() => {
-            processFetchBridgesSuccess(bridges);
-            setTotal(total);
-          });
-        })
-        .catch(processFetchBridgesError);
-    }
-    return () => {
-      fetchBridgesAbortController.current.abort();
-    };
-  }, [
-    connectedProvider,
-    env,
-    tokens,
-    callIfMounted,
-    fetchBridges,
-    processFetchBridgesError,
-    processFetchBridgesSuccess,
-  ]);
-
-  useEffect(() => {
-    // Polling bridges
-    if (
-      env &&
-      connectedProvider.status === "successful" &&
-      (apiBridges.status === "successful" || apiBridges.status === "failed")
-    ) {
-      const refreshBridges = () => {
-        setApiBridges(
-          apiBridges.status === "successful"
-            ? { data: apiBridges.data, status: "reloading" }
-            : { status: "loading" }
-        );
-        fetchBridgesAbortController.current = new AbortController();
-        fetchBridges({
-          abortSignal: fetchBridgesAbortController.current.signal,
-          env,
-          ethereumAddress: connectedProvider.data.account,
-          quantity: lastLoadedItem,
-          type: "reload",
-        })
-          .then(({ bridges, total }) => {
-            callIfMounted(() => {
-              processFetchBridgesSuccess(bridges);
-              setTotal(total);
-            });
-          })
-          .catch(processFetchBridgesError);
-      };
-      const intervalId = setInterval(refreshBridges, AUTO_REFRESH_RATE);
-
-      return () => {
-        clearInterval(intervalId);
-      };
-    }
-  }, [
-    connectedProvider,
-    apiBridges,
-    env,
-    lastLoadedItem,
-    fetchBridges,
-    processFetchBridgesError,
-    processFetchBridgesSuccess,
-    callIfMounted,
-  ]);
-
-  useEffect(() => {
-    // Polling lastVerifiedBatch
-    if (env) {
-      const ethereum = env.chains[0];
-      const rollupManagerContract = RollupManager__factory.connect(
-        ethereum.rollupManagerAddress,
-        ethereum.provider
-      );
-      const refreshLastVerifiedBatch = () => {
-        setLastVerifiedBatch((currentLastVerifiedBatch) =>
-          isAsyncTaskDataAvailable(currentLastVerifiedBatch)
-            ? { data: currentLastVerifiedBatch.data, status: "reloading" }
-            : { status: "loading" }
-        );
-        rollupManagerContract
-          .getLastVerifiedBatch(
-            rollupManagerContract.rollupAddressToID(env.chains[0].poeContractAddress)
-          )
-          .then((newLastVerifiedBatch) => {
-            setLastVerifiedBatch({
-              data: newLastVerifiedBatch,
-              status: "successful",
-            });
-          })
-          .catch(() => {
-            setLastVerifiedBatch({
-              error: "An error occurred getting the last verified batch",
-              status: "failed",
-            });
-          });
-      };
-      refreshLastVerifiedBatch();
-      const intervalId = setInterval(refreshLastVerifiedBatch, AUTO_REFRESH_RATE);
-
-      return () => {
-        clearInterval(intervalId);
-      };
-    }
-  }, [env]);
-
-  useEffect(() => {
-    setWrongNetworkBridges([]);
-  }, [connectedProvider]);
-
-  const mergeBridges = (apiBridges: Bridge[], pendingBridges: PendingBridge[]) => {
-    return [
-      ...pendingBridges.filter(
-        (pendingBridge) =>
-          apiBridges.find(
-            (apiBridge) => pendingBridge.depositTxHash === apiBridge.depositTxHash
-          ) === undefined
-      ),
-      ...apiBridges.reduce(
-        (acc: Bridge[], curr: Bridge) => [
-          ...acc,
-          pendingBridges.find(
-            (pendingBridge) => pendingBridge.depositTxHash === curr.depositTxHash
-          ) || curr,
-        ],
-        []
-      ),
-    ];
-  };
+    const lastVerifiedBatch = useLastVerifiedBatch(env)
 
   const EmptyMessage = () => (
     <Card className={classes.emptyMessage}>
@@ -316,8 +82,10 @@ export const Activity: FC = () => {
         ? "Bridge activity will be shown here"
         : "There are no pending bridges at the moment"}
     </Card>
-  );
-
+  )
+  function isPendingTx(bridge: any): bridge is PendingTx {
+    return bridge.type === 'deposit' 
+  }
   const Tabs = ({ all, pending }: { all: number; pending: number }) => (
     <div className={classes.filterBoxes}>
       <div
@@ -361,73 +129,40 @@ export const Activity: FC = () => {
       <Tabs all={0} pending={0} />
       <PageLoader />
     </div>
-  );
+  )
 
-  if (!env || !tokens || !isAsyncTaskDataAvailable(pendingBridges)) {
+  if (!env || !tokens ) {
     return loader;
   }
-
-  switch (apiBridges.status) {
-    case "pending":
-    case "loading": {
-      return loader;
-    }
-    case "failed": {
-      return (
-        <div className={classes.contentWrapper}>
-          <Header backTo={{ routeKey: "home" }} title="Activity" />
-          <Tabs all={0} pending={0} />
-          <EmptyMessage />
-        </div>
-      );
-    }
-    case "successful":
-    case "loading-more-items":
-    case "reloading": {
-      const allBridges = mergeBridges(apiBridges.data, pendingBridges.data);
-      const filteredList = displayAll ? allBridges : pendingBridges.data;
-
+      const filteredList =displayAll ? allBridges:allPendings
       return (
         <>
           <div ref={headerBorderObserved}></div>
           <div className={classes.stickyContent} ref={headerBorderTarget}>
             <div className={classes.contentWrapper}>
               <Header backTo={{ routeKey: "home" }} title="Activity" />
-              <Tabs all={allBridges.length} pending={pendingBridges.data.length} />
+              {/* <Tabs all={allBridges.length} pending={pendingBridges?.data.length} /> */}
+              <Tabs all={total} pending={allPendings?.length || 0} />
             </div>
           </div>
           <div className={classes.contentWrapper}>
+           
             {filteredList.length ? (
               <InfiniteScroll
-                isLoading={apiBridges.status === "loading-more-items"}
-                onLoadNextPage={onLoadNextPage}
-              >
-                {filteredList.map((bridge) =>
-                  bridge.status === "pending" ? (
-                    <div
-                      className={classes.bridgeCardwrapper}
-                      key={bridge.depositTxHash || bridge.claimTxHash}
-                    >
-                      <BridgeCard
-                        bridge={bridge}
-                        env={env}
-                        isFinaliseDisabled={true}
-                        lastVerifiedBatch={lastVerifiedBatch}
-                        networkError={false}
-                        showFiatAmount={env !== undefined && env.fiatExchangeRates.areEnabled}
-                      />
+                // isLoading={apiBridges.status === "loading-more-items"}
+                isLoading={false}
+                onLoadNextPage={onLoadNextPage} >
+                {filteredList.map((bridge,index) =>
+                  isPendingTx(bridge) ? (
+                    <div className={classes.bridgeCardwrapper} key={bridge.depositTxHash}>
+                      <LoadBridgeCard apiDeposit={bridge} />
                     </div>
                   ) : (
-                    <div className={classes.bridgeCardwrapper} key={bridge.id}>
-                      <BridgeCard
-                        bridge={bridge}
+                    <div className={classes.bridgeCardwrapper} key={index}>
+                      <ReadBridgeCard
+                        apiDeposit={bridge}
                         env={env}
-                        isFinaliseDisabled={areBridgesDisabled}
-                        lastVerifiedBatch={lastVerifiedBatch}
-                        networkError={wrongNetworkBridges.includes(bridge.id)}
-                        onClaim={() => onClaim(bridge)}
-                        showFiatAmount={env !== undefined && env.fiatExchangeRates.areEnabled}
-                      />
+                        lastVerifiedBatch={lastVerifiedBatch} />
                     </div>
                   )
                 )}
@@ -438,6 +173,6 @@ export const Activity: FC = () => {
           </div>
         </>
       );
-    }
-  }
+    // }
+  // }
 };

@@ -1,4 +1,5 @@
 import { FC, useState } from "react";
+import { Chain } from "src/domain";
 
 import { useTextMatchFormStyles } from "src/views/home/components/text-match-form/text-match-form.styles";
 import { Button } from "src/views/shared/button/button.view";
@@ -22,6 +23,7 @@ export const TextMatchForm: FC<TextMatchFormProps> = ({ onSubmit, text }) => {
         onSubmit(isCheckboxChecked);
       }}
     >
+
       <input
         autoFocus
         className={classes.input}

@@ -1,9 +1,18 @@
 import { StaticJsonRpcProvider } from "@ethersproject/providers";
 import { ethers } from "ethers";
-
+import { useTokensContext } from "src/contexts/tokens.context";
 import { ReactComponent as EthChainIcon } from "src/assets/icons/chains/ethereum.svg";
-import { ReactComponent as PolygonZkEVMChainIcon } from "src/assets/icons/chains/polygon-zkevm.svg";
-import { Chain, Currency, EthereumChain, ProviderError, Token, ZkEVMChain } from "src/domain";
+import TusimaLogo from "src/components/TusimaLogo";
+import {
+  Chain,
+  ChainKey,
+  Currency,
+  EthereumChain,
+  EthereumChainId,
+  ProviderError,
+  Token,
+  ZkEVMChain,
+} from "src/domain";
 import { ProofOfEfficiency__factory } from "src/types/contracts/proof-of-efficiency";
 import { getEthereumNetworkName } from "src/utils/labels";
 
@@ -28,7 +37,7 @@ export const UNISWAP_V2_ROUTER_02_FACTORY_ADDRESS = "0x5C69bEe701ef814a2B6a3EDD4
 
 export const PREFERRED_CURRENCY_KEY = "currency";
 
-export const CUSTOM_TOKENS_KEY = "customTokens";
+export const CUSTOM_TOKENS_KEY = "customTokens_new_list";
 
 export const PENDING_TXS_KEY = "pendingTxs";
 
@@ -60,12 +69,10 @@ export const DEPOSIT_CHECK_WORD = "I understand";
 
 export const ETH_TOKEN_LOGO_URI =
   "https://raw.githubusercontent.com/Uniswap/interface/main/packages/ui/src/assets/logos/png/ethereum-logo.png";
-
+export const TSM_TOKEN_LOGO_URI = "/icons/tokens/tusima.png";
 export const POLYGON_SUPPORT_URL = "https://support.polygon.technology";
 
 export const POLYGON_TERMS_AND_CONDITIONS_URL = "https://polygon.technology/terms-of-use";
-
-export const POLYGON_PRIVACY_POLICY_URL = "https://polygon.technology/privacy-policy";
 
 export const POLYGON_ZKEVM_RISK_DISCLOSURES_URL =
   "https://wiki.polygon.technology/docs/zkEVM/#polygon-zkevm-risk-disclosures";
@@ -76,7 +83,7 @@ export const TOKEN_BLACKLIST = [
   "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
   "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
 ];
-export const TSMAddressZero = "0x0000000000000000000000000000000000000001";
+
 export const getChains = ({
   ethereum,
   polygonZkEVM,
@@ -101,7 +108,7 @@ export const getChains = ({
     ethereum.poeContractAddress,
     ethereumProvider
   );
-  // poeContract.networkName().then(console.log).catch(console.error)
+
   return Promise.all([
     ethereumProvider.getNetwork().catch(() => Promise.reject(ProviderError.Ethereum)),
     polygonZkEVMProvider.getNetwork().catch(() => Promise.reject(ProviderError.PolygonZkEVM)),
@@ -113,7 +120,7 @@ export const getChains = ({
         chainId: ethereumNetwork.chainId,
         explorerUrl: ethereum.explorerUrl,
         Icon: EthChainIcon,
-        key: "ethereum",
+        key: ChainKey.ethereum,
         name: getEthereumNetworkName(ethereumNetwork.chainId),
         nativeCurrency: {
           decimals: 18,
@@ -129,31 +136,131 @@ export const getChains = ({
         bridgeContractAddress: polygonZkEVM.bridgeContractAddress,
         chainId: polygonZkEVMNetwork.chainId,
         explorerUrl: polygonZkEVM.explorerUrl,
-        Icon: PolygonZkEVMChainIcon,
-        key: "polygon-zkevm",
-        name: polygonZkEVMNetworkName,
+        Icon: TusimaLogo,
+        key: ChainKey.polygonzkevm,
+        // name: polygonZkEVMNetworkName,
+        name: "Tusima Eagle",
         nativeCurrency: {
           decimals: 18,
-          name: "Ether",
-          symbol: "ETH",
+          name: "TSM",
+          symbol: "TSM",
         },
         networkId: polygonZkEVM.networkId,
         provider: polygonZkEVMProvider,
       },
-    ]
+    ];
   });
 };
 
-export const getEtherToken = (chain: Chain): Token => {
-  return {
-    address: ethers.constants.AddressZero,
-    chainId: chain.chainId,
-    decimals: 18,
-    logoURI: ETH_TOKEN_LOGO_URI,
-    name: "Ether",
-    symbol: "ETH",
-  };
+export const WETHToken: Token = {
+  address: "0xb283D02CcD80801f139058aDD492cA12984F1242",
+  chainId: EthereumChainId.EAGLE,
+  decimals: 18,
+  logoURI: ETH_TOKEN_LOGO_URI,
+  name: "WETH",
+  symbol: "WETH",
 };
+export const TSMToken: Token = {
+  address: "0xada988a28fF26F0b02a338BF4A43a9A7776C163f",
+  chainId: EthereumChainId.SEPOLIA,
+  decimals: 18,
+  logoURI: TSM_TOKEN_LOGO_URI,
+  name: "TSM",
+  symbol: "TSM",
+};
+export const ETHNavToken: Token = {
+  address: ethers.constants.AddressZero,
+  chainId: EthereumChainId.SEPOLIA,
+  decimals: 18,
+  logoURI: ETH_TOKEN_LOGO_URI,
+  name: "Ether",
+  symbol: "ETH",
+};
+
+export const TSMAddressZero = "0x0000000000000000000000000000000000000001";
+
+export const TSMNAVToken00: Token = {
+  address: ethers.constants.AddressZero,
+  chainId: EthereumChainId.EAGLE,
+  decimals: 18,
+  logoURI: TSM_TOKEN_LOGO_URI,
+  name: "TSM",
+  symbol: "TSM",
+};
+export const TSMNAVToken01: Token = {
+  address: TSMAddressZero,
+  is01: true,
+  chainId: EthereumChainId.EAGLE,
+  decimals: 18,
+  logoURI: ETH_TOKEN_LOGO_URI,
+  name: "ETH",
+  symbol: "ETH",
+};
+export const TSMNAVToken02: Token = {
+  address: TSMAddressZero,
+  is01: true,
+  chainId: EthereumChainId.SEPOLIA,
+  decimals: 18,
+  logoURI: ETH_TOKEN_LOGO_URI,
+  name: "ETH",
+  symbol: "ETH",
+};
+export const TSMNAVToken03: Token = {
+  address: ethers.constants.AddressZero,
+  is01: true,
+  chainId: EthereumChainId.SEPOLIA,
+  decimals: 18,
+  logoURI: TSM_TOKEN_LOGO_URI,
+  name: "TSM",
+  symbol: "TSM",
+};
+export const getExchangeAddress = (address: string) => {
+  // if (address === TSMAddressZero) {
+  //   return ethers.constants.AddressZero
+  // }
+  return address;
+};
+//验证是否是eagle链
+export const isEagleChain = (chain: Chain | Token) => {
+  return chain.chainId === EthereumChainId.EAGLE;
+};
+//验证是否是sepolia链
+export const isSepoliaChain = (chain: Chain | Token) => {
+  return chain.chainId === EthereumChainId.SEPOLIA;
+};
+//验证是否是eagle链的tsm token
+export const isEagleEthToken = (token: Token) => {
+  return isEagleChain(token) && token.address === ethers.constants.AddressZero;
+};
+//验证是否是eagle链的eth token
+export const isSpoliaEthToken = (token: Token) => {
+  return isSepoliaChain(token) && token.address === ethers.constants.AddressZero;
+};
+//验证是否是sepolia的tsm token
+export const isSepoliaTSMToken = (token: Token) => {
+  return isSepoliaChain(token) && token.address === TSMToken.address;
+};
+//验证是否是sepolia的tsm token
+export const isEagleWETHToken = (token: Token ) => {
+  return isEagleChain(token) && token.address === WETHToken.address;
+};
+export const getToToken = (token: Token, ): Token => {
+  if (isEagleEthToken(token)) {
+    return TSMToken;
+  } else if (isSpoliaEthToken(token)) {
+    return WETHToken;
+  } else if (isSepoliaTSMToken(token)) {
+    return TSMNAVToken00;
+  } else if (isEagleWETHToken(token, )) {
+    return ETHNavToken;
+  }
+  return token;
+};
+
+export const getEtherToken = (chain: Chain | Token): Token => {
+  if (isEagleChain(chain)) return TSMNAVToken00
+  return ETHNavToken
+}
 
 export const getUsdcToken = ({
   address,

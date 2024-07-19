@@ -9,7 +9,7 @@ import { UIProvider } from "src/contexts/ui.context";
 import { useAppStyles } from "src/views/app.styles";
 import { Layout } from "src/views/core/layout/layout.view";
 import { Router } from "src/views/core/router/router.view";
-
+import { Providers as ReduxProviders } from "../lib/providers"
 export const App = (): JSX.Element => {
   useAppStyles();
 
@@ -17,6 +17,7 @@ export const App = (): JSX.Element => {
     <UIProvider>
       <ErrorProvider>
         <EnvProvider>
+          <ReduxProviders>
           <ProvidersProvider>
             <TokensProvider>
               <PriceOracleProvider>
@@ -30,6 +31,8 @@ export const App = (): JSX.Element => {
               </PriceOracleProvider>
             </TokensProvider>
           </ProvidersProvider>
+          </ReduxProviders>
+          
         </EnvProvider>
       </ErrorProvider>
     </UIProvider>

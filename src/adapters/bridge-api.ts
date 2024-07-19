@@ -1,9 +1,9 @@
-import axios from "axios";
 import { z } from "zod";
 
 import { PAGE_SIZE } from "src/constants";
 import * as domain from "src/domain";
 import { StrictSchema } from "src/utils/type-safety";
+import axios from "src/utils/axios";
 
 interface DepositInput {
   amount: string;
@@ -21,10 +21,10 @@ interface DepositInput {
   metadata:string;
 }
 
-interface DepositOutput {
+export interface DepositOutput {
   amount: string;
   block_num: number;
-  claim_tx_hash: string | null;
+  claim_tx_hash: any;
   deposit_cnt: number;
   dest_addr: string;
   dest_net: number;
@@ -33,7 +33,7 @@ interface DepositOutput {
   orig_addr: string;
   orig_net: number;
   ready_for_claim: boolean;
-  tx_hash: string;
+  tx_hash: any;
   metadata:string;
 }
 
@@ -63,7 +63,7 @@ const depositParser = StrictSchema<DepositInput, DepositOutput>()(
     orig_net: z.number(),
     ready_for_claim: z.boolean(),
     tx_hash: z.string(),
-    metadata:z.string()
+    metadata:z.string(),
   })
 );
 
@@ -159,22 +159,37 @@ export const getDeposits = ({
         offset,
       },
       signal: abortSignal,
-      url: `/bridges/${ethereumAddress}`,
+      url: `/api/bridges/${ethereumAddress}`,
     })
     .then((res) => {
-      const parsedData = getDepositsResponseParser.safeParse(res.data);
-
-      if (parsedData.success) {
-        return {
-          deposits: parsedData.data.deposits !== undefined ? parsedData.data.deposits : [],
-          total: parsedData.data.total_cnt !== undefined ? parsedData.data.total_cnt : 0,
-        };
-      } else {
-        throw parsedData.error;
-      }
+      // const parsedData = getDepositsResponseParser.safeParse(res.data);
+      const parsedData = res
+      // if (parsedData.success) {
+      return {
+        deposits: parsedData.data.deposits !== undefined ? parsedData.data.deposits : [],
+        total: parsedData.data.total_cnt !== undefined ? parsedData.data.total_cnt : 0,
+      };
+      // } else {
+      //   throw parsedData.error;
+      // }
     });
 };
 
+interface getTransactionReceiptParams{
+  txHash: string;
+}
+export const getTransactionReceipt = ({txHash}:getTransactionReceiptParams): Promise<{
+  gas_price:string,
+  gas_used:string
+}>=>{
+  return axios.request({
+    baseURL: `/`,
+    method:'GET',
+    url: `/explore_api/v2/transactions/${txHash}`,
+  }).then(res=>{
+    return res.data
+  })
+}
 interface GetDepositParams {
   abortSignal?: AbortSignal;
   apiUrl: string;
@@ -197,17 +212,17 @@ export const getDeposit = ({
         net_id: networkId,
       },
       signal: abortSignal,
-      url: "/bridge",
+      url: "/api/bridge",
     })
     .then((res) => {
-      const parsedData = getDepositResponseParser.safeParse(res.data);
-
-      console.log({parsedData});
-      if (parsedData.success) {
+      // const parsedData = getDepositResponseParser.safeParse(res.data);
+      const parsedData = res
+      
+      // if (parsedData.success) {
         return parsedData.data.deposit;
-      } else {
-        throw parsedData.error;
-      }
+      // } else {
+      //   throw parsedData.error;
+      // }
     });
 };
 
@@ -230,7 +245,7 @@ export const getMerkleProof = ({
         deposit_cnt: depositCount,
         net_id: networkId,
       },
-      url: "/merkle-proof",
+      url: "/api/merkle-proof",
     })
     .then((res) => {
       const parsedData = getMerkleProofResponseParser.safeParse(res.data);

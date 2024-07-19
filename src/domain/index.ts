@@ -1,8 +1,13 @@
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { BigNumber } from "ethers";
 import { ComponentType } from "react";
+import { DepositOutput } from "src/adapters/bridge-api";
+import { PublicClient } from "viem";
 
-export type ChainKey = "ethereum" | "polygon-zkevm";
+export enum ChainKey {
+  "ethereum"="ethereum",
+  "polygonzkevm"="polygon-zkevm"
+};
 
 export interface CommonChain {
   Icon: ComponentType<{ className?: string }>;
@@ -21,25 +26,30 @@ export interface CommonChain {
 }
 
 export type EthereumChain = CommonChain & {
-  key: "ethereum";
+  key: ChainKey.ethereum;
   poeContractAddress: string;
   rollupManagerAddress: string;
 };
 
 export type ZkEVMChain = CommonChain & {
-  key: "polygon-zkevm";
+  key: ChainKey.polygonzkevm;
 };
 
 export type Chain = EthereumChain | ZkEVMChain;
-
 export interface ConnectedProvider {
   account: string;
   chainId: number;
   provider: Web3Provider;
 }
+export interface ConnectedViemProvider {
+  account: string;
+  chainId: number;
+  provider: PublicClient;
+}
 
 export interface Token {
   address: string;
+  is01?:boolean;
   balance?: AsyncTask<BigNumber, string>;
   chainId: number;
   decimals: number;
@@ -76,7 +86,7 @@ export interface Env {
     | {
         apiKey: string;
         apiUrl: string;
-        areEnabled: true;
+        areEnabled: false;
         usdcToken: Token;
       };
   forceUpdateGlobalExitRootForL1: boolean;
@@ -152,16 +162,17 @@ interface BridgeCommonFields {
   destinationAddress: string;
   fiatAmount: BigNumber | undefined;
   from: Chain;
-  globalIndex: any;
+  globalIndex: string;
   id: string;
   to: Chain;
   token: Token;
+  origtoken:Token;
   tokenOriginNetwork: number;
 }
 
 export type PendingBridge = Pick<
   BridgeCommonFields,
-  "depositTxHash" | "destinationAddress" | "from" | "to" | "token" | "amount" | "fiatAmount"
+  "depositTxHash" | "destinationAddress" | "from" | "to" | "token" | "amount" | "fiatAmount" | "origtoken"
 > & {
   claimTxHash?: string;
   status: "pending";
@@ -172,7 +183,7 @@ export type InitiatedBridge = BridgeCommonFields & {
 };
 
 export type OnHoldBridge = BridgeCommonFields & {
-  metadata:string,
+  metadata:string
   status: "on-hold";
 };
 
@@ -205,8 +216,9 @@ export interface Deposit {
   globalIndex: string;
   to: Chain;
   token: Token;
+  origtoken:Token;
   tokenOriginNetwork: number;
-  metadata:string;
+  metadata:string,
 }
 
 export interface MerkleProof {
@@ -269,8 +281,8 @@ export enum Permit {
 // Error
 
 export enum ProviderError {
-  Ethereum = "ethereum",
-  PolygonZkEVM = "polygon-zkevm",
+  Ethereum = ChainKey.ethereum,
+  PolygonZkEVM = ChainKey.polygonzkevm,
 }
 
 export interface MetaMaskUserRejectedRequestError {
@@ -354,3 +366,10 @@ export type ModalState<D> = OpenModal<D> | ClosedModal;
 // Utility
 
 export type Exact<T, U> = [T, U] extends [U, T] ? true : false;
+
+
+export interface DepositResult extends DepositOutput {
+  from:EthereumChain | ZkEVMChain
+  to:EthereumChain | ZkEVMChain
+  status?:string
+}

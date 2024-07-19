@@ -12,25 +12,27 @@ interface HeaderProps {
   Subtitle?: ReactElement;
   backTo: { routeKey: keyof typeof routes; state?: RouterState };
   title: string;
+  noShow?:boolean;
 }
 
-export const Header: FC<HeaderProps> = ({ backTo, Subtitle, title }) => {
+export const Header: FC<HeaderProps> = ({ backTo, Subtitle, title,noShow }) => {
   const classes = useHeaderStyles();
   const route = routes[backTo.routeKey].path;
 
   return (
     <header className={classes.header}>
       <div className={classes.topRow}>
+      {/* <ArrowLeftIcon width={100} fill="#000"/> */}
         <div className={`${classes.block} ${classes.leftBlock}`}>
-          <Link className={classes.sideButton} state={backTo.state} to={route}>
+          <Link style={{display:noShow?'none':''}} className={classes.sideButton} state={backTo.state} to={route}>
             <ArrowLeftIcon className={classes.icon} />
           </Link>
         </div>
-        <div className={`${classes.block} ${classes.centerBlock}`}>
+        <div style={{minWidth:300}} className={`${classes.block} ${classes.centerBlock}`}>
           <Typography type="h1">{title}</Typography>
         </div>
         <div className={`${classes.block} ${classes.rightBlock}`}>
-          <NetworkSelector />
+          {/* <NetworkSelector /> */}
         </div>
       </div>
       {Subtitle && <div className={classes.bottomRow}>{Subtitle}</div>}

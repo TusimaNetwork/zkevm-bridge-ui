@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  zkevm-bridge-ui:
+    build:
+      context: .
+      dockerfile: dev-Dockerfile
+    image: dev-zkevm-bridge-ui
+    command: >
+      sh -c "git pull && docker compose build "
+    container_name: dev-zkevm-bridge-ui
+    ports:
+      - 8130:80

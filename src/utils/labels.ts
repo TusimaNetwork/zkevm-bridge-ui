@@ -1,19 +1,22 @@
-import { Bridge, Chain, Currency, EthereumChainId } from "src/domain";
-
+import { Bridge, Chain, ChainKey, Currency, EthereumChainId } from "src/domain";
+export enum FromLabel {
+  Deposit ="Deposit",
+  Withdraw="Withdraw"
+}
 export function getBridgeStatus(status: Bridge["status"], from: Bridge["from"]): string {
   switch (status) {
     case "pending": {
       return "Processing";
     }
     case "initiated": {
-      if (from.key === "ethereum") {
+      if (from.key === ChainKey.ethereum) {
         return "Processing";
       } else {
         return "Initiated";
       }
     }
     case "on-hold": {
-      if (from.key === "ethereum") {
+      if (from.key === ChainKey.ethereum) {
         return "Processing";
       } else {
         return "On Hold";
@@ -29,6 +32,12 @@ export function getEthereumNetworkName(chainId: number): string {
   switch (chainId) {
     case EthereumChainId.GOERLI: {
       return "Goerli Testnet";
+    }
+    case EthereumChainId.EAGLE:{
+      return 'Tusima Eagle'
+    }
+    case EthereumChainId.SEPOLIA:{
+      return 'Sepolia'
     }
     default: {
       return "Ethereum";

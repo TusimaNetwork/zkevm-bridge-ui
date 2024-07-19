@@ -1,34 +1,35 @@
-import { BigNumber, utils as ethersUtils } from "ethers";
-import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { utils as ethersUtils } from "ethers"
+import { FC, useEffect, useMemo, useRef, useState } from "react"
 
-import { isChainNativeCustomToken } from "src/adapters/storage";
-import { ReactComponent as InfoIcon } from "src/assets/icons/info.svg";
-import { ReactComponent as MagnifyingGlassIcon } from "src/assets/icons/magnifying-glass.svg";
-import { ReactComponent as XMarkIcon } from "src/assets/icons/xmark.svg";
-import { TOKEN_BLACKLIST } from "src/constants";
-import { useTokensContext } from "src/contexts/tokens.context";
-import { AsyncTask, Chain, Token } from "src/domain";
-import { useCallIfMounted } from "src/hooks/use-call-if-mounted";
-import { isTokenEther, selectTokenAddress } from "src/utils/tokens";
-import { useTokenListStyles } from "src/views/home/components/token-list/token-list.styles";
-import { TokenSelectorHeader } from "src/views/home/components/token-selector-header/token-selector-header.view";
-import { Icon } from "src/views/shared/icon/icon.view";
-import { Spinner } from "src/views/shared/spinner/spinner.view";
-import { TokenBalance } from "src/views/shared/token-balance/token-balance.view";
-import { Typography } from "src/views/shared/typography/typography.view";
+import { isChainNativeCustomToken } from "src/adapters/storage"
+import { ReactComponent as InfoIcon } from "src/assets/icons/info.svg"
+import { ReactComponent as MagnifyingGlassIcon } from "src/assets/icons/magnifying-glass.svg"
+import { ReactComponent as XMarkIcon } from "src/assets/icons/xmark.svg"
+import { TOKEN_BLACKLIST, isEagleWETHToken, isSepoliaTSMToken } from "src/constants"
+import { useTokensContext } from "src/contexts/tokens.context"
+import { AsyncTask, Chain, Token } from "src/domain"
+import { useCallIfMounted } from "src/hooks/use-call-if-mounted"
+import { useTokenBalance } from "src/hooks/use-token-balance"
+import { useTokenListStyles } from "src/views/home/components/token-list/token-list.styles"
+import { TokenSelectorHeader } from "src/views/home/components/token-selector-header/token-selector-header.view"
+import { Icon } from "src/views/shared/icon/icon.view"
+import { Spinner } from "src/views/shared/spinner/spinner.view"
+import { TokenBalance } from "src/views/shared/token-balance/token-balance.view"
+import { Typography } from "src/views/shared/typography/typography.view"
+import useSWR from "swr"
 
 interface SelectedChains {
-  from: Chain;
-  to: Chain;
+  from: Chain
+  to: Chain
 }
 
 interface TokenListProps {
-  account: string;
-  chains: SelectedChains;
-  onClose: () => void;
-  onNavigateToTokenAdder: (token: Token) => void;
-  onNavigateToTokenInfo: (token: Token) => void;
-  onSelectToken: (token: Token) => void;
+  account: string
+  chains: SelectedChains
+  onClose: () => void
+  onNavigateToTokenAdder: (token: Token) => void
+  onNavigateToTokenInfo: (token: Token) => void
+  onSelectToken: (token: Token) => void
   tokens: Token[];
 }
 
@@ -41,133 +42,66 @@ export const TokenList: FC<TokenListProps> = ({
   onSelectToken,
   tokens,
 }) => {
-  const classes = useTokenListStyles();
-  const callIfMounted = useCallIfMounted();
-  const { getErc20TokenBalance, getTokenFromAddress } = useTokensContext();
-  const [searchInputValue, setSearchInputValue] = useState<string>("");
-  const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
-  const [customToken, setCustomToken] = useState<AsyncTask<Token, string>>({
-    status: "pending",
-  });
-  const inputRef = useRef<HTMLInputElement>(null);
+  const classes = useTokenListStyles()
+  const { getTokenFromAddress } = useTokensContext()
+  const [searchInputValue, setSearchInputValue] = useState<string>("")
+ 
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const getTokenBalance = useCallback(
-    (token: Token, chain: Chain): Promise<BigNumber> => {
-      if (isTokenEther(token)) {
-        return chain.provider.getBalance(account);
-      } else {
-        return getErc20TokenBalance({
-          accountAddress: account,
-          chain: chain,
-          tokenAddress: selectTokenAddress(token, chain),
-        });
-      }
-    },
-    [account, getErc20TokenBalance]
-  );
-
-  const getTokenFilterByTerm = (chain: Chain, term: string) => (token: Token) =>
-    term.length === 0 ||
-    (token.address.toLowerCase().includes(term.toLowerCase()) && token.chainId === chain.chainId) ||
-    (token.wrappedToken &&
-      token.wrappedToken.address.toLowerCase().includes(term.toLowerCase()) &&
-      token.wrappedToken.chainId === chain.chainId) ||
-    token.name.toLowerCase().includes(term.toLowerCase()) ||
-    token.symbol.toLowerCase().includes(term.toLowerCase());
-
-  const updateTokenList = (tokensWithBalance: Token[], searchTerm: string) => {
-    const newFilteredTokens = tokensWithBalance.filter(
-      getTokenFilterByTerm(chains.from, searchTerm)
-    );
-
-    setFilteredTokens(newFilteredTokens);
-    setCustomToken({ status: "pending" });
-
-    if (ethersUtils.isAddress(searchTerm) && newFilteredTokens.length === 0) {
-      if (TOKEN_BLACKLIST.includes(searchTerm)) {
-        setCustomToken({
+  const searchTokenInfo = async (searchInput: string):Promise<AsyncTask<Token, string>> => {
+    if (ethersUtils.isAddress(searchInput)) {
+      if (TOKEN_BLACKLIST.includes(searchInput)) {
+        return {
           error: "We do not support this token at the moment.",
-          status: "failed",
-        });
-      } else {
-        setCustomToken({ status: "loading" });
-
-        void getTokenFromAddress({
-          address: searchTerm,
-          chain: chains.from,
+          status: "failed"
+        }
+      }
+      try{
+        const token =  await getTokenFromAddress({
+          address: searchInput,
+          chain: chains.from
         })
-          .then((token: Token) => {
-            getTokenBalance(token, chains.from)
-              .then((balance) => {
-                callIfMounted(() => {
-                  setCustomToken((currentCustomToken) =>
-                    currentCustomToken.status === "pending"
-                      ? currentCustomToken
-                      : {
-                          data: { ...token, balance: { data: balance, status: "successful" } },
-                          status: "successful",
-                        }
-                  );
-                });
-              })
-              .catch(() => {
-                callIfMounted(() => {
-                  setCustomToken((currentCustomToken) =>
-                    currentCustomToken.status === "pending"
-                      ? currentCustomToken
-                      : {
-                          data: {
-                            ...token,
-                            balance: { error: "Couldn't retrieve token balance", status: "failed" },
-                          },
-                          status: "successful",
-                        }
-                  );
-                });
-              });
-          })
-          .catch(() =>
-            callIfMounted(() => {
-              setCustomToken({
-                error: "The token couldn't be found on the selected network.",
-                status: "failed",
-              });
-            })
-          );
+        return {
+          data: { ...token },
+          status: "successful",
+        }
+      }catch(e){
+        return {
+          error: "The token couldn't be found on the selected network.",
+          status: "failed",
+        }
       }
     }
-  };
+    return { status: "pending" }
+  }
+
+  const { data: searchToken } = useSWR(searchInputValue, searchTokenInfo)
+  const customToken:AsyncTask<Token, string> = useMemo(()=>{
+    if(searchToken){
+      return searchToken
+    }
+    return ethersUtils.isAddress(searchInputValue) ? { status: "loading" }:{ status: "pending" }
+  },[searchToken,searchInputValue])
+
 
   const onSearchInputchange = (value: string): void => {
-    setSearchInputValue(value);
-    updateTokenList(tokens, value);
-    if (value === "") {
-      setCustomToken({ status: "pending" });
-    }
-  };
-
-  useEffect(() => {
-    if (customToken.status === "successful") {
-      setFilteredTokens([customToken.data]);
-    }
-  }, [customToken]);
+    setSearchInputValue(value)
+  }
 
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current.focus()
     }
   }, []);
+  const filteredTokens = useMemo(() => {
+    if (customToken.status === 'successful') {
+      return [customToken.data]
+    }
+    return tokens
+  }, [customToken, tokens])
+  const error = customToken.status === "failed" ? customToken.error : searchInputValue.length > 0 && tokens.length === 0 ? "No result found" : undefined
 
-  useEffect(() => {
-    setFilteredTokens(tokens);
-  }, [tokens]);
-
-  const error =
-    customToken.status === "failed"
-      ? customToken.error
-      : searchInputValue.length > 0 && filteredTokens.length === 0
-      ? "No result found"
-      : undefined;
+  const tokensLists = useMemo(() => filteredTokens.filter(itm => !itm.is01).filter((itm) => itm.chainId === chains.from.chainId), [filteredTokens, chains?.from, account])
 
   return (
     <div className={classes.tokenList}>
@@ -191,7 +125,7 @@ export const TokenList: FC<TokenListProps> = ({
         )}
       </div>
       <div className={classes.list}>
-        {customToken.status === "loading" ? (
+        {customToken.status === "loading" || tokensLists.length === 0 ? (
           <div className={classes.centeredElement}>
             <Spinner />
           </div>
@@ -200,72 +134,57 @@ export const TokenList: FC<TokenListProps> = ({
             {error}
           </Typography>
         ) : (
-          filteredTokens.map((token) => {
-            const isImportedCustomToken = isChainNativeCustomToken(token, chains.from);
-            const isNonImportedCustomToken =
-              !isImportedCustomToken &&
-              customToken.status === "successful" &&
-              customToken.data.address === token.address;
+          tokensLists.map((token) => {
+            const isImportedCustomToken = isChainNativeCustomToken(token, chains.from) || isEagleWETHToken(token) || isSepoliaTSMToken(token);
+            const isNonImportedCustomToken = !isImportedCustomToken && customToken.status === "successful" && customToken.data.address === token.address;
 
             if (isNonImportedCustomToken) {
-              return (
-                <div
-                  className={classes.tokenButtonWrapper}
-                  key={`${token.chainId}-${token.address}`}
-                >
-                  <button
-                    className={classes.tokenButton}
-                    onClick={() => onSelectToken(token)}
-                    role="button"
-                  >
-                    <div className={classes.tokenInfo}>
-                      <Icon className={classes.tokenIcon} isRounded size={24} url={token.logoURI} />
-                      <Typography type="body1">{token.name}</Typography>
-                    </div>
-                  </button>
-                  <button
-                    className={classes.addTokenButton}
-                    onClick={() => onNavigateToTokenAdder(token)}
-                  >
-                    <Typography type="body1">Add token</Typography>
-                  </button>
-                </div>
-              );
+              return <div className={classes.tokenButtonWrapper} key={`${token.chainId}-${token.address}`}>
+                <button className={classes.tokenButton} onClick={() => onSelectToken(token)} role="button" >
+                  <div className={classes.tokenInfo}>
+                    <Icon className={classes.tokenIcon} isRounded size={24} url={token.logoURI} />
+                    <Typography type="body1">{token.name}</Typography>
+                  </div>
+                </button>
+                <button className={classes.addTokenButton} onClick={() => onNavigateToTokenAdder(token)}>
+                  <Typography type="body1">Add token</Typography>
+                </button>
+              </div>
             } else {
               return (
-                <div
-                  className={classes.tokenButtonWrapper}
-                  key={`${token.chainId}-${token.address}`}
-                >
-                  <button
-                    className={classes.tokenButton}
-                    onClick={() => onSelectToken(token)}
-                    role="button"
-                  >
+                <div className={classes.tokenButtonWrapper} key={`${token.chainId}-${token.address}`}>
+                  <button className={classes.tokenButton} onClick={() => onSelectToken(token)} role="button">
                     <div className={classes.tokenInfoWithBalance}>
                       <Icon className={classes.tokenIcon} isRounded size={24} url={token.logoURI} />
                       <Typography type="body1">{token.name}</Typography>
                       <div className={classes.tokenBalanceWrapper}>
-                        <TokenBalance
-                          spinnerSize={16}
-                          token={token}
-                          typographyProps={{ className: classes.tokenBalance, type: "body2" }}
-                        />
+                        <UserToken chain={chains.from} account={account} token={token} className={classes.tokenBalance} />
                       </div>
                     </div>
                   </button>
-                  <button
-                    className={classes.tokenInfoButton}
-                    onClick={() => onNavigateToTokenInfo(token)}
-                  >
+                  <button className={classes.tokenInfoButton} onClick={() => onNavigateToTokenInfo(token)}>
                     <InfoIcon className={classes.tokenInfoButtonIcon} />
                   </button>
                 </div>
-              );
+              )
             }
           })
         )}
       </div>
     </div>
-  );
-};
+  )
+}
+
+const UserToken: FC<{ token: Token, chain: Chain, account: string, className: string }> = ({ token, chain, account, className }) => {
+  const balance = useTokenBalance(chain, token)
+  return <TokenBalance
+    chain={chain}
+    account={account}
+    spinnerSize={16}
+    token={{
+      ...token,
+      balance: balance
+    }}
+    typographyProps={{ className, type: "body2" }}
+  />
+}

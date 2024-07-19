@@ -37,9 +37,20 @@ export const useHeaderStyles = createUseStyles((theme: Theme) => ({
     padding: [theme.spacing(0.75), theme.spacing(1)],
     transition: theme.hoverTransition,
   },
-  logo: {
-    height: 56,
+  head_logo: {
+    textAlign: "center",
+    "& .title":{
+      fontSize: 16,
+      marginTop:5
+    },
+    "& img": {
+      width: 40,
+    },
+    "& span": {
+      fontWeight: 600,
+    },
   },
+
   rightBlock: {
     justifyContent: "end",
   },

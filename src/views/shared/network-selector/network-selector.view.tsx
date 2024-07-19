@@ -25,12 +25,12 @@ export const NetworkSelector: FC = () => {
     if (env && connectedProvider.status === "successful") {
       const selectedChain = env.chains.find(
         (chain) => chain.chainId === connectedProvider.data.chainId
-      );
+      )
       if (selectedChain) {
-        setSelectedChain(selectedChain);
+        setSelectedChain(selectedChain)
       }
     }
-  }, [connectedProvider, env]);
+  }, [connectedProvider, env])
 
   if (!env || !selectedChain) {
     return null;
@@ -44,7 +44,7 @@ export const NetworkSelector: FC = () => {
         title={selectedChain.name}
         type="button"
       >
-        <selectedChain.Icon />
+        <selectedChain.Icon className={classes.icons}/>
         <Typography className={classes.networkButtonText} type="body1">
           {selectedChain.name}
         </Typography>
@@ -69,5 +69,5 @@ export const NetworkSelector: FC = () => {
         />
       )}
     </>
-  );
-};
+  )
+}

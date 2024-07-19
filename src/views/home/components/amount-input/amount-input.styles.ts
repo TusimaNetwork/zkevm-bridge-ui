@@ -5,7 +5,8 @@ import { Theme } from "src/styles/theme";
 export const useAmountInputStyles = createUseStyles((theme: Theme) => ({
   amountInput: {
     "&:disabled": {
-      backgroundColor: "transparent",
+      // backgroundColor:'#ccc'
+      // backgroundColor: "transparent",
     },
     border: "none",
     borderRadius: 8,

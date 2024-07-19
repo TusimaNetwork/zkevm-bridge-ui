@@ -11,14 +11,14 @@ export const theme = {
       main: "#e8430d",
     },
     grey: {
-      dark: "#78798d",
+      dark: "rgb(78, 207, 177)",
       light: "#f0f1f6",
       main: "#e2e5ee",
       veryDark: "#363740",
     },
     primary: {
-      dark: "#5a1cc3",
-      main: "#7b3fe4",
+      dark: "rgb(78, 207, 177)",
+      main: "rgb(78, 207, 177)",
     },
     success: {
       light: "rgba(0,255,0,0.1)",
