@@ -19,6 +19,7 @@ interface CommonPendingTx {
   timestamp: number;
   to: Chain;
   token: Token;
+  status: string
 }
 
 type PendingDepositTxData = {

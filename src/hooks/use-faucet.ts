@@ -3,6 +3,7 @@ import { Contract } from "ethers";
 import abi from "src/abi/faucet.json";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { EthereumChainId } from "src/domain";
+type TokenName = "USDT" | "USDC" | "TSM"
 export function useFaucet(
   chain: any,
   address: string
@@ -13,15 +14,15 @@ export function useFaucet(
     USDT: false,
     USDC: false,
   });
-  const { changeNetwork, connectedProvider } = useProvidersContext();
+  const { changeNetwork, connectedProvider } = useProvidersContext()
   const onFaucet = async () => {
     if (connectedProvider.status === "successful") {
-      const provider = connectedProvider.data.provider;
-      const chainId = await provider.getNetwork();
+      const provider = connectedProvider.data.provider
+      const chainId = await provider.getNetwork()
       if (chainId?.chainId !== EthereumChainId.SEPOLIA) {
-        changeNetwork(chain).then(executeFaucet);
+        changeNetwork(chain).then(executeFaucet)
       } else {
-        executeFaucet();
+        executeFaucet()
       }
     }
   };
@@ -39,7 +40,7 @@ export function useFaucet(
       }
     }
   };
-  const onAddToken = async (name: "USDT" | "USDC" | "TSM") => {
+  const onAddToken = async (name:TokenName ) => {
     if (connectedProvider.status === "successful") {
       const provider = connectedProvider.data.provider;
       const chainId = await provider.getNetwork();
@@ -50,7 +51,7 @@ export function useFaucet(
       }
     }
   };
-  const executeAddToken = async (symbol: "USDT" | "USDC" | "TSM") => {
+  const executeAddToken = async (symbol:TokenName) => {
 	const { host, protocol } = window.location
     if (connectedProvider.status === "successful") {
       const tokens = {

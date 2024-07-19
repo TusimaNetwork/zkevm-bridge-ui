@@ -210,7 +210,7 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
 
   const switchNetwork = (chain: Chain, connectedProvider: Web3Provider): Promise<void> => {
     setIsSwitchingNetwork(true)
-    console.log("switch network")
+    // console.log("switch network")
     if (!connectedProvider.provider.request) {
       return Promise.reject(
         new Error("No request method is available from the provider to switch the Ethereum chain")
@@ -233,14 +233,14 @@ const ProvidersProvider: FC<PropsWithChildren> = (props) => {
           throw error
         }
       })
-      .finally(() => {
-        setTimeout(() => {
-          setConnectedProvider({
-            status: "pending",
-          })
-          setIsSwitchingNetwork(false)
-        }, IS_SWITCHING_NETWORK_DELAY)
-      })
+      // .finally(() => {
+      //   setTimeout(() => {
+      //     setConnectedProvider({
+      //       status: "pending",
+      //     })
+      //     setIsSwitchingNetwork(false)
+      //   }, IS_SWITCHING_NETWORK_DELAY)
+      // })
   }
 
   const addNetwork = useCallback(

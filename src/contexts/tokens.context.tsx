@@ -1,44 +1,23 @@
-import {FC, PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react"
-import { BigNumber, constants as ethersConstants } from "ethers"
+import {FC, PropsWithChildren, createContext, useCallback, useContext, useMemo, useRef} from "react"
+import { BigNumber } from "ethers"
 import { Web3Provider } from "@ethersproject/providers"
 import * as ethereum from "src/adapters/ethereum"
-import { cleanupCustomTokens, getCustomTokens } from "src/adapters/storage"
-import { getEthereumErc20Tokens } from "src/adapters/tokens"
 import tokenIconDefaultUrl from "src/assets/icons/tokens/erc20-icon.svg"
 import { useEnvContext } from "src/contexts/env.context"
-import { useErrorContext } from "src/contexts/error.context"
 import { useProvidersContext } from "src/contexts/providers.context"
-import { Chain, ChainKey, Env, EthereumChainId, Token } from "src/domain"
-import { Bridge__factory } from "src/types/contracts/bridge"
+import { Chain, Env, Token } from "src/domain"
 import { Erc20__factory } from "src/types/contracts/erc-20"
 import axios from "src/utils/axios"
 import { isTokenEther } from "src/utils/tokens"
 import { isAsyncTaskDataAvailable } from "src/utils/types"
 import {
-  ETHNavToken,
-  ETH_TOKEN_LOGO_URI,
-  TSMAddressZero,
-  TSMNAVToken00,
-  TSMNAVToken01,
-  TSMNAVToken02,
-  TSMNAVToken03,
-  TSMToken,
-  WETHToken} from "src/constants"
+  TSMNAVToken03} from "src/constants"
+import { AddWrappedTokenParams, useTokens } from "src/hooks/use-tokens"
+import { useCustomTokens } from "src/hooks/use-custom-tokens"
 
-interface ComputeWrappedTokenAddressParams {
-  nativeChain: Chain
-  otherChain: Chain
-  token: Token
-}
 
-interface GetNativeTokenInfoParams {
-  address: string
-  chain: Chain
-}
 
-interface AddWrappedTokenParams {
-  token: Token
-}
+
 
 interface GetTokenFromAddressParams {
   address: string
@@ -48,7 +27,6 @@ interface GetTokenFromAddressParams {
 interface GetTokenParams {
   env: Env
   originNetwork: number
-  destNetId: number
   tokenOriginAddress: string
   cache?:boolean
 }
@@ -89,114 +67,12 @@ const tokensContext = createContext<TokensContext>({
 
 const TokensProvider: FC<PropsWithChildren> = (props) => {
   const env = useEnvContext()
-  const { notifyError } = useErrorContext()
   const { changeNetwork, connectedProvider } = useProvidersContext()
-  const [tokens, setTokens] = useState<Token[]>()
   const fetchedTokens = useRef<Token[]>([])
 
-  /**
-   * Provided a token, its native chain and any other chain, computes the address of the wrapped token on the other chain
-   */
-  const computeWrappedTokenAddress = useCallback(
-    async ({ nativeChain, otherChain, token }: ComputeWrappedTokenAddressParams): Promise<string> => {
-      if (isTokenEther(token)) {
-        throw Error("Can't precalculate the wrapper address of Ether")
-      }
-      
-      const bridgeContract = Bridge__factory.connect(
-        otherChain.bridgeContractAddress,
-        otherChain.provider
-      )
+  const {getNativeTokenInfo,addWrappedToken,tokens} = useTokens(env)
 
-      const res = await bridgeContract.precalculatedWrapperAddress(
-        nativeChain.networkId,
-        token.address,
-        token.name,
-        token.symbol,
-        token.decimals
-      )
-     
-      return res
-    },
-    []
-  )
 
-  /**
-   * Provided a token and a chain, when the token is wrapped, returns the native token's networkId and address and throws otherwise
-   */
-  const getNativeTokenInfo = useCallback(({
-      address,
-      chain,
-    }: GetNativeTokenInfoParams): Promise<{
-      originNetwork: number
-      originTokenAddress: string
-    }> => {
-      const bridgeContract = Bridge__factory.connect(chain.bridgeContractAddress, chain.provider)
-      if([
-        WETHToken?.address.toLocaleLowerCase(),
-        TSMToken?.address.toLocaleLowerCase()
-      ].includes(address.toLocaleLowerCase())){
-        return new Promise((resolve, _reject)=>{
-          resolve({
-            originNetwork: 1, 
-            originTokenAddress: address
-          })
-        })
-      }
-      return bridgeContract.wrappedTokenToTokenInfo(address).then((tokenInfo) => {
-        if (tokenInfo.originTokenAddress === ethersConstants.AddressZero) {
-          // console.log(tokenInfo.originTokenAddress === ethersConstants.AddressZero,tokenInfo.originTokenAddress , ethersConstants.AddressZero,chain)
-          throw new Error(`Can not find a native token for the address "${address}"`)
-        }
-        return tokenInfo
-      }).catch((e)=>{
-        return new Promise((_resolve, reject)=>{
-          reject(e)
-        })
-      })
-    }, [] )
-
-  /**
-   * Provided a token, if its property wrappedToken is missing, adds it and returns the new token
-   * Important: It's assumed that the token is native to the chain declared in token.chainId
-   */
-  const addWrappedToken = useCallback( ({ token }: AddWrappedTokenParams): Promise<Token> => {
-      if (token.wrappedToken || isTokenEther(token)) {
-        return Promise.resolve(token)
-      } else {
-        if (!env) {
-          throw Error("The env is not available")
-        }
-        const ethereumChain = env.chains[0]
-        const polygonZkEVMChain = env.chains[1]
-        const nativeChain = token.chainId === ethereumChain.chainId ? ethereumChain : polygonZkEVMChain
-        const wrappedChain = nativeChain.chainId === ethereumChain.chainId ? polygonZkEVMChain : ethereumChain
-
-        return computeWrappedTokenAddress({
-          nativeChain,
-          otherChain: wrappedChain,
-          token,
-        }).then((wrappedAddress) => {
-            const newToken: Token = {
-              ...token,
-              wrappedToken: {
-                address: wrappedAddress,
-                chainId: wrappedChain.chainId,
-              },
-            }
-            return newToken
-          })
-          .catch((e) => {
-            console.log({
-              nativeChain,
-              otherChain: wrappedChain,
-              token,
-            })
-            notifyError(e)
-            return Promise.resolve(token)
-          })
-      }
-    }, [env, computeWrappedTokenAddress, notifyError] )
 
   const getTokenFromAddress = useCallback(
     async ({ address, chain }: GetTokenFromAddressParams): Promise<Token> => {
@@ -247,7 +123,6 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
   const fetchToken = (tokenAddress: string, chain: Chain | Token) => {
     const newtoken_list = [
       TSMNAVToken03,
-      ...getCustomTokens(),
       ...(tokens || []),
       ...fetchedTokens.current
     ]
@@ -264,17 +139,17 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       env,
       originNetwork,
       tokenOriginAddress: newAddress,
-      destNetId,
-      cache
+      // cache
     }: GetTokenParams): Promise<{ token: Token; origtoken: Token }> => {
+      // console.log({originNetwork})
       const form_chain = env.chains.find((chain) => chain.networkId === originNetwork)
       if (!form_chain) {
         throw new Error(`The chain with the originNetwork "${originNetwork}" could not be found in the list of supported Chains`)
       }
-      const to_chain = env.chains.find((chain) => chain.networkId === destNetId);
-      if (!to_chain) {
-        throw new Error(`The chain with the originNetwork "${destNetId}" could not be found in the list of supported Chains`)
-      }
+      // const to_chain = env.chains.find((chain) => chain.networkId === destNetId);
+      // if (!to_chain) {
+      //   throw new Error(`The chain with the originNetwork "${destNetId}" could not be found in the list of supported Chains`)
+      // }
 
       //如果原链是二层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示tsm的地址
       //如果原链是一层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示teth的地址
@@ -290,7 +165,8 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       if (token) {
         return { token, origtoken: origtoken || token }
       } else {
-        const chain = to_chain;
+        const chain = form_chain;
+        // const chain = to_chain;
         const token = await getTokenFromAddress({ address: newAddress, chain: chain })
           .then((token) => {
             fetchedTokens.current = [...fetchedTokens.current, token]
@@ -333,79 +209,6 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       }
     }, [connectedProvider, changeNetwork])
 
-  const initTokens = () => {
-    if (env) {
-      const ethereumChains = env.chains.map((chain) => chain.chainId)
-      getEthereumErc20Tokens()
-        .then((ethereumErc20Tokens) =>
-          Promise.all(
-            ethereumErc20Tokens
-              .filter((token) => ethereumChains.includes(token.chainId))
-              .map(async (token) => {
-                if(token.chainId === EthereumChainId.EAGLE){
-                  // console.log({token})
-                  const {originTokenAddress} = await getNativeTokenInfo({
-                    address: token.address,
-                    chain:env.chains[1]
-                  })
-                  return {
-                    ...token,
-                    wrappedToken:{
-                      address:originTokenAddress,
-                      chainId: env.chains[0].chainId
-                    }
-                  }
-                  // console.log({sss})
-                  // return token
-                }else{
-                  const resToken =  await addWrappedToken({ token })
-                  // console.log({resToken,token})
-                  return resToken
-                }
-                
-              })
-          ).then((chainTokens) => {
-              const tokens = [
-                TSMNAVToken00,
-                TSMNAVToken01,
-                TSMNAVToken02,
-                ETHNavToken, 
-                TSMToken,
-                WETHToken,
-                ...chainTokens
-              ]
-              cleanupCustomTokens(tokens)
-              setTokens(tokens)
-            })
-            .catch(notifyError)
-        )
-        .catch(notifyError)
-    }
-  }
-
-  const initEPTHToken = async () => {
-    if (env) {
-      const polygonzkevm = env.chains.find((itm) => itm.key === ChainKey.polygonzkevm)
-      if (polygonzkevm) {
-        // console.log({polygonzkevm},polygonzkevm.bridgeContractAddress, polygonzkevm.provider)
-        // const contract = Bridge__factory.connect(
-        //   polygonzkevm.bridgeContractAddress,
-        //   polygonzkevm.provider
-        // )
-          // console.log({contract})
-          // contract.getTokenWrappedAddress("0", TSMAddressZero).then((address) =>{
-          // console.log({address})
-          initTokens()
-        // } 
-          // ).catch(console.log)
-      }
-    }
-  }
-
-  // initialize tokens
-  useEffect(() => {
-    initEPTHToken()
-  }, [env, addWrappedToken, notifyError])
 
   const value = useMemo(() => {
     return {

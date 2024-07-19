@@ -18,6 +18,7 @@ interface DepositInput {
   orig_net: number;
   ready_for_claim: boolean;
   tx_hash: string;
+  metadata:string;
 }
 
 export interface DepositOutput {
@@ -33,6 +34,7 @@ export interface DepositOutput {
   orig_net: number;
   ready_for_claim: boolean;
   tx_hash: any;
+  metadata:string;
 }
 
 interface MerkleProof {
@@ -61,6 +63,7 @@ const depositParser = StrictSchema<DepositInput, DepositOutput>()(
     orig_net: z.number(),
     ready_for_claim: z.boolean(),
     tx_hash: z.string(),
+    metadata:z.string(),
   })
 );
 
@@ -245,21 +248,13 @@ export const getMerkleProof = ({
       url: "/api/merkle-proof",
     })
     .then((res) => {
-      //mainExitRoot, merkleProof, rollupExitRoot, rollupMerkleProof
-      const {merkle_proof:merkleProof,main_exit_root:mainExitRoot,rollup_exit_root:rollupExitRoot} = res.data.proof;
-      return {
-        merkleProof,
-        mainExitRoot,
-        rollupExitRoot,
-        rollupMerkleProof:[] 
-      }
-      // const parsedData = getMerkleProofResponseParser.safeParse(res.data);
+      const parsedData = getMerkleProofResponseParser.safeParse(res.data);
 
-      // if (parsedData.success) {
-      //   return parsedData.data.proof;
-      // } else {
-      //   throw parsedData.error;
-      // }
+      if (parsedData.success) {
+        return parsedData.data.proof;
+      } else {
+        throw parsedData.error;
+      }
     });
 };
 

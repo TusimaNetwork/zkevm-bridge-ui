@@ -73,47 +73,6 @@ export const useFee = ({
   const fiatFeeString = fiatFee ? `${currencySymbol}${formatFiatAmount(fiatFee)}` : undefined
   const feeString = fiatFeeString ? `${etherFeeString} ~ ${fiatFeeString}` : etherFeeString
 
-  // useEffect(() => {
-  //   if (formData) {
-  //     const { from, token } = formData;
-  //     const etherToken = getEtherToken(from);
-
-  //     // Get the fiat price of Ether
-  //     getTokenPrice({ chain: from, token: etherToken })
-  //       .then((etherPrice) => {
-  //         callIfMounted(() => {
-  //           setEtherTokenFiatPrice(etherPrice);
-  //           if (isTokenEther(token)) {
-  //             setBridgedTokenFiatPrice(etherPrice);
-  //           }
-  //         });
-  //       })
-  //       .catch(() =>
-  //         callIfMounted(() => {
-  //           setEtherTokenFiatPrice(undefined);
-  //           if (isTokenEther(token)) {
-  //             setBridgedTokenFiatPrice(undefined);
-  //           }
-  //         })
-  //       );
-
-  //     // Get the fiat price of the bridged token when it's not Ether
-  //     if (!isTokenEther(token)) {
-  //       getTokenPrice({ chain: from, token })
-  //         .then((tokenPrice) => {
-  //           callIfMounted(() => {
-  //             setBridgedTokenFiatPrice(tokenPrice);
-  //           });
-  //         })
-  //         .catch(() =>
-  //           callIfMounted(() => {
-  //             setBridgedTokenFiatPrice(undefined);
-  //           })
-  //         );
-  //     }
-  //   }
-  // }, [formData, estimatedGas, getTokenPrice, callIfMounted]);
-
   return {
     token,
     tokenAmountString,

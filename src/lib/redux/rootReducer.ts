@@ -1,8 +1,9 @@
 /* Instruments */
-import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { combineReducers } from "@reduxjs/toolkit";
 
-import { activitySlice } from './slices'
+import { activitySlice,tokensSlice} from './slices'
 
 export const reducer = combineReducers({
-  activity:activitySlice.reducer
+  activity:activitySlice.reducer,
+  tokens:tokensSlice.reducer
 })

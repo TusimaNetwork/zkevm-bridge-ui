@@ -3,10 +3,9 @@ import { FC, useMemo } from "react";
 
 import { ReactComponent as CopyIcon } from "src/assets/icons/copy.svg";
 import { ReactComponent as NewWindowIcon } from "src/assets/icons/new-window.svg";
-import { TSMToken, WETHToken, getToToken } from "src/constants";
+import { TSMToken, WETHToken } from "src/constants";
 import { useEnvContext } from "src/contexts/env.context";
-import { useTokensContext } from "src/contexts/tokens.context";
-import { ChainKey, EthereumChainId, Token } from "src/domain";
+import { EthereumChainId, Token } from "src/domain";
 import { getShortenedEthereumAddress } from "src/utils/addresses";
 import { copyToClipboard } from "src/utils/browser";
 import { isTokenEther } from "src/utils/tokens";

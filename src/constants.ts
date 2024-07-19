@@ -241,26 +241,26 @@ export const isSepoliaTSMToken = (token: Token) => {
   return isSepoliaChain(token) && token.address === TSMToken.address;
 };
 //验证是否是sepolia的tsm token
-export const isEagleWETHToken = (token: Token, WETHToken: Token) => {
+export const isEagleWETHToken = (token: Token ) => {
   return isEagleChain(token) && token.address === WETHToken.address;
 };
-export const getToToken = (token: Token, WETHToken: any): Token => {
+export const getToToken = (token: Token, ): Token => {
   if (isEagleEthToken(token)) {
     return TSMToken;
   } else if (isSpoliaEthToken(token)) {
     return WETHToken;
   } else if (isSepoliaTSMToken(token)) {
     return TSMNAVToken00;
-  } else if (isEagleWETHToken(token, WETHToken)) {
+  } else if (isEagleWETHToken(token, )) {
     return ETHNavToken;
   }
   return token;
 };
 
 export const getEtherToken = (chain: Chain | Token): Token => {
-  if (isEagleChain(chain)) return TSMNAVToken00;
-  return ETHNavToken;
-};
+  if (isEagleChain(chain)) return TSMNAVToken00
+  return ETHNavToken
+}
 
 export const getUsdcToken = ({
   address,

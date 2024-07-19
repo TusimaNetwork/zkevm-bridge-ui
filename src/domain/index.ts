@@ -112,7 +112,7 @@ export interface RouterState {
 export enum EthereumChainId {
   MAINNET = 1,
   GOERLI = 5,
-  EAGLE=1001,
+  EAGLE=10101,
   SEPOLIA=11155111
 }
 
@@ -183,6 +183,7 @@ export type InitiatedBridge = BridgeCommonFields & {
 };
 
 export type OnHoldBridge = BridgeCommonFields & {
+  metadata:string
   status: "on-hold";
 };
 
@@ -217,6 +218,7 @@ export interface Deposit {
   token: Token;
   origtoken:Token;
   tokenOriginNetwork: number;
+  metadata:string,
 }
 
 export interface MerkleProof {
@@ -369,4 +371,5 @@ export type Exact<T, U> = [T, U] extends [U, T] ? true : false;
 export interface DepositResult extends DepositOutput {
   from:EthereumChain | ZkEVMChain
   to:EthereumChain | ZkEVMChain
+  status?:string
 }

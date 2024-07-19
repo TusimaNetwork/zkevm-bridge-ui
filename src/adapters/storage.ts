@@ -4,6 +4,7 @@ import { tokenParser } from "src/adapters/tokens";
 import * as constants from "src/constants";
 import { Chain, Currency, Env, PolicyCheck, Token } from "src/domain";
 import { PendingTx, pendingTxParser, serializePendingTx } from "src/utils/serializers";
+import {useDispatch, activitySlice } from "src/lib/redux";
 
 // Currency
 export function getCurrency(): Currency {
@@ -138,8 +139,6 @@ export function addAccountPendingTx(account: string, env: Env, pendingTx: Pendin
   const pendingTxs = getPendingTxs(env);
   const accountPendingTxs = getAccountPendingTxs(account, env);
   const newAccountPendingTxs = [...accountPendingTxs, pendingTx];
-
-  // console.log({newAccountPendingTxs})
   setPendingTxs({
     ...pendingTxs,
     [account]: newAccountPendingTxs,

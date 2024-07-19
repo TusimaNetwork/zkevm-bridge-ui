@@ -1,32 +1,37 @@
 import { BigNumber } from "ethers";
 import { useTokensContext } from "src/contexts/tokens.context";
 import { Bridge, Deposit, DepositResult, Env } from "src/domain";
-import { serializeBridgeId } from "src/utils/serializers";
+import { deserializeBridgeId, serializeBridgeId } from "src/utils/serializers";
 import useSWR from "swr";
-import { useDispatch, activitySlice,selectActivity,useSelector } from "../lib/redux";
-import { useProvidersContext } from "src/contexts/providers.context";
-import { useMemo } from "react";
+import { useDispatch, activitySlice, selectActivity, useSelector } from "../lib/redux";
+import { useEffect, useMemo, useState } from "react";
+import { useActiveChainId } from "./use-active-chainId";
+import { useBridgeContext } from "src/contexts/bridge.context";
+import { getDeposit } from "src/adapters/bridge-api";
 type DepositProps = {
-  env: Env;
-  apiDeposit: DepositResult;
+  env?: Env;
+  apiDeposit?: DepositResult;
+  bridgeId?: string
+  now?: number
 };
 
 type BridgeProps = {
-  deposit: Deposit;
+  deposit: DepositResult;
 };
-export function useReadDeposit(params: DepositProps) {
-  const { getToken } = useTokensContext();
-  const dispatch = useDispatch();
-
-  const activity = useSelector(selectActivity)
-  const { connectedProvider } = useProvidersContext();
-  const account = useMemo(() => {
-    if (connectedProvider.status === "successful") {
-      return connectedProvider.data.account;
+export function useReadDeposit({ apiDeposit, env, bridgeId }: DepositProps) {
+  const { getToken } = useTokensContext()
+  const dispatch = useDispatch()
+  const { lists: activity } = useSelector(selectActivity)
+  const { account } = useActiveChainId()
+  const [now, setNow] = useState(Date.now())
+  const determineBridgeStatus = (claim: any): any => {
+    return claim.status === "pending" ? "initiated" : claim.status === "ready" ? "on-hold" : "completed"
+  }
+  const abortController = new AbortController()
+  const readDeposit = async ({ env, apiDeposit }: DepositProps): Promise<Bridge | undefined> => {
+    if (!env || !apiDeposit) {
+      throw new Error('env and deposit are required for fetching');
     }
-    return "";
-  }, []);
-  const fetchDeposit = async ({ env, apiDeposit }: DepositProps): Promise<Deposit> => {
     const {
       amount,
       block_num,
@@ -42,137 +47,114 @@ export function useReadDeposit(params: DepositProps) {
       tx_hash,
       from,
       to,
-    } = apiDeposit;
-
-    return getToken({
-      env,
-      originNetwork: network_id,
-      destNetId: dest_net,
-      tokenOriginAddress: orig_addr,
-    }).then(({ token, origtoken }: any) => ({
-      amount: BigNumber.from(amount),
-      blockNumber: block_num,
-      claim:
-        claim_tx_hash !== ""
-          ? { status: "claimed", txHash: claim_tx_hash }
-          : ready_for_claim
-          ? { status: "ready" }
-          : { status: "pending" },
-      depositCount: deposit_cnt,
-      depositTxHash: tx_hash,
-      destinationAddress: dest_addr,
-      fiatAmount: undefined,
-      from,
-      globalIndex: global_index,
-      to,
-      token,
-      origtoken,
-      tokenOriginNetwork: orig_net,
-    }));
-  };
-
-  const fetchBridge = async ({ deposit }: BridgeProps): Promise<Bridge> => {
-    const {
-      amount,
-      blockNumber,
-      claim,
-      depositCount,
-      depositTxHash,
-      destinationAddress,
-      from,
-      globalIndex,
-      to,
-      token,
-      origtoken,
-      tokenOriginNetwork,
-    } = deposit;
-
-    const fiatAmount = undefined;
-
+      metadata,
+    } = apiDeposit
+    const claim = claim_tx_hash !== "" ? { status: "claimed", txHash: claim_tx_hash } : ready_for_claim ? { status: "ready" } : { status: "pending" }
     const id = serializeBridgeId({
-      depositCount,
-      networkId: from.networkId,
-    });
+      depositCount: deposit_cnt,
+      networkId: from.networkId
+    })
+    // console.log({ id })
+    return await getToken({
+      env,
+      originNetwork: orig_net,
+      // destNetId: dest_net,
+      tokenOriginAddress: orig_addr,
+    }).then(({ token, origtoken }: any) => {
+      // console.log("token",token)
+      let bridge: Bridge = {
+        ...{
+          amount: BigNumber.from(amount),
+          blockNumber: block_num,
+          claim,
+          depositCount: deposit_cnt,
+          depositTxHash: tx_hash,
+          destinationAddress: dest_addr,
+          fiatAmount: undefined,
+          from,
+          globalIndex: global_index,
+          to,
+          token,
+          origtoken,
+          tokenOriginNetwork: orig_net,
+          originNetwork: network_id,
+          destNetId: dest_net,
+          claimTxHash: claim_tx_hash,
+          metadata,
+        },
+        id,
+        status: determineBridgeStatus(claim),
+      }
+      // console.log("ddafdsafds",claim_tx_hash,result)
+      // console.log("update bridge",bridge)
+      dispatch(activitySlice.actions.addActivity({ account, bridge }))
+      return bridge
+    }).catch((e) => {
+      console.error(e)
+      return undefined
+    })
 
-    let bridge: Bridge;
-    switch (claim.status) {
-      case "pending": {
-        bridge = {
-          amount,
-          blockNumber,
-          depositCount,
-          depositTxHash,
-          destinationAddress,
-          fiatAmount,
-          from,
-          globalIndex,
-          id,
-          status: "initiated",
-          to,
-          token,
-          origtoken,
-          tokenOriginNetwork,
-        };
-        break;
-      }
-      case "ready": {
-        bridge = {
-          amount,
-          blockNumber,
-          depositCount,
-          depositTxHash,
-          destinationAddress,
-          fiatAmount,
-          from,
-          globalIndex,
-          id,
-          status: "on-hold",
-          to,
-          token,
-          origtoken,
-          tokenOriginNetwork,
-        };
-        break;
-      }
-      case "claimed": {
-        bridge = {
-          amount,
-          blockNumber,
-          claimTxHash: claim.txHash,
-          depositCount,
-          depositTxHash,
-          destinationAddress,
-          fiatAmount,
-          from,
-          globalIndex,
-          id,
-          status: "completed",
-          to,
-          token,
-          origtoken,
-          tokenOriginNetwork,
-        };
-        break;
+
+  }
+  const initDeposit = async ({ apiDeposit, bridgeId, env }: DepositProps): Promise<DepositResult | undefined> => {
+    if (!env) {
+      throw new Error('env and deposit are required for fetching');
+    }
+
+    if (apiDeposit) {
+      return apiDeposit
+    }
+
+    const parsedBridgeId = deserializeBridgeId(bridgeId)
+    if (parsedBridgeId.success) {
+      const { depositCount, networkId } = parsedBridgeId.data
+      const deposit = await getDeposit({
+        abortSignal: abortController.signal,
+        apiUrl: env.bridgeApiUrl,
+        depositCount, networkId
+      })
+      const from = env.chains.find((chain) => chain.networkId === deposit.network_id)
+      const to = env.chains.find((chain) => chain.networkId === deposit.dest_net)
+      if (from && to) {
+        return { ...deposit, from, to }
       }
     }
-    dispatch(activitySlice.actions.addActivity({account, bridge}))
-    return bridge;
-  };
+  }
 
-  const readDeposit = async (params: DepositProps) => {
-    const deposit = await fetchDeposit(params);
-    if (deposit) {
-      return fetchBridge({ deposit });
+  const { data: deposit } = useSWR({
+    env,
+    apiDeposit,
+    bridgeId
+  }, initDeposit, {
+    refreshInterval: 1000 * 30,
+  })
+
+  const { data: result_data,  } = useSWR({
+    env,
+    apiDeposit: deposit,
+    now,
+  }, readDeposit, {
+    refreshInterval: 30 * 1000,
+    focusThrottleInterval: 100 * 1000
+  })
+
+  return useMemo(() => {
+    if (!deposit) {
+      return null
     }
-    return undefined;
-  };
-  const { data: result_data, isLoading } = useSWR(params, params.env ? readDeposit : null);
-  const deposit=useMemo(()=>{
-    const txs = activity.lists[account] ?? {}
-    const apiDeposit=params.apiDeposit
-    const result = txs[`${apiDeposit.from.chainId}-${apiDeposit.tx_hash}`] ?? result_data
+    const txs = activity[account] ?? {}
+    const result = copyJson(txs[`${deposit.from.chainId}-${deposit.tx_hash}`] ?? result_data)
+    if (result && env) {
+      result['to'] = env?.chains.find(itm => itm.chainId === result.to.chainId) || result.to
+      result['from'] = env?.chains.find(itm => itm.chainId === result.from.chainId) || result.from
+    }
     return result
-  },[result_data,account,activity,params]) 
-  console.log({activity})
-  return deposit;
+  }, [result_data, account, activity, env, deposit])
+}
+
+const copyJson = (json: any) => {
+  if (!json) {
+    return null
+  }
+  return JSON.parse(JSON.stringify(json))
 }

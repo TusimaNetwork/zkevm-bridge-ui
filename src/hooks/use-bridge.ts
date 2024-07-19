@@ -1,17 +1,15 @@
-import { BigNumber } from "ethers";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useBridgeContext } from "src/contexts/bridge.context";
-import { useProvidersContext } from "src/contexts/providers.context";
-import { useUIContext } from "src/contexts/ui.context";
-import { AsyncTask, Gas, TokenSpendPermission, FormData } from "src/domain";
-import { routes } from "src/routes";
-import { calculateMaxTxFee } from "src/utils/fees";
-import { isTokenEther } from "src/utils/tokens";
-import { isAsyncTaskDataAvailable, isMetaMaskUserRejectedRequestError } from "src/utils/types";
-import { useCallIfMounted } from "./use-call-if-mounted";
-import { useErrorContext } from "src/contexts/error.context";
-import { parseError } from "src/adapters/error";
+import { BigNumber } from "ethers"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useBridgeContext } from "src/contexts/bridge.context"
+import { useProvidersContext } from "src/contexts/providers.context"
+import { useUIContext } from "src/contexts/ui.context"
+import { AsyncTask, Gas, TokenSpendPermission, FormData } from "src/domain"
+import { routes } from "src/routes"
+import { isAsyncTaskDataAvailable, isMetaMaskUserRejectedRequestError } from "src/utils/types"
+import { useCallIfMounted } from "./use-call-if-mounted"
+import { useErrorContext } from "src/contexts/error.context"
+import { parseError } from "src/adapters/error"
 export const useBridge = ({
   formData,
   estimatedGas,
@@ -57,8 +55,7 @@ export const useBridge = ({
             text: "Transaction successfully submitted",
             type: "success-msg",
           })
-          navigate(routes.activity.path);
-          // setFormData(undefined);
+          navigate(routes.activity.path)
         })
         .catch((error) => {
           callIfMounted(() => {

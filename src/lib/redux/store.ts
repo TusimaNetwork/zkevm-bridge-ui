@@ -16,7 +16,7 @@ import { reducer } from './rootReducer'
 
 // 持久化配置
 const persistConfig = {
-  key: "de-index",
+  key: "t-bridge",
   storage,
   timeout:1000,
 };

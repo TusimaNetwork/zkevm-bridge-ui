@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getIsDepositWarningDismissed, setIsDepositWarningDismissed } from "src/adapters/storage";
+import { setIsDepositWarningDismissed } from "src/adapters/storage";
 
 import { ReactComponent as MetaMaskIcon } from "src/assets/icons/metamask.svg";
-import { useEnvContext } from "src/contexts/env.context";
 import { useFormContext } from "src/contexts/form.context";
 import { useProvidersContext } from "src/contexts/providers.context";
-import { ChainKey, FormData, ModalState } from "src/domain";
+import { FormData, ModalState } from "src/domain";
 import { routes } from "src/routes";
 import { getPartiallyHiddenEthereumAddress } from "src/utils/addresses";
 import { BridgeForm } from "src/views/home/components/bridge-form/bridge-form.view";
@@ -21,7 +20,6 @@ import { Spinner } from "../shared/spinner/spinner.view";
 export const Home = (): JSX.Element => {
   const classes = useHomeStyles()
   const navigate = useNavigate()
-  const env = useEnvContext()
   const { formData, setFormData } = useFormContext()
   const { connectedProvider } = useProvidersContext()
   const [depositWarningModal, setDepositWarningModal] = useState<ModalState<FormData>>({
@@ -37,29 +35,16 @@ export const Home = (): JSX.Element => {
   };
 
   const onCheckShowDepositWarningAndSubmitForm = (formData: FormData) => {
-    // const isDepositWarningDismissed = getIsDepositWarningDismissed()
-
-    // if ( env && env.isDepositWarningEnabled && !isDepositWarningDismissed && formData.from.key === ChainKey.ethereum ) {
-    // if ( true) {
       setDepositWarningModal({
         data: formData,
         status: "open"
       })
-    // } else {
-    //   onSubmitForm(formData)
-    // }
   }
 
   const onResetForm = () => {
     setFormData(undefined);
   }
   
-//   return <div className={classes.contentWrapper}>
-//   <Header />
-//   <div className={classes.spinner}>
-//   <Spinner />
-//   </div>
-// </div>
   return (
     <div className={classes.contentWrapper}>
       <Header />
