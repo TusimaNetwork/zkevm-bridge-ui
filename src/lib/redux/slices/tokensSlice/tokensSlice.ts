@@ -1,7 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { addActivityAsync } from "./thunks";
-import { Bridge, Token } from "src/domain";
-import { PendingTx } from "src/utils/serializers";
+import { Token } from "src/domain";
 
 const initialState: TokensSliceState = {
   tokens: [],
