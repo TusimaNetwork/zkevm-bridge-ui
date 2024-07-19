@@ -51,7 +51,7 @@ export const ReadBridgeCard: React.FC<BridgeCardProps> = ({ apiDeposit, env, las
       setAreBridgesDisabled(true)
       try {
         const res = await claim({bridge})
-        console.log({res})
+        console.log('hash:',res.hash)
         openSnackbar({
           text: "Transaction successfully submitted.",
           type: "success-msg",

@@ -139,7 +139,6 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       tokenOriginAddress: newAddress,
       // cache
     }: GetTokenParams): Promise<{ token: Token; origtoken: Token }> => {
-      // console.log({originNetwork})
       const form_chain = env.chains.find((chain) => chain.networkId === originNetwork)
       if (!form_chain) {
         throw new Error(`The chain with the originNetwork "${originNetwork}" could not be found in the list of supported Chains`)

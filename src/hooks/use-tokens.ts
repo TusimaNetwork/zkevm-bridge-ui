@@ -129,7 +129,6 @@ export const useTokens = (env?:Env) => {
     }
   }, [env, computeWrappedTokenAddress, ] ) 
   const getTokens = async({env,index}:{env:Env,index:string}):Promise<Token[]>=>{
-    console.log(index)
     const ethereumChains = env.chains.map((chain) => chain.chainId)
     return getEthereumErc20Tokens().then((ethereumErc20Tokens) =>
         Promise.all(
@@ -181,7 +180,6 @@ export const useTokens = (env?:Env) => {
       return getCustomTokens.concat(tokensData || [])
     }
   },[tokensData,getCustomTokens])
-  console.log({tokens,tokensData})
   return {
     addWrappedToken,
     tokens,

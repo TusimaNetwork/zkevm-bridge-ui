@@ -54,7 +54,6 @@ export function useReadDeposit({ apiDeposit, env, bridgeId }: DepositProps) {
       depositCount: deposit_cnt,
       networkId: from.networkId
     })
-    // console.log({ id })
     return await getToken({
       env,
       originNetwork: orig_net,

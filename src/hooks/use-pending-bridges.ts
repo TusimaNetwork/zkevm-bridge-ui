@@ -29,7 +29,11 @@ export const usePendingBridges = ({account}:props) => {
     const pendings = Object.values(pendingTx[account] || {})
     return {
       pendings,
-      allPendings:[...pendings,...Object.values(lists[account] || {}).filter(itm=>itm.status === 'initiated') as any]
+      allPendings:[...pendings,...Object.values(lists[account] || {}).filter(itm=>itm.status === 'initiated').map((itm)=>({
+        orig_net:itm.tokenOriginNetwork,
+        tx_hash:itm.depositTxHash,
+        ...itm
+      }))]
     }
   },[pendingTx,lists,account])
   return result 
