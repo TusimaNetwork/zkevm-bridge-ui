@@ -10,8 +10,8 @@ import { Erc20__factory } from "src/types/contracts/erc-20"
 import axios from "src/utils/axios"
 import { isTokenEther } from "src/utils/tokens"
 import { isAsyncTaskDataAvailable } from "src/utils/types"
-import {
-  TSMNAVToken03} from "src/constants"
+// import {
+//   TSMNAVToken03} from "src/constants"
 import { AddWrappedTokenParams, useTokens } from "src/hooks/use-tokens"
 import { useCustomTokens } from "src/hooks/use-custom-tokens"
 
@@ -120,15 +120,13 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
 
   const fetchToken = (tokenAddress: string, chain: Chain | Token) => {
     const newtoken_list = [
-      TSMNAVToken03,
       ...(tokens || []),
       ...fetchedTokens.current
     ]
     const token = newtoken_list.find( (token) =>
-        (token.address === tokenAddress && token.chainId === chain.chainId) ||
-        (token.wrappedToken && token.wrappedToken.address === tokenAddress && token.wrappedToken.chainId === chain.chainId)
+        (token.address === tokenAddress && token.chainId === chain.chainId)
     )
-    // console.log({newtoken_list})
+    // console.log({newtoken_list,tokenAddress,chain})
     return token
   }
 
@@ -148,6 +146,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       //   throw new Error(`The chain with the originNetwork "${destNetId}" could not be found in the list of supported Chains`)
       // }
 
+      // console.log({form_chain})
       //如果原链是二层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示tsm的地址
       //如果原链是一层链，并且地址是0x0000000000000000000000000000000000000000，目标链要显示teth的地址
       //如果原链是一层链，并且地址是0x0000000000000000000000000000000000000001，目标链显示teth的地址
@@ -155,6 +154,7 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
       //const originTokenAddress = getExchangeAddress(newAddress)
       //token 用在了提币上
       const token = fetchToken(newAddress, form_chain)
+      // console.log({token})
       //origtoken 是用在了展示上
       const origtoken = fetchToken(newAddress,form_chain)
 

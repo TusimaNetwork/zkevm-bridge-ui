@@ -187,33 +187,33 @@ export const TSMNAVToken00: Token = {
   name: "TSM",
   symbol: "TSM",
 };
-export const TSMNAVToken01: Token = {
-  address: TSMAddressZero,
-  is01: true,
-  chainId: EthereumChainId.EAGLE,
-  decimals: 18,
-  logoURI: ETH_TOKEN_LOGO_URI,
-  name: "ETH",
-  symbol: "ETH",
-};
-export const TSMNAVToken02: Token = {
-  address: TSMAddressZero,
-  is01: true,
-  chainId: EthereumChainId.SEPOLIA,
-  decimals: 18,
-  logoURI: ETH_TOKEN_LOGO_URI,
-  name: "ETH",
-  symbol: "ETH",
-};
-export const TSMNAVToken03: Token = {
-  address: ethers.constants.AddressZero,
-  is01: true,
-  chainId: EthereumChainId.SEPOLIA,
-  decimals: 18,
-  logoURI: TSM_TOKEN_LOGO_URI,
-  name: "TSM",
-  symbol: "TSM",
-};
+// export const TSMNAVToken01: Token = {
+//   address: TSMAddressZero,
+//   is01: true,
+//   chainId: EthereumChainId.EAGLE,
+//   decimals: 18,
+//   logoURI: ETH_TOKEN_LOGO_URI,
+//   name: "ETH",
+//   symbol: "ETH",
+// };
+// export const TSMNAVToken02: Token = {
+//   address: TSMAddressZero,
+//   is01: true,
+//   chainId: EthereumChainId.SEPOLIA,
+//   decimals: 18,
+//   logoURI: ETH_TOKEN_LOGO_URI,
+//   name: "ETH",
+//   symbol: "ETH",
+// };
+// export const TSMNAVToken03: Token = {
+//   address: ethers.constants.AddressZero,
+//   is01: true,
+//   chainId: EthereumChainId.SEPOLIA,
+//   decimals: 18,
+//   logoURI: TSM_TOKEN_LOGO_URI,
+//   name: "TSM",
+//   symbol: "TSM",
+// };
 export const getExchangeAddress = (address: string) => {
   // if (address === TSMAddressZero) {
   //   return ethers.constants.AddressZero

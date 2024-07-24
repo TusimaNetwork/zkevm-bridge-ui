@@ -138,6 +138,7 @@ export const TokenList: FC<TokenListProps> = ({
             const isImportedCustomToken = isChainNativeCustomToken(token, chains.from) || isEagleWETHToken(token) || isSepoliaTSMToken(token);
             const isNonImportedCustomToken = !isImportedCustomToken && customToken.status === "successful" && customToken.data.address === token.address;
 
+            console.log({isImportedCustomToken,isNonImportedCustomToken})
             if (isNonImportedCustomToken) {
               return <div className={classes.tokenButtonWrapper} key={`${token.chainId}-${token.address}`}>
                 <button className={classes.tokenButton} onClick={() => onSelectToken(token)} role="button" >

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { getEthereumErc20Tokens } from "src/adapters/tokens";
-import { ETHNavToken, TSMNAVToken00, TSMNAVToken01, TSMNAVToken02, TSMToken, WETHToken } from "src/constants";
+import { ETHNavToken, TSMNAVToken00, TSMToken, WETHToken } from "src/constants";
 import { useProvidersContext } from "src/contexts/providers.context";
 import { Chain, Env, EthereumChainId, Token } from "src/domain";
 import { Bridge__factory } from "src/types/contracts/bridge";
@@ -155,8 +155,8 @@ export const useTokens = (env?:Env) => {
         ).then((chainTokens) => {
             const tokens = [
               TSMNAVToken00,
-              TSMNAVToken01,
-              TSMNAVToken02,
+              // TSMNAVToken01,
+              // TSMNAVToken02,
               ETHNavToken,
               TSMToken,
               WETHToken,

@@ -157,7 +157,6 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
 
       const { token, origtoken } = await getToken({
         env,
-        destNetId: dest_net,
         originNetwork: network_id,
         tokenOriginAddress: orig_addr,
       });
