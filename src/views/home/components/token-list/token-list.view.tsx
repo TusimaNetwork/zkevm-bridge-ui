@@ -9,6 +9,7 @@ import { TOKEN_BLACKLIST, isEagleWETHToken, isSepoliaTSMToken } from "src/consta
 import { useTokensContext } from "src/contexts/tokens.context"
 import { AsyncTask, Chain, Token } from "src/domain"
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted"
+import { useCustomTokens } from "src/hooks/use-custom-tokens"
 import { useTokenBalance } from "src/hooks/use-token-balance"
 import { useTokenListStyles } from "src/views/home/components/token-list/token-list.styles"
 import { TokenSelectorHeader } from "src/views/home/components/token-selector-header/token-selector-header.view"
@@ -46,6 +47,7 @@ export const TokenList: FC<TokenListProps> = ({
   const { getTokenFromAddress } = useTokensContext()
   const [searchInputValue, setSearchInputValue] = useState<string>("")
  
+  const {isChainCustomToken} = useCustomTokens()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const searchTokenInfo = async (searchInput: string):Promise<AsyncTask<Token, string>> => {
@@ -113,7 +115,7 @@ export const TokenList: FC<TokenListProps> = ({
           onChange={(event) => {
             onSearchInputchange(event.target.value);
           }}
-          placeholder="Enter token name or address"
+          placeholder="Enter token address"
           ref={inputRef}
           type="search"
           value={searchInputValue}
@@ -129,16 +131,14 @@ export const TokenList: FC<TokenListProps> = ({
           <div className={classes.centeredElement}>
             <Spinner />
           </div>
-        ) : error ? (
-          <Typography className={classes.centeredElement} type="body2">
+        ) : error ?  <Typography className={classes.centeredElement} type="body2">
             {error}
           </Typography>
-        ) : (
-          tokensLists.map((token) => {
-            const isImportedCustomToken = isChainNativeCustomToken(token, chains.from) || isEagleWETHToken(token) || isSepoliaTSMToken(token);
+        : tokensLists.map((token) => {
+            const isImportedCustomToken = tokens.find(itm=>itm.address === token.address && itm.chainId === token.chainId) !== undefined;
             const isNonImportedCustomToken = !isImportedCustomToken && customToken.status === "successful" && customToken.data.address === token.address;
 
-            console.log({isImportedCustomToken,isNonImportedCustomToken})
+            console.log({isImportedCustomToken,isNonImportedCustomToken,tokens})
             if (isNonImportedCustomToken) {
               return <div className={classes.tokenButtonWrapper} key={`${token.chainId}-${token.address}`}>
                 <button className={classes.tokenButton} onClick={() => onSelectToken(token)} role="button" >
@@ -170,7 +170,7 @@ export const TokenList: FC<TokenListProps> = ({
               )
             }
           })
-        )}
+        }
       </div>
     </div>
   )

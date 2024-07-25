@@ -26,13 +26,15 @@ export const useCustomTokens = () => {
   }
   function cleanupCustomTokens(tokens:Token[]){
     for (let index = 0; index < tokens.length; index++) {
-      const token = tokens[index];
+      const token = tokens[index]
       removeCustomToken(token)
     }
   }
   function isChainCustomToken(token:Token,chain:Chain){
     return getChainCustomTokens(chain).find((tkn) => tkn.address === token.address) !== undefined;
   }
+
+  
   return {
     getCustomTokens,
     addCustomToken,
