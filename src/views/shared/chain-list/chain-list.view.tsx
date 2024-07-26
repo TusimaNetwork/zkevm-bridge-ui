@@ -8,12 +8,13 @@ import { Portal } from "src/views/shared/portal/portal.view";
 import { Typography } from "src/views/shared/typography/typography.view";
 
 interface ChainListProps {
+  show: boolean;
   chains: Chain[];
   onClick: (chain: Chain) => void;
   onClose: () => void;
 }
 
-export const ChainList: FC<ChainListProps> = ({ chains, onClick, onClose }) => {
+export const ChainList: FC<ChainListProps> = ({ chains, onClick, onClose ,show}) => {
   const classes = useListStyles();
 
   const onOutsideClick = (event: React.MouseEvent) => {
@@ -24,7 +25,7 @@ export const ChainList: FC<ChainListProps> = ({ chains, onClick, onClose }) => {
   };
 
   return (
-    <Portal>
+    <Portal show>
       <div className={classes.background} onMouseDown={onOutsideClick}>
         <Card className={classes.card}>
           <div className={classes.header}>

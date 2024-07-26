@@ -115,10 +115,12 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
     setInputError(error)
   }
   const onTokenDropdownClick = () => {
+    console.log("onTokenDropdownClick")
     setIsTokenListOpen(true);
   }
 
   const onSelectToken = (token: Token) => {
+    console.log("onSelectToken")
     setSelectToken(token)
     setIsTokenListOpen(false)
     setAmount(undefined)
@@ -126,6 +128,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
 
 
   const onCloseTokenSelector = () => {
+    console.log("onCloseTokenSelector")
     setIsTokenListOpen(false)
   }
 
@@ -204,6 +207,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       <div style={{ height: 80, width: 80 }} />
     </div>
   }
+  // console.log({isTokenListOpen})
 
   return (
     <form className={classes.form} onSubmit={onFormSubmit}>
@@ -265,12 +269,27 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
       </div>
       {chains && (
         <ChainList
+        show={!!chains}
           chains={chains}
           onClick={onChainButtonClick}
           onClose={() => setChains(undefined)}
         />
       )}
-      {isTokenListOpen && (
+      {/* <div style={{display:!isTokenListOpen?'':'none'}}> */}
+
+      <TokenSelector
+      isTokenListOpen={isTokenListOpen}
+          // reloadBalances={reloadBalances}
+          account={account}
+          chains={selectedChains}
+          onAddToken={addCustomToken}
+          onClose={onCloseTokenSelector}
+          onRemoveToken={onRemoveToken}
+          onSelectToken={onSelectToken}
+          tokens={tokens}
+        />
+      {/* </div> */}
+      {/* {isTokenListOpen && (
         <TokenSelector
           // reloadBalances={reloadBalances}
           account={account}
@@ -281,7 +300,7 @@ export const BridgeForm: FC<BridgeFormProps> = ({ account, onSubmit }) => {
           onSelectToken={onSelectToken}
           tokens={tokens}
         />
-      )}
+      )} */}
     </form>
   );
 };

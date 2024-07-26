@@ -64,8 +64,9 @@ export const Home = (): JSX.Element => {
             onResetForm={onResetForm}
             onSubmit={onCheckShowDepositWarningAndSubmitForm}
           />
-          {depositWarningModal.status === "open" && (
+          { depositWarningModal.status === "open" && (
             <DepositWarningModal
+            show={depositWarningModal.status === "open"}
               formData={depositWarningModal.data}
               onAccept={onSubmitForm}
               onCancel={() => setDepositWarningModal({ status: "closed" })}

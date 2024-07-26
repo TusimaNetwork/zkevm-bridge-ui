@@ -52,6 +52,7 @@ export const NetworkSelector: FC = () => {
       </button>
       {isOpen && (
         <ChainList
+        show={isOpen}
           chains={env.chains}
           onClick={(chain) => {
             changeNetwork(chain).catch((error) => {

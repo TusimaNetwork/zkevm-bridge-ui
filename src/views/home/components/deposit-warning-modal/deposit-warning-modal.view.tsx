@@ -25,13 +25,14 @@ import { ErrorMessage } from "src/views/shared/error-message/error-message.view"
 
 interface DepositWarningModalProps {
   formData: FormData;
+  show:boolean;
   onAccept: (formData: FormData, hideDepositWarning: boolean) => void;
   onCancel: () => void;
 }
 
 export const DepositWarningModal: FC<DepositWarningModalProps> = ({
   formData,
-  onAccept,
+  show,
   onCancel,
 }) => {
   const classes2 = useDepositWarningModalStyles();
@@ -81,7 +82,7 @@ export const DepositWarningModal: FC<DepositWarningModalProps> = ({
    e?.stopPropagation()
   };
   return (
-    <Portal>
+    <Portal show={show}>
       <div onClick={onCancel} className={classes2.background}>
         <Card onClick={onCancelCard} className={classes.card}>
         

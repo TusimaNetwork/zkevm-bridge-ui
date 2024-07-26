@@ -12,6 +12,7 @@ interface ConfirmationModalProps {
   onConfirm: () => void;
   showCancelButton?: boolean;
   title?: string;
+  show:boolean
 }
 
 export const ConfirmationModal: FC<ConfirmationModalProps> = ({
@@ -20,6 +21,7 @@ export const ConfirmationModal: FC<ConfirmationModalProps> = ({
   onConfirm,
   showCancelButton = true,
   title,
+  show
 }) => {
   const classes = useConfirmationModalStyles();
 
@@ -30,7 +32,7 @@ export const ConfirmationModal: FC<ConfirmationModalProps> = ({
   };
 
   return (
-    <Portal>
+    <Portal show={show}>
       <div className={classes.background} onMouseDown={onOutsideClick}>
         <Card className={classes.card}>
           {title && (

@@ -39,6 +39,7 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
       )}
       {env && showNetworkOutdatedModal && env.outdatedNetworkModal.isEnabled && (
         <ConfirmationModal
+        show={env && showNetworkOutdatedModal && env.outdatedNetworkModal.isEnabled}
           message={
             <div>
               {env.outdatedNetworkModal.messageParagraph1 && (

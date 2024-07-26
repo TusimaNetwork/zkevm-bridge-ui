@@ -27,6 +27,7 @@ interface SelectedChains {
 }
 
 interface TokenSelectorProps {
+  isTokenListOpen:boolean
   account: string
   chains: SelectedChains
   onAddToken: (token: Token) => void
@@ -45,6 +46,7 @@ export const TokenSelector: FC<TokenSelectorProps> = ({
   onRemoveToken,
   onSelectToken,
   tokens,
+  isTokenListOpen
   // reloadBalances
 }) => {
   const classes = useTokenSelectorStyles()
@@ -93,28 +95,25 @@ export const TokenSelector: FC<TokenSelectorProps> = ({
     })
   }
 
-  useEffect(() => {
-    const onKeyUp = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose()
-      }
-    }
+  // useEffect(() => {
+  //   const onKeyUp = (event: KeyboardEvent) => {
+  //     if (event.key === "Escape") {
+  //       onClose()
+  //     }
+  //   }
 
-    window.addEventListener("keyup", onKeyUp)
+  //   window.addEventListener("keyup", onKeyUp)
 
-    return () => {
-      window.removeEventListener("keyup", onKeyUp)
-    }
-  }, [onClose])
+  //   return () => {
+  //     window.removeEventListener("keyup", onKeyUp)
+  //   }
+  // }, [onClose])
+  // console.log({screen:screen.type},screen.type === 'token-list',screen.type === 'token-adder',screen.type === 'token-info')
   return (
-    <Portal>
+    <Portal show={isTokenListOpen}>
       <div className={classes.background} onMouseDown={onOutsideClick}>
         <Card className={classes.card}>
-          {(() => {
-            switch (screen.type) {
-              case "token-list": {
-                return (
-                  <TokenList
+              {screen.type === 'token-list' ?<TokenList
                   // reloadBalances={reloadBalances}
                     account={account}
                     chains={chains}
@@ -123,32 +122,21 @@ export const TokenSelector: FC<TokenSelectorProps> = ({
                     onNavigateToTokenInfo={onNavigateToTokenInfo}
                     onSelectToken={onSelectToken}
                     tokens={tokens}
-                  />
-                );
-              }
-              case "token-adder": {
-                return (
-                  <TokenAdder
+                  />:''}
+                  {screen.type === 'token-adder' ?<TokenAdder
                     onAddToken={onAddTokenToList}
                     onClose={onClose}
                     onNavigateToTokenList={onNavigateToTokenList}
                     token={screen.token}
-                  />
-                );
-              }
-              case "token-info": {
-                return (
-                  <TokenInfo
+                  />:''}
+                  {screen.type === 'token-info' ?<TokenInfo
                     chain={chains.from}
                     onClose={onClose}
                     onNavigateToTokenList={onNavigateToTokenList}
                     onRemoveToken={onRemoveTokenFromList}
                     token={screen.token}
-                  />
-                );
-              }
-            }
-          })()}
+                  />:''}
+          
         </Card>
       </div>
     </Portal>
