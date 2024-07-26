@@ -1,6 +1,5 @@
 import { StaticJsonRpcProvider } from "@ethersproject/providers";
 import { ethers } from "ethers";
-import { useTokensContext } from "src/contexts/tokens.context";
 import { ReactComponent as EthChainIcon } from "src/assets/icons/chains/ethereum.svg";
 import TusimaLogo from "src/components/TusimaLogo";
 import {

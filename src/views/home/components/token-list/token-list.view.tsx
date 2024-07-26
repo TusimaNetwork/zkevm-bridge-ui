@@ -1,7 +1,7 @@
 import { utils as ethersUtils } from "ethers"
 import { FC, useEffect, useMemo, useRef, useState } from "react"
 
-import { isChainNativeCustomToken } from "src/adapters/storage"
+// import { isChainNativeCustomToken } from "src/adapters/storage"
 import { ReactComponent as InfoIcon } from "src/assets/icons/info.svg"
 import { ReactComponent as MagnifyingGlassIcon } from "src/assets/icons/magnifying-glass.svg"
 import { ReactComponent as XMarkIcon } from "src/assets/icons/xmark.svg"
@@ -11,6 +11,7 @@ import { AsyncTask, Chain, Token } from "src/domain"
 import { useCallIfMounted } from "src/hooks/use-call-if-mounted"
 import { useCustomTokens } from "src/hooks/use-custom-tokens"
 import { useTokenBalance } from "src/hooks/use-token-balance"
+import { useTokens } from "src/hooks/use-tokens"
 import { useTokenListStyles } from "src/views/home/components/token-list/token-list.styles"
 import { TokenSelectorHeader } from "src/views/home/components/token-selector-header/token-selector-header.view"
 import { Icon } from "src/views/shared/icon/icon.view"
@@ -47,7 +48,7 @@ export const TokenList: FC<TokenListProps> = ({
   const { getTokenFromAddress } = useTokensContext()
   const [searchInputValue, setSearchInputValue] = useState<string>("")
  
-  const {isChainCustomToken} = useCustomTokens()
+  const {isChainNativeCustomToken} = useCustomTokens()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const searchTokenInfo = async (searchInput: string):Promise<AsyncTask<Token, string>> => {
@@ -77,7 +78,8 @@ export const TokenList: FC<TokenListProps> = ({
     return { status: "pending" }
   }
 
-  const { data: searchToken } = useSWR(searchInputValue, searchTokenInfo)
+  const { data: searchToken } = useSWR(searchInputValue, searchTokenInfo,{revalidateOnFocus:false})
+  console.log({searchToken})
   const customToken:AsyncTask<Token, string> = useMemo(()=>{
     if(searchToken){
       return searchToken
@@ -101,9 +103,14 @@ export const TokenList: FC<TokenListProps> = ({
     }
     return tokens
   }, [customToken, tokens])
+  const customAddress=useMemo(()=>{
+    if(customToken.status === 'successful'){
+      return customToken.data.address
+    }
+  },[customToken])
   const error = customToken.status === "failed" ? customToken.error : searchInputValue.length > 0 && tokens.length === 0 ? "No result found" : undefined
 
-  const tokensLists = useMemo(() => filteredTokens.filter(itm => !itm.is01).filter((itm) => itm.chainId === chains.from.chainId), [filteredTokens, chains?.from, account])
+  const tokensLists = useMemo(() => filteredTokens.filter((itm) => itm.chainId === chains.from.chainId || itm.address ===customAddress ), [filteredTokens, chains?.from, account])
 
   return (
     <div className={classes.tokenList}>
@@ -135,7 +142,7 @@ export const TokenList: FC<TokenListProps> = ({
             {error}
           </Typography>
         : tokensLists.map((token) => {
-            const isImportedCustomToken = tokens.find(itm=>itm.address === token.address && itm.chainId === token.chainId) !== undefined;
+            const isImportedCustomToken = isChainNativeCustomToken(token, chains.from);
             const isNonImportedCustomToken = !isImportedCustomToken && customToken.status === "successful" && customToken.data.address === token.address;
 
             console.log({isImportedCustomToken,isNonImportedCustomToken,tokens})

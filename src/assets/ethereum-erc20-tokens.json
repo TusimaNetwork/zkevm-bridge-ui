@@ -5,7 +5,8 @@
     "chainId": 11155111,
     "symbol": "USDT",
     "decimals": 18,
-    "logoURI": "/icons/tokens/0x2F813BDd15E9f2821545dFDfBF9BB570Fb88D041/logo.png"
+    "logoURI": "/icons/tokens/0x2F813BDd15E9f2821545dFDfBF9BB570Fb88D041/logo.png",
+    "sys":true
   },
   {
     "name": "USDC",
@@ -13,7 +14,8 @@
     "chainId": 11155111,
     "symbol": "USDC",
     "decimals": 18,
-    "logoURI": "/icons/tokens/0xCD6b2a3DE83182af377AEC5d71C261A0031E2fB8/logo.png"
+    "logoURI": "/icons/tokens/0xCD6b2a3DE83182af377AEC5d71C261A0031E2fB8/logo.png",
+    "sys":true
   },
   {
     "name": "USDT",
@@ -21,7 +23,8 @@
     "chainId": 10101,
     "symbol": "USDT",
     "decimals": 18,
-    "logoURI": "/icons/tokens/0xbB5240Aab006e8e671B4BA8530C2bba476c4915e/logo.png"
+    "logoURI": "/icons/tokens/0xbB5240Aab006e8e671B4BA8530C2bba476c4915e/logo.png",
+    "sys":true
   },
   {
     "name": "USDC",
@@ -29,7 +32,8 @@
     "chainId": 10101,
     "symbol": "USDC",
     "decimals": 18,
-    "logoURI": "/icons/tokens/0x7D6b55e9bc1B54F6dc37DB280dD23025F4aAE17b/logo.png"
+    "logoURI": "/icons/tokens/0x7D6b55e9bc1B54F6dc37DB280dD23025F4aAE17b/logo.png",
+    "sys":true
   }, 
   {
     "name": "Dai Stablecoin",

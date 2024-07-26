@@ -1,13 +1,13 @@
 import { useMemo } from "react";
 import { Chain, Token } from "src/domain";
-import { useDispatch,selectTokens,useSelector,tokensSlice } from "src/lib/redux";
+import { useDispatch, selectTokens, useSelector, tokensSlice } from "src/lib/redux";
 
 export const useCustomTokens = () => {
   const dispatch = useDispatch()
   const tokens = useSelector(selectTokens)
-  const getCustomTokens:Token[]=useMemo(()=>{
+  const getCustomTokens: Token[] = useMemo(() => {
     return tokens.tokens
-  },[tokens.tokens])
+  }, [tokens.tokens])
   function getChainCustomTokens(chain: Chain): Token[] {
     return getCustomTokens.filter(
       (token) =>
@@ -15,27 +15,32 @@ export const useCustomTokens = () => {
         (token.wrappedToken && token.wrappedToken.chainId === chain.chainId)
     );
   }
-  const addCustomToken=(token: Token): Token[]=> {
-    dispatch(tokensSlice.actions.addToken({token}))
+  const addCustomToken = (token: Token): Token[] => {
+    dispatch(tokensSlice.actions.addToken({ token }))
     return getCustomTokens
   }
-  
+
   function removeCustomToken(token: Token): Token[] {
-    dispatch(tokensSlice.actions.removeToken({token}))
+    dispatch(tokensSlice.actions.removeToken({ token }))
     return getCustomTokens
   }
-  function cleanupCustomTokens(tokens:Token[]){
+  function cleanupCustomTokens(tokens: Token[]) {
     for (let index = 0; index < tokens.length; index++) {
       const token = tokens[index]
       removeCustomToken(token)
     }
   }
-  function isChainCustomToken(token:Token,chain:Chain){
+  function isChainCustomToken(token: Token, chain: Chain) {
     return getChainCustomTokens(chain).find((tkn) => tkn.address === token.address) !== undefined;
   }
+  const isChainNativeCustomToken = (token: Token, chain: Chain) => {
+    const nativeTokens = tokens.nativeTokens
+    if (!nativeTokens) return false
+    return nativeTokens.find(t => t.address === token.address) !== undefined
+  }
 
-  
   return {
+    isChainNativeCustomToken,
     getCustomTokens,
     addCustomToken,
     removeCustomToken,

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { getEthereumErc20Tokens } from "src/adapters/tokens";
 import { ETHNavToken, TSMNAVToken00, TSMToken, WETHToken } from "src/constants";
 import { useProvidersContext } from "src/contexts/providers.context";
@@ -8,6 +8,7 @@ import { BigNumber, constants as ethersConstants } from "ethers"
 import { isTokenEther } from "src/utils/tokens";
 import useSWR from "swr";
 import { useCustomTokens } from "./use-custom-tokens";
+import { tokensSlice, useDispatch } from "src/lib/redux";
 interface GetNativeTokenInfoParams {
   address: string
   chain: Chain
@@ -132,8 +133,8 @@ export const useTokens = (env?:Env) => {
     const ethereumChains = env.chains.map((chain) => chain.chainId)
     return getEthereumErc20Tokens().then((ethereumErc20Tokens) =>
         Promise.all(
-          ethereumErc20Tokens.filter((token) => ethereumChains.includes(token.chainId))
-            .map(async (token) => {
+          ethereumErc20Tokens.filter((token) => ethereumChains.includes(token.chainId)).map(async (token) => {
+              // console.log({ethereumErc20Tokens})
               if(token.chainId === EthereumChainId.EAGLE){
                 // console.log({token})
                 const {originTokenAddress} = await getNativeTokenInfo({
@@ -167,6 +168,7 @@ export const useTokens = (env?:Env) => {
           })
       )
   }
+ 
   // const {data:token_data} = useSWR({env,index:'get_tokens'},getTokens)
   const { data: tokensData } = useSWR({ env, index: 'get_tokens' },({env,index})=>{
     if(!env){
@@ -174,7 +176,14 @@ export const useTokens = (env?:Env) => {
     }
     return getTokens({env,index})
   });
+  // console.log({tokensData},'tokensData')
 
+  const dispatch = useDispatch()
+  useEffect(()=>{
+    if(tokensData){
+      dispatch(tokensSlice.actions.setNativeTokens({ tokens:tokensData }));
+    }
+  },[tokensData])
   const tokens=useMemo(()=>{
     if(tokensData){
       return getCustomTokens.concat(tokensData || [])

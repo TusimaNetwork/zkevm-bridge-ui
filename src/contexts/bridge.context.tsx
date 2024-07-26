@@ -108,7 +108,7 @@ const bridgeContext = createContext<BridgeContext>({
 const BridgeProvider: FC<PropsWithChildren> = (props) => {
   const env = useEnvContext();
   const { changeNetwork, connectedProvider } = useProvidersContext();
-  const { addWrappedToken, getToken } = useTokensContext();
+  const { getToken } = useTokensContext();
   const { getTokenPrice } = usePriceOracleContext();
 
   type Price = BigNumber | null;
@@ -314,7 +314,6 @@ const BridgeProvider: FC<PropsWithChildren> = (props) => {
             getToken({
               env,
               originNetwork: network_id,
-              destNetId: dest_net,
               tokenOriginAddress: orig_addr,
             }).then(({ token, origtoken }) => [
               ...accDeposits,

@@ -13,11 +13,6 @@ import { isAsyncTaskDataAvailable } from "src/utils/types"
 // import {
 //   TSMNAVToken03} from "src/constants"
 import { AddWrappedTokenParams, useTokens } from "src/hooks/use-tokens"
-import { useCustomTokens } from "src/hooks/use-custom-tokens"
-
-
-
-
 
 interface GetTokenFromAddressParams {
   address: string
@@ -90,9 +85,10 @@ const TokensProvider: FC<PropsWithChildren> = (props) => {
           if (!originalTokenChain) {
             throw Error(`Could not find a chain that matched the originNetwork ${originNetwork}`)
           }
+          console.log({originalTokenChain,originTokenAddress,chain})
           return {
             address: originTokenAddress,
-            chainId: chain.chainId,
+            chainId: originalTokenChain.chainId,
             decimals,
             logoURI,
             name,
