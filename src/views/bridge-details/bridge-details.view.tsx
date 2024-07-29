@@ -123,7 +123,6 @@ const DetailItem: React.FC<{
     }
   }
 
-  console.log({bridge})
   return (
     <div className={classes.contentWrapper}>
       <Header backTo={{ routeKey: "activity" }} title="Bridge Details" />
@@ -205,7 +204,7 @@ const DetailItem: React.FC<{
           </div>
         )}
       </Card>
-      {(status === "initiated" || (status === "on-hold" && from.key === ChainKey.polygonzkevm)) && (
+      {(status === "initiated"  || status === "on-hold" ) && from.key === ChainKey.polygonzkevm && (
         <div className={classes.finaliseRow}>
           <Button disabled={status === "initiated" || isFinaliseButtonDisabled} onClick={onClaim} >
             Claim
