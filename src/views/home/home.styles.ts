@@ -44,6 +44,10 @@ export const useHomeStyles = createUseStyles((theme: Theme) => ({
     width: "100%",
     display: "flex",
     justifyContent: "center",
+    flexDirection: "column",
     gap: theme.spacing(2),
+    [theme.breakpoints.upSm]: {
+      flexDirection: "row",
+    },
   },
 }));

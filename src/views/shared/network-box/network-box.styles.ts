@@ -90,7 +90,14 @@ export const useNetworkBoxStyles = createUseStyles((theme: Theme) => ({
     // },
   },
   networkProBox:{
-    width:535,
+    width:'100%',
+    whiteSpace:'normal',
+    wordBreak:'break-all',
+    wordWrap:'break-word',
+    overflowWrap:'break-word',
+    [theme.breakpoints.upSm]: {
+      width:535,
+    },
   },
   networkBox: {
     alignItems: "center",
