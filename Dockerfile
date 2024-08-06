@@ -4,7 +4,7 @@ RUN apk add --update nodejs npm yarn
 
 WORKDIR /app
 
-COPY .env.example package.json package-lock.json ./
+COPY .env.example package.json package-lock.json yarn.lock ./
 COPY scripts ./scripts
 COPY abis ./abis
 
